@@ -28,4 +28,13 @@ metadata.json
 }
 ```
 
-Each input file is processed by the specified parser into a large database. This database is generated every time the program runs. If data conflicts, it will resolve to the most recent file.
+Each input file is processed by the specified parser into a large database. This database is generated every time the program runs. If data conflicts, it will resolve to the most recent file data. If data is missing, it is ignored (or, if essential, will be alerted).
+
+What would you want to know about this data?
+- To calculate the number of used slip days (by due date and in total).
+    - Therefore, we need to know the days past the due date for each submission.
+    - And we need to know if the due date is valid, or has been postponed due to vacation.
+    - If there are edits that are past the due date, we need to know if it should be treated as a minor change, therefore no slip days used, or a major change, slip days are used.
+- The threshold to determine major vs minor slip days.
+- Number of max slip days available.
+- User ID associated with the data. (And preferrably name and email)
