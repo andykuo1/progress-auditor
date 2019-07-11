@@ -1,5 +1,8 @@
+// USAGE: node generate-user-schedules.js ./input-path/to-your-file.csv
+// Will output to ./out/user-schedule.csv
+
 const { printTable, printDivider, printRow } = require('./output/console.js');
-const { writeToFile } = require('./fileutil.js');
+const { writeTableToCSV } = require('./fileutil.js');
 const { createSchedule, calculateNumberOfSlipDays } = require('./schedule.js');
 const { generateAssignments } = require('./assignment.js');
 const csvUserParser = require('./parser/csv-user-parser.js');
@@ -84,7 +87,7 @@ async function main()
 
     console.log("OUTPUTTING...");
     userScheduleTable.unshift(userScheduleTableHeader);
-    writeToFile('./out/user-schedule.csv', userScheduleTable.map(userSchedule => userSchedule.join(',')).join('\n'));
+    writeTableToCSV('./out/user-schedule.csv', userScheduleTable);
     console.log("END!");
 }
 

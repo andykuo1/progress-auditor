@@ -1,8 +1,11 @@
+// USAGE: node generate-reflection-deadlines.js startDate endDate ./output-path/for-your-file.csv
+// Will output to provided output path.
+
 const { createSchedule, calculateNumberOfSlipDays } = require('./schedule.js');
 const { generateAssignments } = require('./assignment.js');
 const { printTable } = require('./output/console.js');
 
-const { writeToFile } = require('./fileutil.js');
+const { writeTableToCSV } = require('./fileutil.js');
 
 function parseAmericanStringToDate(dateString)
 {
@@ -19,8 +22,8 @@ function toAmericanDateString(date)
     return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();// + ':' + WEEK_DAYS[date.getDay()];
 }
 
-if (!process.argv.length < 3) throw new Error('Missing start date.');
-if (!process.argv.length < 4) throw new Error('Missing end date.');
+if (process.argv.length < 3) throw new Error('Missing start date.');
+if (process.argv.length < 4) throw new Error('Missing end date.');
 
 const startDate = parseAmericanStringToDate(process.argv[2]);
 const endDate = parseAmericanStringToDate(process.argv[3]);
@@ -39,11 +42,12 @@ for(const assignment of assignments)
     dueDates.push(toAmericanDateString(assignment.date));
     header.push(assignment.name);
 }
+
 printTable([dueDates], header, undefined, 10);
 
 if (process.argv.length >= 5)
 {
-    writeToFile(process.argv[4], [header, dueDates].map(e => e.join(',')).join('\n'));
+    writeTableToCSV(process.argv[4], [header, dueDates]);
 }
 
 

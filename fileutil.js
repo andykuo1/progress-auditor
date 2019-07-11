@@ -36,7 +36,13 @@ function writeToFile(filepath, content)
     }); 
 }
 
+function writeTableToCSV(filepath, table)
+{
+    writeToFile(filepath, table.map(e => e.join(',')).join('\n'));
+}
+
 module.exports = {
     readFileByLine,
-    writeToFile
+    writeToFile,
+    writeTableToCSV,
 };
