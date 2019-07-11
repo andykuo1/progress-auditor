@@ -1,3 +1,6 @@
+const fs = require('fs');
+const readline = require('readline');
+
 /**
  * Reads a file asynchronously and processes the file by line.
  * @param {String} filepath The file path to the file to be read.
@@ -19,6 +22,21 @@ function readFileByLine(filepath, callback)
     });
 }
 
+// TODO: Temporary hack for writing files, NOT ASYNC!
+function writeToFile(filepath, content)
+{
+    const fs = require('fs');
+    fs.writeFile(filepath, content, function(err) {
+        if (err)
+        {
+            return console.log(err);
+        }
+
+        console.log("The file was saved!");
+    }); 
+}
+
 module.exports = {
-    readFileByLine
+    readFileByLine,
+    writeToFile
 };
