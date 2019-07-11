@@ -1,54 +1,99 @@
-/**
- * Generates an array of due dates by the week based on the students time frame.
- * @param {Date} startDate The date the student starts the program.
- * @param {Date} endDate The date the student ends the program.
- * @param {Object} opts Any additional options.
- * @returns {Array<Date>} An array of due dates ordered by week.
- * However, it does NOT order by time, since week 0 could be due
- * after week 1.
- */
-function generateDueDates(startDate, endDate, opts)
-{
-    const result = [];
-    const firstSunday = getPastSunday(startDate);
+const ONE_DAYTIME = 86400000;
 
-    // Add week 0 deadline - this does not follow the formats of
-    // the other due dates. Instead, it is exactly 1 week after
-    // the start date. This also means it can overlap with week 1.
-    // Therefore, the resulting array may not be ordered by time.
-    const week0 = new Date(startDate);
-    week0.setDate(week0.getDate() + 7);
-    result.push(week0);
+/**
+ * Calculates the number of days starting from the
+ * passed-in date to the other.
+ * @param {Date} fromDate   The date from.
+ * @param {Date} toDate     The date to.
+ * @returns {Number}        The number of days between the passed-in dates.
+ *                          Can assume to be a whole number.
+ */
+function getNumberOfDaysBetween(fromDate, toDate)
+{
+    return Math.round(Math.abs((fromDate.getTime() - toDate.getTime()) / (ONE_DAYTIME)));
+}
+
+/**
+ * Calculates the number of available slip days for the
+ * user based on the duration of their schedule.
+ * @param {Object} schedule The schedule for the user.
+ * @returns {Number} The number of slip days available.
+ */
+function calculateNumberOfSlipDays(schedule)
+{
+    return 3 * schedule.weeks;
+}
+
+function createSchedule(startDate, endDate, opts={})
+{
+    const threshold = opts.threshold || 0;
+
+    const firstSunday = getNextSunday(startDate, threshold);
 
     // Add the remaining week due dates. This includes the last
     // week (even if incomplete, they still need to turn it in)...
-    const endTime = endDate.getTime();
-    let pastSunday = firstSunday;
-    // As long as we have started this week (even if it ends in-progress)...
-    while(pastSunday.getTime() < endTime)
+    const endTime = endDate.getTime() - ONE_DAYTIME * threshold;
+    const pastSunday = getPastSunday(startDate, threshold);
+    const lastSunday = new Date(pastSunday);
+    // As long as we have started this week (even if it ends in-progress)
+    // calculate last Sunday...
+    let sundayCount = 0;
+    while(lastSunday.getTime() < endTime)
     {
         // Go to next Sunday...
-        pastSunday.setDate(pastSunday.getDate() + 7);
-        // Add the next week to result...
-        result.push(new Date(pastSunday));
+        lastSunday.setDate(lastSunday.getDate() + 7);
+        ++sundayCount;
     }
 
-    return result;
+    return {
+        startDate,
+        endDate,
+        // Number of weeks within the schedule (by counting number of Sundays).
+        weeks: sundayCount,
+        // The Sunday belonging to the week of the start date.
+        // This will likely not be within the schedule unless
+        // the start date is a Sunday.
+        startSunday: pastSunday,
+        // The Sunday after the start date. May be of the same week as 
+        // the start date if the schedule started on a Sunday.
+        firstSunday,
+        // The last Sunday of the week of the end date. Usually
+        // This will be the last Sunday within the schedule.
+        lastSunday,
+    };
 }
 
 /**
  * Gets the date of the Sunday that has most recently passed.
- * @param {Date} date 
+ * @param {Date} date The date to calculate past Sunday from.
+ * @param {Number} offset The number of days to offset from the date before calculations.
  * @returns {Date} The calculated Sunday date.
  */
-function getPastSunday(date)
+function getPastSunday(date, offset=0)
 {
     const result = new Date(date);
-    result.setDate(date.getDate() - date.getDay());
+    result.setDate(result.getDate() + offset);
+    result.setDate(result.getDate() - result.getDay());
+    return result;
+}
+
+/**
+ * Gets the date of the Sunday that is coming.
+ * @param {Date} date The date to calculate next Sunday from.
+ * @param {Number} offset The number of days to offset from the date before calculations.
+ * @returns {Date} The calculated Sunday date.
+ */
+function getNextSunday(date, offset=0)
+{
+    const result = new Date(date);
+    result.setDate(result.getDate() + offset);
+    result.setDate(result.getDate() - result.getDay() + 7);
     return result;
 }
 
 module.exports = {
+    calculateNumberOfSlipDays,
+    createSchedule,
     getPastSunday,
-    generateDueDates
+    getNextSunday,
 };

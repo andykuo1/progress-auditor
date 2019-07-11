@@ -38,7 +38,32 @@ function formatCell(content, cellWidth, padToken = ' ')
     }
 }
 
-function printTable(tableData, colHeader, rowHeader, cellWidth = 12)
+function printDivider(rowWidth=12, dividerToken='-')
+{
+    printRow(divider(rowWidth, dividerToken), rowWidth,  dividerToken);
+}
+
+function printRow(content, rowWidth=12, rowHeight=1, padToken=' ')
+{
+    if (content.length > rowWidth && (rowHeight > 1 || rowHeight < 0))
+    {
+        printRow(content.substring(0, rowWidth), rowWidth, rowHeight, padToken);
+    }
+    else
+    {
+        console.log('|' + padToken + content.padEnd(rowWidth, padToken) + padToken + '|');
+    }
+}
+
+function printColumn(content, rowWidth=12, padToken=' ')
+{
+    for(const row of content)
+    {
+        printRow(row, rowWidth, padToken);
+    }
+}
+
+function printTable(tableData, colHeader, rowHeader, cellWidth = 8)
 {
     let DIVIDER;
     if (colHeader)
@@ -63,5 +88,8 @@ function printTable(tableData, colHeader, rowHeader, cellWidth = 12)
 }
 
 module.exports = {
+    printDivider,
+    printRow,
+    printColumn,
     printTable
 };

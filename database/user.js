@@ -1,9 +1,11 @@
-function createUser(userID, userName, userEmail)
+function createUser(userID, userName, userEmail, startDate, endDate)
 {
     return {
         id: userID,
         name: userName,
-        email: userEmail
+        email: userEmail,
+        startDate,
+        endDate
     };
 }
 
