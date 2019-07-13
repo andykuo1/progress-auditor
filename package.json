@@ -1,0 +1,15 @@
+{
+  "name": "CSE197Dashboard",
+  "version": "1.0.0",
+  "description": "## Version 1 Everything will be based on CSV.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "papaparse": "^5.0.0"
+  }
+}

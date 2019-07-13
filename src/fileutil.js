@@ -1,5 +1,24 @@
 const fs = require('fs');
 const readline = require('readline');
+const Papa = require('papaparse');
+
+/**
+ * Reads a csv file asynchronously and processes the file by row.
+ * @param {String} filepath The file path to the file to be read.
+ * @param {*} callback The callback function to process the row read.
+ */
+function readCSVFileByRow(filepath, callback)
+{
+    return new Promise((resolve, reject) => {
+        const input = fs.createReadStream(filepath);
+        Papa.parse(input, {
+            step: (row) => callback(row.data),
+            complete: resolve,
+            error: reject
+        });
+
+    });
+}
 
 /**
  * Reads a file asynchronously and processes the file by line.
@@ -43,6 +62,7 @@ function writeTableToCSV(filepath, table)
 
 module.exports = {
     readFileByLine,
+    readCSVFileByRow,
     writeToFile,
     writeTableToCSV,
 };
