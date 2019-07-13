@@ -30,7 +30,7 @@ function addSubmission(db, ownerID, assignmentID, submissionDate, submissionType
         let i = 0;
         for(; i < assignedSubmissions.length; ++i)
         {
-            if (compareDates(assignedSubmissions[i].date, submissionDate) < 0)
+            if (compareDates(submissionDate, assignedSubmissions[i].date) < 0)
             {
                 break;
             }

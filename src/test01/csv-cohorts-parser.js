@@ -1,4 +1,5 @@
 const { readCSVFileByRow } = require('../FileUtil.js');
+const { parseAmericanDate } = require('../ParseUtil.js');
 const UserDatabase = require('../UserDatabase.js');
 const ScheduleDatabase = require('../ScheduleDatabase.js');
 
@@ -15,18 +16,6 @@ function parseEmail(value)
 function parseEmailArray(value)
 {
     return value.split(',');
-}
-
-function parseAmericanDate(value)
-{
-    // 6/18/2019
-    const dateArray = value.split('/');
-    const year = Number(dateArray[2]);
-    const month = Number(dateArray[0]);
-    const day = Number(dateArray[1]);
-
-    if (year === NaN || month === NaN || day === NaN) throw new Error('Invalid date format - should be YYYY-MM-DD.');
-    return new Date(year, month - 1, day);
 }
 
 module.exports = {

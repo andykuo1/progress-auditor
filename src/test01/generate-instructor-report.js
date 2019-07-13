@@ -7,6 +7,9 @@ const Assignment = require('../Assignment.js');
 const AssignmentDatabase = require('../AssignmentDatabase.js');
 const OUTPUT_PATH = './out/slip-days.csv';
 
+const CURRENT_TIME = new Date(2018, 7 - 1, 9).getTime();
+const ONE_DAYTIME = 86400000;
+
 class IntroAssignment extends Assignment
 {
     constructor()
@@ -22,8 +25,9 @@ class IntroAssignment extends Assignment
         // the start date. This also means it can overlap with week 1.
         const dueDate = new Date(userSchedule.startDate);
         dueDate.setDate(dueDate.getDate() + 7);
+        const active = userSchedule.startDate.getTime() < CURRENT_TIME;
         return {
-            'intro': Assignment.createDueAssignment(this, dueDate)
+            'intro': Assignment.createDueAssignment(this, dueDate, active)
         };
     }
 
@@ -52,16 +56,20 @@ class WeeklyAssignment extends Assignment
     getDueAssignments(userID, userSchedule, otherAssignments)
     {
         const result = {};
+
         // Add the remaining weekly due dates. This includes the last
         // week (even if partial week, they may still need to turn it in,
         // depending on the threshold set)...
         let pastSunday = new Date(userSchedule.startSunday);
+        let active = pastSunday.getTime() <= CURRENT_TIME;
         for(let i = 0; i < userSchedule.weeks - 1; ++i)
         {
             // Go to next Sunday...
             pastSunday.setDate(pastSunday.getDate() + 7);
             // Add the next week to result...
-            result['week' + (i + 1)] = Assignment.createDueAssignment(this, new Date(pastSunday));
+            result['week' + (i + 1)] = Assignment.createDueAssignment(this, new Date(pastSunday), active);
+
+            if (pastSunday.getTime() > CURRENT_TIME) active = false;
         }
 
         return result;
@@ -93,8 +101,9 @@ class LastAssignment extends Assignment
     /** @override */
     getDueAssignments(userID, userSchedule, otherAssignments)
     {
+        let active = userSchedule.lastSunday.getTime() <= CURRENT_TIME + 7 * ONE_DAYTIME;
         return {
-            'last': Assignment.createDueAssignment(this, new Date(userSchedule.lastSunday))
+            'last': Assignment.createDueAssignment(this, new Date(userSchedule.lastSunday), active)
         };
     }
 
@@ -121,11 +130,7 @@ async function main()
     const weeklyAssignment = AssignmentDatabase.registerAssignmentClass(db, new WeeklyAssignment());
     const lastAssignment = AssignmentDatabase.registerAssignmentClass(db, new LastAssignment());
 
-    // Dependent on assignments...
-    await contributionsParser.parse('./out/test01/contributions.csv', db);
-
     await cohortsParser.parse('./out/test01/cohorts.csv', db);
-
     for(const userID of db.user.keys())
     {
         const schedule = db.schedule.get(userID);
@@ -133,6 +138,9 @@ async function main()
         AssignmentDatabase.assignAssignment(db, weeklyAssignment, userID, schedule);
         AssignmentDatabase.assignAssignment(db, lastAssignment, userID, schedule);
     }
+
+    // Dependent on assignments...
+    await contributionsParser.parse('./out/test01/contributions.csv', db);
     
     processContributions(db);
 }
@@ -164,6 +172,7 @@ function processContributions(db)
         'last'
     ];
     const header = [];
+    header.push('User');
     for(const assignmentID of assignments)
     {
         header.push(assignmentID + ' submitted');
@@ -175,6 +184,19 @@ function processContributions(db)
     // Header
     table.push(header);
 
+    // COMPLETE = 0x2713 (checkmark)
+    const COMPLETE_TOKEN = '\u2713';
+    // INCOMPLETE = 0x2717 (cross) (RED)
+    const INCOMPLETE_TOKEN = '\u2717';
+    // UNASSIGNED = _ (empty)
+    const UNASSIGNED_TOKEN = '\u25A0';
+    // INREVIEW = ?
+    const INREVIEW_TOKEN = '?';
+    // POSTPONED = ...
+    const POSTPONED_TOKEN = '...';
+    // OUTOFBOUNDS = 0x25A0 (filled square) (DARK)
+    const OUTOFBOUNDS_TOKEN = '_';
+
     // Content
     for(const userID of db.user.keys())
     {
@@ -182,36 +204,32 @@ function processContributions(db)
         row.push(userID);
         for(const assignmentID of assignments)
         {
-            const submissions = db.submission.get(userID);
+            const assignment = db.assignment.instance.get(userID)[assignmentID];
+            const submissions = db.submission.get(db.user.get(userID).ownerKey);
 
-            if (!submissions)
+            if (assignment.active)
             {
-                // Submitted?
-                row.push('N');
-
-                // Slip days?
-                row.push('');
+                // No submissions yet for an active assignment...
+                if (!submissions || !submissions.has(assignmentID) || submissions.get(assignmentID).length <= 0)
+                {
+                    row.push(INCOMPLETE_TOKEN);
+                    const slips = calculateSlipDays(new Date(CURRENT_TIME), assignment.dueDate);
+                    row.push(slips);
+                }
+                // There is a submission!
+                else
+                {
+                    // TODO: This should get the most recent one instead...
+                    const submission = submissions.get(assignmentID)[0];
+                    row.push(COMPLETE_TOKEN);
+                    const slips = calculateSlipDays(submission.date, assignment.dueDate);
+                    row.push(slips);
+                }
             }
             else
             {
-                // Submitted?
-                const assignedSubmissions = submissions.get(assignmentID);
-                if (assignedSubmissions && assignedSubmissions.length > 0)
-                {
-                    row.push('Y');
-
-                    // Slip days?
-                    const slips = calculateSlipDays(assignedSubmissions[0].date, db.assignment.instance.get(userID)[assignmentID].dueDate);
-                    row.push(slips);
-                }
-                else
-                {
-                    row.push('N');
-
-                    // Slip days?
-                    const slips = calculateSlipDays(new Date(), db.assignment.instance.get(userID)[assignmentID].dueDate);
-                    row.push(slips);
-                }
+                row.push(UNASSIGNED_TOKEN);
+                row.push('N/A');
             }
         }
         table.push(row);

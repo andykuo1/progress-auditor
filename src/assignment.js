@@ -1,9 +1,10 @@
 class Assignment
 {
-    static createDueAssignment(assignment, dueDate)
+    static createDueAssignment(assignment, dueDate, active=true)
     {
         return {
-            dueDate
+            dueDate,
+            active
         };
     }
 
