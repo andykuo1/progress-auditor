@@ -17,48 +17,36 @@ function parseEmail(value)
     return value;
 }
 
-function evaluatePostAssignment(folder, submissionContent, subject)
+function parseAssignment(assignmentClassMapping, headerContent, bodyContent)
 {
-    const introMatch = /intro/i;
-    const weekMatch = /week ?([0-9]+)/i;
-    const lastMatch = /last/i;
-
-    if (introMatch.test(subject))
+    let result;
+    for(const assignment of assignmentClassMapping.values())
     {
-        return 'intro';
+        result = assignment.getAssignmentID(headerContent, bodyContent);
+        if (result) return result;
     }
-    else if (weekMatch.test(subject))
-    {
-        return 'week' + weekMatch.exec(subject)[1];
-    }
-    else if (lastMatch.test(subject))
-    {
-        return 'last';
-    }
-    else if (introMatch.test(submissionContent))
-    {
-        return 'intro';
-    }
-    else if (weekMatch.test(submissionContent))
-    {
-        return 'week' + weekMatch.exec(submissionContent)[1];
-    }
-    else if (lastMatch.test(submissionContent))
-    {
-        return 'last';
-    }
-    else
-    {
-        return 'unknown';
-    }
+    return null;
 }
 
 module.exports = {
     async parse(filepath, db)
     {
-        SubmissionDatabase.setupDatabase(db);
+        if (!('assignment' in db))
+        {
+            db.throwError('csv-contributions-parser', 'Parse is missing dependency.', 'assignment');
+            return;
+        }
 
+        SubmissionDatabase.setupDatabase(db);
+        let first = true;
         await readCSVFileByRow(filepath, (row) => {
+            // Skip header...
+            if (first)
+            {
+                first = false;
+                return;
+            }
+
             // 0        ,1          ,2      ,3         ,4         ,5                      ,6      ,7           ,8   ,9    ,10
             // Anonymous,Post Number,Folders,Created At,Submission,Submission HTML Removed,Subject,Part of Post,Name,Email,Endorsed by Instructor
             try
@@ -66,8 +54,9 @@ module.exports = {
                 // Requires OwnerID (email) -> User ID Mapping
                 const postOwnerID = parseEmail(row[9]);
                 const postDate = parseDate(row[3]);
-                const postAssignmentID = evaluatePostAssignment(row[2], row[5], row[6]);
-                console.log(postOwnerID, postDate, postAssignmentID);
+                const postAssignmentID = parseAssignment(db.assignment.class, row[6], row[5]) || parseAssignment(db.assignment.class, row[2], '');
+                if (!postAssignmentID) db.throwError('csv-contributions-parser', 'Unable to evaluate assignment id.');
+                
                 SubmissionDatabase.addSubmission(db, postOwnerID, postAssignmentID, postDate);
             }
             catch(e)

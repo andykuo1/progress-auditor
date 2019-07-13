@@ -4,6 +4,7 @@ function createDatabase()
         _errors: [],
         throwError(src, error, ...messages)
         {
+            console.error(src, error, ...messages);
             this._errors.push({
                 source: src,
                 error,

@@ -15,12 +15,14 @@ function addUser(db, userID, ownerKey, lastName, firstName, primaryEmail, otherE
     if (userMapping.has(userID))
     {
         throwError(db, 'Found duplicate user with id \'' + userID + '\'.');
+        return null;
     }
     else
     {
         // Create user...
         const user = User.createUser(userID, ownerKey, lastName, firstName, primaryEmail, otherEmails);
         userMapping.set(userID, user);
+        return user;
     }
 }
 

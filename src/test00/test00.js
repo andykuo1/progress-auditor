@@ -1,4 +1,4 @@
-const { printTable, printDivider, printRow } = require('../output/console.js');
+const { printTable, printDivider, printRow } = require('../ConsoleHelper.js');
 const { createSchedule, calculateNumberOfSlipDays } = require('./schedule.js');
 const { generateAssignments } = require('./assignment.js');
 

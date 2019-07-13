@@ -44,6 +44,8 @@ function addSubmission(db, ownerID, assignmentID, submissionDate, submissionType
         // Add new submission for assignment...
         ownedSubmissions.set(assignmentID, [submission]);
     }
+
+    return submission;
 }
 
 module.exports = {
