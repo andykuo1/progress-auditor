@@ -1,11 +1,11 @@
 // USAGE: node generate-user-schedules.js ./input-path/to-your-file.csv
 // Will output to ./out/user-schedule.csv
 
-const { printTable, printDivider, printRow } = require('./output/console.js');
-const { writeTableToCSV } = require('./fileutil.js');
+const { printTable, printDivider, printRow } = require('../output/console.js');
+const { writeTableToCSV } = require('../FileUtil.js');
 const { createSchedule, calculateNumberOfSlipDays } = require('./schedule.js');
 const { generateAssignments } = require('./assignment.js');
-const csvUserParser = require('./parser/csv-user-parser.js');
+const csvUserParser = require('./csv-user-parser.js');
 
 const WEEK_DAYS = ['U', 'M', 'T', 'W', 'R', 'F', 'S'];
 function dateString(date)
