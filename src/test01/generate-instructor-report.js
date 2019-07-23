@@ -3,123 +3,22 @@ const contributionsParser = require('./csv-contributions-parser.js');
 const cohortsParser = require('./csv-cohorts-parser.js');
 const Database = require('../Database.js');
 
-const Assignment = require('../Assignment.js');
 const AssignmentDatabase = require('../AssignmentDatabase.js');
+
+const IntroAssignment = require('./IntroAssignment.js');
+const WeeklyAssignment = require('./WeeklyAssignment.js');
+const LastAssignment = require('./LastAssignment.js');
+
 const OUTPUT_PATH = './out/slip-days.csv';
 
 const CURRENT_TIME = new Date(2018, 7 - 1, 9).getTime();
 const ONE_DAYTIME = 86400000;
 
-class IntroAssignment extends Assignment
-{
-    constructor()
-    {
-        super('intro');
-    }
 
-    /** @override */
-    getDueAssignments(userID, userSchedule, otherAssignments)
-    {
-        // Add week 0 deadline - this does not follow the formats of
-        // the other due dates. Instead, it is exactly 1 week after
-        // the start date. This also means it can overlap with week 1.
-        const dueDate = new Date(userSchedule.startDate);
-        dueDate.setDate(dueDate.getDate() + 7);
-        const active = userSchedule.startDate.getTime() < CURRENT_TIME;
-        return {
-            'intro': Assignment.createDueAssignment(this, dueDate, active)
-        };
-    }
 
-    /** @override */
-    getAssignmentID(headerContent, bodyContent='')
-    {
-        if (/intro/i.test(headerContent) || /week ?0+/i.test(headerContent))
-        {
-            return this.name;
-        }
-        else
-        {
-            return null;
-        }
-    }
-}
 
-class WeeklyAssignment extends Assignment
-{
-    constructor()
-    {
-        super('weekly');
-    }
 
-    /** @override */
-    getDueAssignments(userID, userSchedule, otherAssignments)
-    {
-        const result = {};
 
-        // Add the remaining weekly due dates. This includes the last
-        // week (even if partial week, they may still need to turn it in,
-        // depending on the threshold set)...
-        let pastSunday = new Date(userSchedule.startSunday);
-        let active = pastSunday.getTime() <= CURRENT_TIME;
-        for(let i = 0; i < userSchedule.weeks - 1; ++i)
-        {
-            // Go to next Sunday...
-            pastSunday.setDate(pastSunday.getDate() + 7);
-            // Add the next week to result...
-            result['week' + (i + 1)] = Assignment.createDueAssignment(this, new Date(pastSunday), active);
-
-            if (pastSunday.getTime() > CURRENT_TIME) active = false;
-        }
-
-        return result;
-    }
-
-    /** @override */
-    hasAssignmentID(assignmentID)
-    {
-        return /week[0-9]+/i.test(assignmentID);
-    }
-
-    /** @override */
-    getAssignmentID(headerContent, bodyContent='')
-    {
-        const pattern = /week ?([0-9]+)/i;
-        const result = pattern.exec(headerContent);
-        if (!result || result.length <= 0) return null;
-        return 'week' + result[1];
-    }
-}
-
-class LastAssignment extends Assignment
-{
-    constructor()
-    {
-        super('last');
-    }
-
-    /** @override */
-    getDueAssignments(userID, userSchedule, otherAssignments)
-    {
-        let active = userSchedule.lastSunday.getTime() <= CURRENT_TIME + 7 * ONE_DAYTIME;
-        return {
-            'last': Assignment.createDueAssignment(this, new Date(userSchedule.lastSunday), active)
-        };
-    }
-
-    /** @override */
-    getAssignmentID(headerContent, bodyContent='')
-    {
-        if (/last/i.test(headerContent))
-        {
-            return this.name;
-        }
-        else
-        {
-            return null;
-        }
-    }
-}
 
 async function main()
 {
@@ -144,6 +43,15 @@ async function main()
     
     processContributions(db);
 }
+
+
+
+
+
+
+
+
+
 
 function calculateSlipDays(submitDate, dueDate)
 {
@@ -190,6 +98,7 @@ function processContributions(db)
     const INCOMPLETE_TOKEN = '\u2717';
     // UNASSIGNED = _ (empty)
     const UNASSIGNED_TOKEN = '\u25A0';
+    const INPROGRESS_TOKEN = '...';
     // INREVIEW = ?
     const INREVIEW_TOKEN = '?';
     // POSTPONED = ...
