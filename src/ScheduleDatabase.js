@@ -5,10 +5,14 @@ const OUTPUT_LOG = 'db.schedule.log';
 
 function setupDatabase(db)
 {
-    db[SCHEDULE_KEY] = new Map();
+    if (!(SCHEDULE_KEY in db))
+    {
+        db[SCHEDULE_KEY] = new Map();
+    }
+    return db;
 }
 
-function addSchedule(db, userID, startDate, endDate, opts={})
+function addSchedule(db, userID, startDate, endDate, attributes={})
 {
     const scheduleMapping = db[SCHEDULE_KEY];
 
@@ -19,10 +23,15 @@ function addSchedule(db, userID, startDate, endDate, opts={})
     }
     else
     {
-        const schedule = Schedule.createSchedule(startDate, endDate, opts);
+        const schedule = Schedule.createSchedule(startDate, endDate, attributes);
         scheduleMapping.set(userID, schedule);
         return schedule;
     }
+}
+
+function getScheduleByUserID(db, userID)
+{
+    return db[SCHEDULE_KEY].get(userID);
 }
 
 function outputLog(db, outputDir = '.')
@@ -43,5 +52,6 @@ module.exports = {
     SCHEDULE_KEY,
     setupDatabase,
     addSchedule,
+    getScheduleByUserID,
     outputLog,
 };

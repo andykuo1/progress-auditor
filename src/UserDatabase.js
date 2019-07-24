@@ -5,7 +5,10 @@ const OUTPUT_LOG = 'db.user.log';
 
 function setupDatabase(db)
 {
-    db[USER_KEY] = new Map();
+    if (!(USER_KEY in db))
+    {
+        db[USER_KEY] = new Map();
+    }
     return db;
 }
 
@@ -25,6 +28,16 @@ function addUser(db, userID, ownerKey, userName, attributes = {})
         userMapping.set(userID, user);
         return user;
     }
+}
+
+function getUsers(db)
+{
+    return db[USER_KEY].keys();
+}
+
+function getUserByID(db, id)
+{
+    return db[USER_KEY].get(id);
 }
 
 function getUserByOwnerKey(db, ownerKey)
@@ -94,6 +107,8 @@ module.exports = {
     USER_KEY,
     setupDatabase,
     addUser,
+    getUsers,
+    getUserByID,
     getUserByOwnerKey,
     getUsersByAttribute,
     outputLog,

@@ -1,36 +1,16 @@
 const { readCSVFileByRow } = require('../FileUtil.js');
 const { parseAmericanDate } = require('../ParseUtil.js');
+const { parseEmail, parseName } = require('../FieldParser.js');
 const UserDatabase = require('../UserDatabase.js');
 const ScheduleDatabase = require('../ScheduleDatabase.js');
-
-function parseName(value)
-{
-    return value;
-}
-
-function parseEmail(value, ...values)
-{
-    if (values.length > 0)
-    {
-        const result = [value];
-        for(const value of values)
-        {
-            result.push(parseEmail(value));
-        }
-        return result;
-    }
-    else
-    {
-        return value;
-    }
-}
 
 /**
  * Create UserDatabase and ScheduleDatabase based on input file.
  * @param {String} filepath The path to the file to parse.
  * @param {Database} db The database to write to.
+ * @param {Object} opts Any additional options.
  */
-async function parse(filepath, db)
+async function parse(filepath, db, opts={})
 {
     UserDatabase.setupDatabase(db);
     ScheduleDatabase.setupDatabase(db);

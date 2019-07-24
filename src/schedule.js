@@ -1,3 +1,5 @@
+const { getPastSunday, getNextSunday } = require('./DateUtil.js');
+
 const ONE_DAYTIME = 86400000;
 
 /**
@@ -63,37 +65,7 @@ function createSchedule(startDate, endDate, opts={})
     };
 }
 
-/**
- * Gets the date of the Sunday that has most recently passed.
- * @param {Date} date The date to calculate past Sunday from.
- * @param {Number} offset The number of days to offset from the date before calculations.
- * @returns {Date} The calculated Sunday date.
- */
-function getPastSunday(date, offset=0)
-{
-    const result = new Date(date);
-    result.setDate(result.getDate() + offset);
-    result.setDate(result.getDate() - result.getDay());
-    return result;
-}
-
-/**
- * Gets the date of the Sunday that is coming.
- * @param {Date} date The date to calculate next Sunday from.
- * @param {Number} offset The number of days to offset from the date before calculations.
- * @returns {Date} The calculated Sunday date.
- */
-function getNextSunday(date, offset=0)
-{
-    const result = new Date(date);
-    result.setDate(result.getDate() + offset);
-    result.setDate(result.getDate() - result.getDay() + 7);
-    return result;
-}
-
 module.exports = {
     calculateNumberOfSlipDays,
     createSchedule,
-    getPastSunday,
-    getNextSunday,
 };

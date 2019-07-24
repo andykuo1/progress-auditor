@@ -2,29 +2,33 @@ const Submission = require('./Submission.js');
 const { compareDates } = require('./DateUtil.js');
 
 const SUBMISSION_KEY = 'submission';
+const OUTPUT_LOG = 'db.submission.log';
 
 function setupDatabase(db)
 {
-    db[SUBMISSION_KEY] = new Map();
+    if (!(SUBMISSION_KEY in db))
+    {
+        db[SUBMISSION_KEY] = new Map();
+    }
     return db;
 }
 
-function addSubmission(db, ownerID, assignmentID, submissionDate, submissionType=Submission.SUBMISSION_TYPE_UNKNOWN)
+function addSubmission(db, ownerKey, assignmentID, submissionDate, attributes={})
 {
     const submissionMapping = db[SUBMISSION_KEY];
 
     // Create submission...
-    const submission = Submission.createSubmission(ownerID, assignmentID, submissionDate, submissionType);
+    const submission = Submission.createSubmission(ownerKey, assignmentID, submissionDate, attributes);
 
     // Get submission list by owner...
-    let ownedSubmissions = submissionMapping.get(ownerID);
-    if (!ownedSubmissions) submissionMapping.set(ownerID, ownedSubmissions = new Map());
+    let ownedSubmissions = submissionMapping.get(ownerKey);
+    if (!ownedSubmissions) submissionMapping.set(ownerKey, ownedSubmissions = {});
 
     // If there exists submissions by the owner for this assignment already...
-    if (ownedSubmissions.has(assignmentID))
+    if (assignmentID in ownedSubmissions)
     {
         // Get the other submissions already processed for the same assignment...
-        const assignedSubmissions = ownedSubmissions.get(assignmentID);
+        const assignedSubmissions = ownedSubmissions[assignmentID];
 
         // Insert into appropriate order...
         let i = 0;
@@ -42,14 +46,52 @@ function addSubmission(db, ownerID, assignmentID, submissionDate, submissionType
     else
     {
         // Add new submission for assignment...
-        ownedSubmissions.set(assignmentID, [submission]);
+        ownedSubmissions[assignmentID] = [submission];
     }
 
     return submission;
 }
 
+/**
+ * Gets an array of submission belonging to the owner.
+ * @param {Database} db The database to search through.
+ * @param {*} ownerKey The owner key to search by (is not the same as user id).
+ * @returns {Array<Submission>} An array of the owner's submissions, null if owner not found.
+ */
+function getSubmissionsByOwnerKey(db, ownerKey)
+{
+    return db[SUBMISSION_KEY].get(ownerKey);
+}
+
+/**
+ * Gets an iterable of all registered owners with submissions.
+ * @param {Database} db The database to search through.
+ * @returns {Iterable<*>} An iterable of owner ids.
+ */
+function getOwners(db)
+{
+    return db[SUBMISSION_KEY].keys();
+}
+
+function outputLog(db, outputDir = '.')
+{
+    const submissionMapping = db[SUBMISSION_KEY];
+    const result = {};
+    for(const [key, value] of submissionMapping.entries())
+    {
+        result[key] = value;
+    }
+    
+    const header = `${'# '.repeat(20)}\n# Submissions\n# Size: ${submissionMapping.size}\n${'# '.repeat(20)}`;
+    const log = `${header}\n${JSON.stringify(result, null, 4)}`;
+    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
+}
+
 module.exports = {
     SUBMISSION_KEY,
     setupDatabase,
-    addSubmission
+    addSubmission,
+    getSubmissionsByOwnerKey,
+    getOwners,
+    outputLog,
 };
