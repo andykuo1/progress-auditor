@@ -59,6 +59,7 @@ async function main()
     for(const ownerKey of SubmissionDatabase.getOwners(db))
     {
         const userID = UserDatabase.getUserByOwnerKey(db, ownerKey);
+        
         if (userID)
         {
             // Found owner -> user match! Now resolve post type...
@@ -78,12 +79,18 @@ async function main()
                     const postType = evaluatePostType(nextSubmission, baseSubmission);
     
                     // TODO: Always review major post edits. There is a post edit only if PAST the due date. Otherwise, it would be the new source.
-                    if (postType === 'major') setGradedSubmissionForAssignment(db, userID, assignmentID, nextSubmission);
-                    if (postType === 'source' || postType === 'minor') setGradedSubmissionForAssignment(db, userID, assignmentID, baseSubmission);
+                    if (postType === 'major')
+                    {
+                        setGradedSubmissionForAssignment(db, userID, assignmentID, nextSubmission);
+                    }
+                    else if (postType === 'source' || postType === 'minor')
+                    {
+                        setGradedSubmissionForAssignment(db, userID, assignmentID, baseSubmission);
+                    }
                     else
                     {
-                        error('[UNKNOWN_SUBMISSION_TYPE]\t', 'Unknown submission type - cannot evaluate edited post');
-                        error('\t\t\t\t\t\t\t\tSubmission:', `${baseSubmission.assignment}:${baseSubmission.date}`, '=>', `${nextSubmission.assignment}:${nextSubmission.date}`);
+                        error('[UNKNOWN_SUBMISSION_TYPE]\t', 'Unknown submission type - cannot evaluate edited post -', postType, '- DUE:', dueDate);
+                        error('\t\t\t\t\t\t\t\tSubmission:', baseSubmission, '\n=-=-=-=-=-=>\n', nextSubmission);
                     }
     
                     // Submission is processed... delete content and mark as resolved.
@@ -135,8 +142,10 @@ const SUBMISSION_TYPE_MAJOR_EDIT = 'major';
 function evaluatePostType(submission, baseSubmission)
 {
     if (submission === baseSubmission) return SUBMISSION_TYPE_SOURCE;
-    if (submission.contentBody != baseSubmission.contentBody) return SUBMISSION_TYPE_MAJOR_EDIT;
-    if (submission.contentHead != baseSubmission.contentHead) return SUBMISSION_TYPE_MINOR_EDIT;
+    // There are posts that have the same content, but different times. They are treated as minor edits;
+    if (submission.attributes.contentBody == baseSubmission.attributes.contentBody) return SUBMISSION_TYPE_MINOR_EDIT;
+    if (submission.attributes.contentBody != baseSubmission.attributes.contentBody) return SUBMISSION_TYPE_MAJOR_EDIT;
+    if (submission.attributes.contentHead != baseSubmission.attributes.contentHead) return SUBMISSION_TYPE_MINOR_EDIT;
     return SUBMISSION_TYPE_UNKNOWN;
 }
 
@@ -164,7 +173,10 @@ function getNearestSubmission(submissions, targetDate)
         const dateOffset = compareDates(submission.date, targetDate);
 
         // If there exists a submission BEFORE the due date, return that one.
-        if (minSubmission && dateOffset < 0) return minSubmission;
+        if (minSubmission && dateOffset > 0)
+        {
+            return minSubmission;
+        }
 
         // Otherwise...
         if (Math.abs(dateOffset) < minDateOffset)

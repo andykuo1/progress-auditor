@@ -5,19 +5,28 @@ function parseName(value)
 
 function parseEmail(value, ...values)
 {
+    const result = value.split(',').map(e=>e.trim());
     if (values.length > 0)
     {
-        const result = [value];
-        for(const value of values)
+        for(const nextValue of values)
         {
-            result.push(parseEmail(value));
+            const nextResults = parseEmail(nextValue);
+            if (Array.isArray(nextResults))
+            {
+                for(const nextResult of nextResults)
+                {
+                    result.push(nextResult);
+                }
+            }
+            else
+            {
+                result.push(nextResults);
+            }
         }
-        return result;
     }
-    else
-    {
-        return value;
-    }
+
+    if (result.length === 1) return result[0];
+    else return result;
 }
 
 module.exports = {

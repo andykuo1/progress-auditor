@@ -17,6 +17,9 @@ function addSubmission(db, ownerKey, assignmentID, submissionDate, attributes={}
 {
     const submissionMapping = db[SUBMISSION_KEY];
 
+    // Make sure that owner key is NOT an array... otherwise pick an arbitrary one.
+    if (Array.isArray(ownerKey)) ownerKey = ownerKey[0];
+
     // Create submission...
     const submission = Submission.createSubmission(ownerKey, assignmentID, submissionDate, attributes);
 

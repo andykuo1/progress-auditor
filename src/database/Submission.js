@@ -1,7 +1,7 @@
-function createSubmission(ownerID, assignmentID, submitDate, attributes={})
+function createSubmission(ownerKey, assignmentID, submitDate, attributes={})
 {
     return {
-        owner: ownerID,
+        owner: ownerKey,
         assignment: assignmentID,
         date: submitDate,
         attributes,
