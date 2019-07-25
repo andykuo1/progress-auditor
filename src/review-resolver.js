@@ -58,12 +58,21 @@ async function main()
     // 2nd pass - Evaluate post type
     for(const ownerKey of SubmissionDatabase.getOwners(db))
     {
+        // TODO: There should be some way to get this information elsewhere...
+        const ignoredOwners = [
+            'minnes@eng.ucsd.edu',
+            'isk007@ucsd.edu',
+            'ziw123@ucsd.edu',
+            'Not currently enrolled',
+            'qis025@ucsd.edu',
+        ];
+        if (ignoredOwners.includes(ownerKey)) continue
+
         const userID = UserDatabase.getUserByOwnerKey(db, ownerKey);
-        
         if (userID)
         {
             // Found owner -> user match! Now resolve post type...
-            const submittedAssignments = SubmissionDatabase.getSubmissionsByOwnerKey(db, ownerKey);
+            const submittedAssignments = SubmissionDatabase.getAssignedSubmissionsByOwnerKey(db, ownerKey);
             for(const assignmentID of Object.keys(submittedAssignments))
             {
                 // Submissions are guaranteed to be in-order by time. The most recent entry being the last.
@@ -73,7 +82,7 @@ async function main()
                 if (ownedAssignment)
                 {
                     const dueDate = ownedAssignment.dueDate;
-                    // TODO: BaseSubmission will change if there are reviews. That would mean the new reviewed will be the base.
+                    // TODO: baseSubmission will change if there are reviews. That would mean the new reviewed will be the base.
                     const baseSubmission = getNearestSubmission(submissions, dueDate);
                     const nextSubmission = submissions[submissions.length - 1];
                     const postType = evaluatePostType(nextSubmission, baseSubmission);
@@ -96,20 +105,43 @@ async function main()
                     // Submission is processed... delete content and mark as resolved.
                     for(const submission of submissions)
                     {
-                        delete submission.attributes.contentHead;
-                        delete submission.attributes.contentBody;
+                        delete submission.attributes.content;
                     }
                 }
                 else
                 {
+                    /*
+                    Non-submissions
+                        e4yuan@ucsd.edu
+                        m2gamez@ucsd.edu
+                        c5gong@ucsd.edu
+                        tyc020@ucsd.edu
+                    
+                    Ill-formatted Subjects
+                        cprashan@ucsd.edu
+                        yic264@ucsd.edu
+                        ... AND THEN EVERYBODY ELSE!
+                    */
                     error('[UNASSIGNED_SUBMISSION]\t\t', 'Found submission for unassigned assignment - cannot evaluate submission.');
-                    error('\t\t\t\t\t\t\t\tAssignment:', assignmentID, 'for', userID);
+                    error('\t\t\t\t\t\t\t\tAssignment:', assignmentID, 'for', userID, '=>\n', submissions);
                 }
             }
         }
         else
         {
-            const submissions = SubmissionDatabase.getSubmissionsByOwnerKey(db, ownerKey);
+            /*
+            Non-users:
+                minnes@eng.ucsd.edu
+            Missing from Cohort / File:
+                isk007@ucsd.edu
+                ziw123@ucsd.edu
+                Not currently enrolled
+                qis025@ucsd.edu
+            Missing owner key:
+                mshen010@ucr.edu -> msheng@ucsd.edu
+                narasimhan.prithvi@gmail.com -> p1narasi@ucsd.edu
+            */
+            const submissions = SubmissionDatabase.getAssignedSubmissionsByOwnerKey(db, ownerKey);
             error('[MISSING_USER]\t\t\t\t', "Cannot find user with owner key '" + ownerKey + "'.");
             error("\t\t\t\t\t\t\t\tSubmissions by mismatched owner key:", submissions);
         }
@@ -118,7 +150,7 @@ async function main()
     // 3rd pass - Find unused submissions
     for(const ownerKey of SubmissionDatabase.getOwners(db))
     {
-        // const ownedAssignments = SubmissionDatabase.getSubmissionsByOwnerKey(ownerKey);
+        // const ownedAssignments = SubmissionDatabase.getAssignedSubmissionsByOwnerKey(ownerKey);
     }
 
     UserDatabase.outputLog(db, OUTPUT_DIR);
@@ -143,9 +175,11 @@ function evaluatePostType(submission, baseSubmission)
 {
     if (submission === baseSubmission) return SUBMISSION_TYPE_SOURCE;
     // There are posts that have the same content, but different times. They are treated as minor edits;
-    if (submission.attributes.contentBody == baseSubmission.attributes.contentBody) return SUBMISSION_TYPE_MINOR_EDIT;
-    if (submission.attributes.contentBody != baseSubmission.attributes.contentBody) return SUBMISSION_TYPE_MAJOR_EDIT;
-    if (submission.attributes.contentHead != baseSubmission.attributes.contentHead) return SUBMISSION_TYPE_MINOR_EDIT;
+    if (submission.attributes.content.body == baseSubmission.attributes.content.body) return SUBMISSION_TYPE_MINOR_EDIT;
+    if (submission.attributes.content.body != baseSubmission.attributes.content.body) return SUBMISSION_TYPE_MAJOR_EDIT;
+
+    // TODO: This will never be reached, but once we have a tolerance function for the body content compare, it will.
+    if (submission.attributes.content.head != baseSubmission.attributes.content.head) return SUBMISSION_TYPE_MINOR_EDIT;
     return SUBMISSION_TYPE_UNKNOWN;
 }
 

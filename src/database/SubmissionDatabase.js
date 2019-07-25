@@ -13,7 +13,7 @@ function setupDatabase(db)
     return db;
 }
 
-function addSubmission(db, ownerKey, assignmentID, submissionDate, attributes={})
+function addSubmission(db, submissionID, ownerKey, assignmentID, submissionDate, attributes={})
 {
     const submissionMapping = db[SUBMISSION_KEY];
 
@@ -21,47 +21,93 @@ function addSubmission(db, ownerKey, assignmentID, submissionDate, attributes={}
     if (Array.isArray(ownerKey)) ownerKey = ownerKey[0];
 
     // Create submission...
-    const submission = Submission.createSubmission(ownerKey, assignmentID, submissionDate, attributes);
+    const submission = Submission.createSubmission(submissionID, ownerKey, assignmentID, submissionDate, attributes);
 
-    // Get submission list by owner...
-    let ownedSubmissions = submissionMapping.get(ownerKey);
-    if (!ownedSubmissions) submissionMapping.set(ownerKey, ownedSubmissions = {});
+    // Get assigned submission list by owner...
+    let assignedSubmissions = submissionMapping.get(ownerKey);
+    if (!assignedSubmissions) submissionMapping.set(ownerKey, assignedSubmissions = {});
+
+    // Add submission to the correct assignment submissions list AND in proper order...
+    addSubmissionToAssignment(submission, assignmentID, assignedSubmissions);
+
+    return submission;
+}
+
+/**
+ * Adds the submission to the appropriate assignment submissions list and insert in proper order.
+ * @param {Submission} submission The submission data object.
+ * @param {String} assignmentID The assignment id to add the submission to. This should be the same as the assignment field in the submission object.
+ * @param {Object} assignedSubmissions The assignment-submissions mapping to add to.
+ * @returns {Submission} The submission added.
+ */
+function addSubmissionToAssignment(submission, assignmentID, assignedSubmissions)
+{
+    // Makes sure the submission has the same assignment.
+    submission.assignment = assignmentID;
 
     // If there exists submissions by the owner for this assignment already...
-    if (assignmentID in ownedSubmissions)
+    if (assignmentID in assignedSubmissions)
     {
         // Get the other submissions already processed for the same assignment...
-        const assignedSubmissions = ownedSubmissions[assignmentID];
+        const submissions = assignedSubmissions[assignmentID];
 
         // Insert into appropriate order...
         let i = 0;
-        for(; i < assignedSubmissions.length; ++i)
+        for(; i < submissions.length; ++i)
         {
-            if (compareDates(submissionDate, assignedSubmissions[i].date) < 0)
+            if (compareDates(submission.date, submissions[i].date) < 0)
             {
                 break;
             }
         }
 
         // Insert submission for assignment...
-        assignedSubmissions.splice(i, 0, submission);
+        submissions.splice(i, 0, submission);
     }
     else
     {
         // Add new submission for assignment...
-        ownedSubmissions[assignmentID] = [submission];
+        assignedSubmissions[assignmentID] = [submission];
     }
 
     return submission;
 }
 
 /**
+ * Assumes the submission has already been successfully inserted into the database.
+ * @param {Database} db The database to change submission for.
+ * @param {Submission} submission The submission data object to change assignment for.
+ * @param {String} newAssignmentID The assignment to change the submission to.
+ */
+function changeSubmissionAssignment(db, submission, newAssignmentID)
+{
+    const submissionMapping = db[SUBMISSION_KEY];
+    const assignedSubmissions = submissionMapping.get(submission.owner);
+    const submissions = assignedSubmissions[submission.assignment];
+    const submissionIndex = submissions.indexOf(submission);
+    if (submissionIndex >= 0)
+    {
+        submissions.splice(submissionIndex, 1);
+        if (submissions.length <= 0)
+        {
+            delete assignedSubmissions[submission.assignment];
+        }
+    }
+    else
+    {
+        throw new Error(`Cannot find submission for assignment ${submission.assignment}.`);
+    }
+    addSubmissionToAssignment(submission, newAssignmentID, assignedSubmissions);
+    return submission;
+}
+
+/**
  * Gets an array of submission belonging to the owner.
  * @param {Database} db The database to search through.
- * @param {*} ownerKey The owner key to search by (is not the same as user id).
+ * @param {String} ownerKey The owner key to search by (is not the same as user id).
  * @returns {Array<Submission>} An array of the owner's submissions, null if owner not found.
  */
-function getSubmissionsByOwnerKey(db, ownerKey)
+function getAssignedSubmissionsByOwnerKey(db, ownerKey)
 {
     return db[SUBMISSION_KEY].get(ownerKey);
 }
@@ -94,7 +140,8 @@ module.exports = {
     SUBMISSION_KEY,
     setupDatabase,
     addSubmission,
-    getSubmissionsByOwnerKey,
+    changeSubmissionAssignment,
+    getAssignedSubmissionsByOwnerKey,
     getOwners,
     outputLog,
 };
