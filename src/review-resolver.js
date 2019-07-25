@@ -31,6 +31,11 @@ function error(...messages)
         }
     }).join(' '));
 }
+function outputError(outputDir)
+{
+    writeToFile(path.resolve(outputDir, 'errors.txt'), ERRORS.join('\n'));
+    ERRORS.length = 0;
+}
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -147,19 +152,12 @@ async function main()
         }
     }
 
-    // 3rd pass - Find unused submissions
-    for(const ownerKey of SubmissionDatabase.getOwners(db))
-    {
-        // const ownedAssignments = SubmissionDatabase.getAssignedSubmissionsByOwnerKey(ownerKey);
-    }
-
     UserDatabase.outputLog(db, OUTPUT_DIR);
     ScheduleDatabase.outputLog(db, OUTPUT_DIR);
     SubmissionDatabase.outputLog(db, OUTPUT_DIR);
     AssignmentDatabase.outputLog(db, OUTPUT_DIR);
 
-    writeToFile(path.resolve(OUTPUT_DIR, 'errors.txt'), ERRORS.join('\n'));
-    ERRORS.length = 0;
+    outputError(OUTPUT_DIR);
 }
 
 main();

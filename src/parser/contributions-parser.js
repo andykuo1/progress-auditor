@@ -200,7 +200,6 @@ async function parse(filepath, db, opts={})
     // Try to auto-resolve unassigned assignments by post id.
     for(const unassignedSubmission of unassignedSubmissions)
     {
-        console.log(unassignedSubmission.owner, unassignedSubmission.assignment);
         let resolved = false;
         const ownerKey = unassignedSubmission.owner;
         const assignedSubmissions = SubmissionDatabase.getAssignedSubmissionsByOwnerKey(db, ownerKey);
@@ -209,7 +208,6 @@ async function parse(filepath, db, opts={})
             // If it is a properly assigned assignment...
             if (assignmentID && assignmentID !== 'null')
             {
-                console.log('...', assignmentID);
                 for(const ownedSubmission of submissions)
                 {
                     // And it has the same post id as the unassigned one...
