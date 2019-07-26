@@ -131,8 +131,6 @@ async function parse(filepath, db, opts={})
 {
     SubmissionDatabase.setupDatabase(db);
 
-    const unassignedSubmissions = [];
-
     let first = true;
     await readCSVFileByRow(filepath, (row) => {
         // Skip header...
@@ -188,12 +186,6 @@ async function parse(filepath, db, opts={})
             };
 
             const submission = SubmissionDatabase.addSubmission(db, submissionID, ownerKey, assignmentID, submitDate, attributes);
-
-            // For later to auto-resolve unassigned assignment...
-            if (assignmentID === 'null')
-            {
-                unassignedSubmissions.push(submission);
-            }
         }
         catch(e)
         {
