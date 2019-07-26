@@ -1,4 +1,5 @@
 const { readCSVFileByRow } = require('../util/FileUtil.js');
+const { stringHash } = require('../util/MathHelper.js');
 const { parseDate } = require('../util/ParseUtil.js');
 const { parseEmail } = require('../util/FieldParser.js');
 const SubmissionDatabase = require('../database/SubmissionDatabase.js');
@@ -28,7 +29,8 @@ function evaluatePostAssignment(headerContent, bodyContent)
             return 'last';
         }
     }
-    return null;
+    
+    return 'null';
 }
 
 /*
@@ -169,7 +171,9 @@ async function parse(filepath, db, opts={})
             const ownerKey = parseEmail(row[9]);
             const submitDate = parseDate(row[3]);
             const postID = row[1];
-            const submissionID = ownerKey + "#" + postID + ":" + submitDate.toISOString();
+            // NOTE: This has to be unique AND deterministic. In other words,
+            // it must uniquely identify this submission given the same input.
+            const submissionID = (Array.isArray(ownerKey) ? ownerKey[0] : ownerKey) + "#" + postID + "_" + stringHash(row[3]);
 
             const assignmentID = evaluatePostAssignment(row[6], row[5]);
             const attributes = {
@@ -186,7 +190,7 @@ async function parse(filepath, db, opts={})
             const submission = SubmissionDatabase.addSubmission(db, submissionID, ownerKey, assignmentID, submitDate, attributes);
 
             // For later to auto-resolve unassigned assignment...
-            if (!assignmentID)
+            if (assignmentID === 'null')
             {
                 unassignedSubmissions.push(submission);
             }
@@ -196,35 +200,6 @@ async function parse(filepath, db, opts={})
             db.throwError(SubmissionDatabase.SUBMISSION_KEY, 'Unable to parse submission.', e);
         }
     });
-
-    // Try to auto-resolve unassigned assignments by post id.
-    for(const unassignedSubmission of unassignedSubmissions)
-    {
-        let resolved = false;
-        const ownerKey = unassignedSubmission.owner;
-        const assignedSubmissions = SubmissionDatabase.getAssignedSubmissionsByOwnerKey(db, ownerKey);
-        for(const [assignmentID, submissions] of Object.entries(assignedSubmissions))
-        {
-            // If it is a properly assigned assignment...
-            if (assignmentID && assignmentID !== 'null')
-            {
-                for(const ownedSubmission of submissions)
-                {
-                    // And it has the same post id as the unassigned one...
-                    if (unassignedSubmission.attributes.content.id === ownedSubmission.attributes.content.id)
-                    {
-                        // It should be of the same assignment :D
-                        SubmissionDatabase.changeSubmissionAssignment(db, unassignedSubmission, ownedSubmission.assignment);
-                        resolved = true;
-                    }
-
-                    if (resolved) break;
-                }
-            }
-
-            if (resolved) break;
-        }
-    }
 
     return db;
 }

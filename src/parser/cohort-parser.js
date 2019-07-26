@@ -21,7 +21,7 @@ async function parse(filepath, db, opts={})
         if (first) { first = false; return; }
 
         // 0. Timestamp
-        // 1. Email Address
+        // 1. Email Address (not sure what this is for)
         // 2. Last name
         // 3. First name
         // 4. Display name
@@ -38,7 +38,7 @@ async function parse(filepath, db, opts={})
         try
         {
             const userID = parseEmail(row[6]);
-            const ownerKey = parseEmail(row[6], row[1]);
+            const ownerKey = parseEmail(row[6]);
             const userName = parseName(`${row[3]} ${row[2]}`);
             const user = UserDatabase.addUser(db, userID, ownerKey, userName);
 
