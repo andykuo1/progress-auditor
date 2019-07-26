@@ -44,6 +44,11 @@ function getAssignmentByID(db, userID, assignmentID)
     return db[ASSIGNMENT_KEY].get(userID)[assignmentID];
 }
 
+function getAssignmentsByUser(db, userID)
+{
+    return db[ASSIGNMENT_KEY].get(userID);
+}
+
 function outputLog(db, outputDir = '.')
 {
     const assignmentMapping = db[ASSIGNMENT_KEY];
@@ -63,5 +68,6 @@ module.exports = {
     setupDatabase,
     addAssignment,
     getAssignmentByID,
+    getAssignmentsByUser,
     outputLog,
 };

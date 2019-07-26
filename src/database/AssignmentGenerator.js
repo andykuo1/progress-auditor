@@ -31,7 +31,7 @@ function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, weekDa
     while(compareDates(weekDate, endDate) <= 0)
     {
         // Add the current week date to result...
-        const assignment = AssignmentDatabase.addAssignment(db, userID, `${assignmentBaseName}[${count}]`, weekDate, attributes);
+        const assignment = AssignmentDatabase.addAssignment(db, userID, `${assignmentBaseName}[${count}]`, weekDate, Object.assign({}, attributes));
         result.push(assignment);
 
         // Go to next week day...

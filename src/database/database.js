@@ -5,14 +5,19 @@ function createDatabase()
 {
     return {
         _errors: [],
-        throwError(src, error, ...messages)
+        throwError(...messages)
         {
-            console.error(src, error, ...messages);
-            this._errors.push({
-                source: src,
-                error,
-                message: messages.join(' ')
-            });
+            this._errors.push(messages.map(e => {
+                switch(typeof e)
+                {
+                    case 'string':
+                        return e;
+                    case 'object':
+                        return JSON.stringify(e, null, 4);
+                    default:
+                        return String(e);
+                }
+            }).join(' '));
         },
         clearErrors()
         {
