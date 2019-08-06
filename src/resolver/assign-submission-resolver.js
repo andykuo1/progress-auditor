@@ -101,19 +101,19 @@ async function resolve(db)
                 }
                 else
                 {
-                    db.throwError('[UNASSIGNED_SUBMISSION]\t\t', 'Found submission for unassigned assignment - cannot evaluate submission.');
-                    db.throwError('\t\t\t\t\t\t\t\tUser:', userID, UserDatabase.getUserByID(db, userID));
-                    db.throwError('\t\t\t\t\t\t\t\tSchedule:', ScheduleDatabase.getScheduleByUserID(db, userID));
-                    db.throwError('\t\t\t\t\t\t\t\tAssignment:', assignmentID, 'for', userID, '=>\n', submissions);
-                    db.throwError('\t\t\t\t\t\t\t\tSubmitted Assignments:', Object.keys(submittedAssignments));
+                    db.throwError('[UNASSIGNED_SUBMISSION]\t\t', 'Found submission for unassigned assignment - cannot evaluate submission.',
+                        '\nUser:', userID, UserDatabase.getUserByID(db, userID),
+                        '\nSchedule:', ScheduleDatabase.getScheduleByUserID(db, userID),
+                        '\nAssignment:', assignmentID, 'for', userID, '=>\n', submissions,
+                        '\nSubmitted Assignments:', Object.keys(submittedAssignments));
                 }
             }
         }
         else
         {
             const submissions = SubmissionDatabase.getAssignedSubmissionsByOwnerKey(db, ownerKey);
-            db.throwError('[MISSING_USER]\t\t\t\t', "Cannot find user with owner key '" + ownerKey + "'.");
-            db.throwError("\t\t\t\t\t\t\t\tSubmissions by mismatched owner key:", submissions);
+            db.throwError('[MISSING_USER]\t\t\t\t', "Cannot find user with owner key '" + ownerKey + "'.",
+                "\nSubmissions by mismatched owner key:", submissions);
         }
     }
 }

@@ -1,0 +1,17 @@
+{
+    "outputPath": "./src/__TEST__/out/",
+    "data": {
+        "parsers": [
+            {
+                "parser": "csv-parser",
+                "inputPath": "./src/__TEST__/in/cohort.csv"
+            }
+        ],
+        "reviewers": [
+
+        ],
+        "assignments": [
+
+        ]
+    }
+}

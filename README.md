@@ -10,7 +10,6 @@ metadata.json
         {
             "parser": "piazza-post-parser",
             "input": "./student-data-week0.csv",
-            "readonly": true
         },
         {
             "parser": "csv-post-parser",

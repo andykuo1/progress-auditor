@@ -3,7 +3,6 @@ const ScheduleDatabase = require('../database/ScheduleDatabase.js');
 const AssignmentDatabase = require('../database/AssignmentDatabase.js');
 const { compareDates } = require('../util/DateUtil.js');
 
-const CURRENT_DATE = new Date(2018, 7 - 1, 19);
 const ONE_DAYTIME = 86400000;
 
 function calculateSlipDays(submitDate, dueDate)
@@ -19,7 +18,7 @@ function calculateSlipDays(submitDate, dueDate)
     }
 }
 
-async function resolve(db)
+async function resolve(db, currentDate)
 {
     // Dependent on accurate assignment resolution for submissions...
     for(const userID of UserDatabase.getUsers(db))
@@ -28,6 +27,7 @@ async function resolve(db)
         const maxSlips = schedule.weeks * 3;
 
         let totalSlips = 0;
+        let daySlips = 0;
         const user = UserDatabase.getUserByID(db, userID);
         const assignments = AssignmentDatabase.getAssignmentsByUser(db, userID);
         for(const assignmentID of Object.keys(assignments))
@@ -35,7 +35,7 @@ async function resolve(db)
             const assignment = assignments[assignmentID];
 
             const dueDate = assignment.dueDate;
-            if (compareDates(CURRENT_DATE, dueDate) < 0)
+            if (compareDates(currentDate, dueDate) < 0)
             {
                 assignment.attributes.status = '_';
                 assignment.attributes.slip = 0;
@@ -51,12 +51,13 @@ async function resolve(db)
                 else
                 {
                     assignment.attributes.status = 'N';
-                    submitDate = CURRENT_DATE;
+                    submitDate = currentDate;
                 }
 
                 const slips = calculateSlipDays(submitDate, dueDate);
                 assignment.attributes.slips = slips;
                 totalSlips += slips;
+                ++daySlips;
             }
         }
 
@@ -64,6 +65,7 @@ async function resolve(db)
             used: totalSlips,
             remaining: maxSlips - totalSlips,
             max: maxSlips,
+            average: daySlips > 0 ? totalSlips / daySlips : 0,
         };
     }
 }

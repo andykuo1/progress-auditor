@@ -8,7 +8,6 @@ const AssignmentDatabase = require('./database/AssignmentDatabase.js');
 const AssignmentGenerator = require('./database/AssignmentGenerator.js');
 const ReviewDatabase = require('./database/ReviewDatabase.js');
 const ReviewProcessor = require('./database/ReviewProcessor.js');
-
 const { offsetDate, compareDates } = require('./util/DateUtil.js');
 const { writeTableToCSV, writeToFile } = require('./util/FileUtil.js');
 
@@ -23,7 +22,7 @@ const slipUserResolver = require('./resolver/slip-user-resolver.js');
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-const INPUT_DIR = path.resolve(__dirname, '__TEST__/in/');
+const INPUT_DIR = path.resolve(__dirname, '__TEST__/in/2019/');
 const OUTPUT_DIR = path.resolve(__dirname, '__TEST__/out/');
 
 function outputError(db, outputDir)
@@ -43,7 +42,7 @@ function outputError(db, outputDir)
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-function setup()
+async function main()
 {
     const db = Database.createDatabase();
     UserDatabase.setupDatabase(db);
@@ -51,25 +50,14 @@ function setup()
     SubmissionDatabase.setupDatabase(db);
     AssignmentDatabase.setupDatabase(db);
     ReviewDatabase.setupDatabase(db);
-    return db;
-}
 
-async function load(db)
-{
     // Create users and schedules...
     await cohortParser.parse(path.resolve(INPUT_DIR, 'cohort.csv'), db);
 
     // Create submissions...
     await contributionsParser.parse(path.resolve(INPUT_DIR, 'contributions.csv'), db);
 
-    // Create reviews...
-    await reviewsParser.parse(path.resolve(INPUT_DIR, 'reviews.csv'), db);
-}
-
-async function generateAssignments(db)
-{
     // Create assignments...
-    // NOTE: Custom assignment handlers...
     for(const userID of UserDatabase.getUsers(db))
     {
         const schedule = ScheduleDatabase.getScheduleByUserID(db, userID);
@@ -78,48 +66,27 @@ async function generateAssignments(db)
         AssignmentGenerator.assignWeekly(db, userID, 'week', schedule.firstSunday, schedule.lastSunday);
         AssignmentGenerator.assign(db, userID, 'last', new Date(schedule.lastSunday));
     }
-}
 
-async function generateReviewHandlers(db)
-{
+    // Create reviews...
+    await reviewsParser.parse(path.resolve(INPUT_DIR, 'reviews.csv'), db);
+
     // Process reviews...
-    // NOTE: Custom review handlers...
     ReviewProcessor.processReviews(db);
-}
 
-async function autoResolve(db)
-{
     // Try to auto-resolve unassigned assignments by post id.
-    // NOTE: Custom submission resolvers...
     await introSubmissionResolver.resolve(db);
     await autoSubmissionResolver.resolve(db);
     // 2nd pass - Evaluate post type
     await assignSubmissionResolver.resolve(db);
-    await slipUserResolver.resolve(db, new Date(2018, 7 - 1, 19));
-}
+    await slipUserResolver.resolve(db, new Date(2019, 7 - 1, 9));
 
-async function log(db)
-{
-    // TODO: Should output logs only if requested or has errors.
     UserDatabase.outputLog(db, OUTPUT_DIR);
     ScheduleDatabase.outputLog(db, OUTPUT_DIR);
     SubmissionDatabase.outputLog(db, OUTPUT_DIR);
     AssignmentDatabase.outputLog(db, OUTPUT_DIR);
     ReviewDatabase.outputLog(db, OUTPUT_DIR);
     outputError(db, OUTPUT_DIR);
-}
 
-async function main()
-{
-    const db = setup();
-
-    await load(db);
-    await generateAssignments(db);
-    await generateReviewHandlers(db);
-    await autoResolve(db);
-    await log(db);
-
-    // Generate the expected output files.
     processContributions(db);
 }
 
@@ -180,6 +147,13 @@ function processContributions(db)
             data(db, userID)
             {
                 return UserDatabase.getUserByID(db, userID).attributes.slips.remaining;
+            }
+        },
+        {
+            header: 'Average Slips Per Week',
+            data(db, userID)
+            {
+                return UserDatabase.getUserByID(db, userID).attributes.slips.average;
             }
         },
         {
