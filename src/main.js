@@ -126,7 +126,11 @@ async function loadConfig(configPath)
             { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/reviews.csv" },
         ],
         reviewers: [
-            // { name: "change-owner", filePath: "./src/reviewer/SubmissionChangeOwnerHandler.js" }
+            { name: "ignore_owner", filePath: "./reviewer/ignore-owner-submission-reviewer.js" },
+            { name: "ignore_submission", filePath: "./reviewer/ignore-submission-reviewer.js" },
+            { name: "change_assignment", filePath: "./reviewer/change-assignment-submission-reviewer.js" },
+            { name: "add_owner_key", filePath: "./reviewer/add-owner-key-user-reviewer.js" },
+            { name: "unknown", filePath: "./reviewer/unknown-reviewer.js" },
         ],
         resolvers: [
             // Order matters here!
@@ -178,11 +182,41 @@ async function loadAssignments(db, config)
 async function processReviews(db, config)
 {
     // Process reviews...
+    const ReviewDatabase = require('./database/ReviewDatabase.js');
 
-    // NOTE: Custom review handlers...
-    const ReviewProcessor = require('./database/ReviewProcessor.js');
+    const reviewers = new Map();
+    for(const reviewerConfig of config.reviewers)
+    {
+        const filePath = path.resolve(__dirname, reviewerConfig.filePath);
+        const name = reviewerConfig.name;
+        const reviewer = require(filePath);
 
-    ReviewProcessor.processReviews(db);
+        console.log(`......Reviewing '${name}' with '${path.basename(reviewerConfig.filePath)}'...`);
+
+        reviewers.set(name, reviewer);
+    }
+
+    const reviewResults = [];
+    for(const reviewID of ReviewDatabase.getReviews(db))
+    {
+        const review = ReviewDatabase.getReviewByID(db, reviewID);
+        const reviewType = review.type;
+        const reviewParams = review.params;
+
+        let reviewer;
+        if (reviewers.has(reviewType))
+        {
+            reviewer = reviewers.get(reviewType);
+        }
+        else
+        {
+            reviewer = reviewers.get('unknown');
+        }
+
+        reviewResults.push(reviewer.review(db, reviewID, reviewType, reviewParams));
+    }
+
+    return Promise.all(reviewResults);
 }
 
 async function processDatabase(db, config)
