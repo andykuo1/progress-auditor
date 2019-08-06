@@ -18,7 +18,7 @@ function addUser(db, userID, ownerKey, userName, attributes = {})
 
     if (userMapping.has(userID))
     {
-        throwError(db, 'Found duplicate user with id \'' + userID + '\'.');
+        db.throwError('Found duplicate user with id \'' + userID + '\'.');
         return null;
     }
     else
