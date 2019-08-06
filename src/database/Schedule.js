@@ -31,7 +31,16 @@ function createSchedule(startDate, endDate, opts={})
     const threshold = opts.threshold || 0;
     const thresholdTime = ONE_DAYTIME * threshold;
 
-    const firstSunday = getNextSunday(startDate, threshold);
+    let firstSunday;
+    // Whether to count the current week as the start week, or use the next week instead.
+    if (startDate.getUTCDay() > threshold)
+    {
+        firstSunday = getNextSunday(new Date(startDate.getTime() + 7 * ONE_DAYTIME));
+    }
+    else
+    {
+        firstSunday = getNextSunday(startDate);
+    }
 
     // Add the remaining week due dates. This includes the last
     // week (even if incomplete, they still need to turn it in)...
@@ -41,7 +50,7 @@ function createSchedule(startDate, endDate, opts={})
     // As long as we have started this week (even if it ends in-progress)
     // calculate last Sunday...
     let sundayCount = 0;
-    while(lastSunday.getTime() + thresholdTime < endTime)
+    while(lastSunday.getTime() < endTime)
     {
         // Go to next Sunday...
         lastSunday.setUTCDate(lastSunday.getUTCDate() + 7);

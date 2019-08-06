@@ -123,7 +123,7 @@ async function loadConfig(configPath)
         parsers: [
             // Order matters here! Lower entries will overwrite higher ones.
             // 2019
-            { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/2019/cohort.csv", opts: {} },
+            { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/2019/cohort.csv", opts: { threshold: 3 } },
             { filePath: "./parser/contributions-parser.js", inputPath: "./__TEST__/in/2019/contributions.csv" },
             { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/2019/reviews.csv" },
             /*
@@ -305,10 +305,18 @@ async function outputReports(db, config)
     tableBuilder.addColumn('Remaining Slips', (userID) => {
         return UserDatabase.getUserByID(db, userID).attributes.slips.remaining;
     });
+    tableBuilder.addColumn('Average Slips', (userID) => {
+        return UserDatabase.getUserByID(db, userID).attributes.slips.average;
+    });
     tableBuilder.addColumn('Max Slips', (userID) => {
         return UserDatabase.getUserByID(db, userID).attributes.slips.max;
     });
     tableBuilder.addColumn('Auto-report', (userID) => {
+        // The auto-report threshold formula
+        // Check the average if maintained from today, would it exceed by the end date.
+        const averageSlips = UserDatabase.getUserByID(db, userID).attributes.slips.average;
+        // Check if there are any holes in submissions.
+        // Check if intro or week 1 is past due date.
         return 'N/A';
     });
 
@@ -327,6 +335,7 @@ async function outputReports(db, config)
         });
     }
 
+    // Populate the table...
     for(const userID of UserDatabase.getUsers(db))
     {
         tableBuilder.addEntry(userID);

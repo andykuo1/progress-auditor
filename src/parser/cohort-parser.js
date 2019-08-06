@@ -10,7 +10,7 @@ const ScheduleDatabase = require('../database/ScheduleDatabase.js');
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-async function parse(db, filepath, opts={})
+async function parse(db, filepath, opts={ threshold: 2 })
 {
     UserDatabase.setupDatabase(db);
     ScheduleDatabase.setupDatabase(db);
@@ -38,13 +38,13 @@ async function parse(db, filepath, opts={})
         try
         {
             const userID = parseEmail(row[6]);
-            const ownerKey = parseEmail(row[6]);
+            const ownerKey = parseEmail(row[6], row[1]);
             const userName = parseName(`${row[3]} ${row[2]}`);
             const user = UserDatabase.addUser(db, userID, ownerKey, userName);
 
             const startDate = parseAmericanDate(row[11]);
             const endDate = parseAmericanDate(row[12]);
-            const schedule = ScheduleDatabase.addSchedule(db, userID, startDate, endDate, { threshold: 2 });
+            const schedule = ScheduleDatabase.addSchedule(db, userID, startDate, endDate, { threshold: opts.threshold });
         }
         catch(e)
         {
