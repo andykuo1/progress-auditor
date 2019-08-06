@@ -1,5 +1,9 @@
 const SubmissionDatabase = require('../database/SubmissionDatabase.js');
 
+/**
+ * Searches through all submissions and tries to assign them by post id.
+ * @param {Database} db The database to resolve for.
+ */
 async function resolve(db)
 {
     for(const submissionID of SubmissionDatabase.getSubmissions(db))

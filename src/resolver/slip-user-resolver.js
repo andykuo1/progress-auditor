@@ -18,6 +18,11 @@ function calculateSlipDays(submitDate, dueDate)
     }
 }
 
+/**
+ * Calculates the slip days for each user and assignment. This depends on submission
+ * already being assigned appropriately.
+ * @param {Database} db The database to resolve for.
+ */
 async function resolve(db)
 {
     // HACK: There should be a better way to get today's date.
