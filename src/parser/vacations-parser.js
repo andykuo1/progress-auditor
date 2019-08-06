@@ -1,5 +1,5 @@
 const { readCSVFileByRow } = require('../util/FileUtil.js');
-const { parseDate } = require('../util/ParseUtil.js');
+const { parseDate, parseAmericanDate } = require('../util/ParseUtil.js');
 const { parseEmail } = require('../util/FieldParser.js');
 const VacationDatabase = require('../database/VacationDatabase.js');
 
@@ -28,8 +28,8 @@ async function parse(db, filepath, opts={})
         {
             const vacationID = row[0];
             const userID = parseEmail(row[1]);
-            const startDate = parseDate(row[2]);
-            const endDate = parseDate(row[3]);
+            const startDate = parseAmericanDate(row[2]);
+            const endDate = parseAmericanDate(row[3]);
             const padding = row[4];
 
             const vacation = VacationDatabase.addVacation(db, vacationID, userID, startDate, endDate, padding);

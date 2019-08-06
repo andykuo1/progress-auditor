@@ -1,5 +1,5 @@
 const Vacation = require('./Vacation.js');
-const { isWithinDates, getDaysBetween } = require('../util/DateUtil.js');
+const { ONE_DAYTIME, isWithinDates, getDaysBetween } = require('../util/DateUtil.js');
 
 const VACATION_KEY = 'vacation';
 const OUTPUT_LOG = 'db.vacation.log';
@@ -49,8 +49,8 @@ function offsetDateByVacations(db, userID, date)
         const vacation = vacationMapping.get(vacationID);
         if (isWithinDates(result, vacation.effectiveStartDate, vacation.effectiveEndDate))
         {
-            const days = getDaysBetween(vacation.effectiveStartDate, result);
-            result.setUTCDate(vacation.effectiveEndDate.getUTCDate() + days);
+            const days = getDaysBetween(result, vacation.effectiveStartDate);
+            result.setTime(result.getTime() + days * ONE_DAYTIME);
         }
     }
     return result;

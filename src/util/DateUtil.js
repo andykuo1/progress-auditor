@@ -12,7 +12,7 @@ function isWithinDates(date, fromDate, toDate)
 
 function getDaysBetween(fromDate, toDate)
 {
-    return Math.floor(compareDates(toDate, fromDate) / ONE_DAYTIME);
+    return Math.floor(Math.abs(compareDates(toDate, fromDate)) / ONE_DAYTIME);
 }
 
 /**
