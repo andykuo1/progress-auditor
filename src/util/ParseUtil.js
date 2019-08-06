@@ -1,7 +1,7 @@
 function parseDate(value)
 {
     // 2018-06-10 06:20:30 UTC
-    const result = new Date();
+    const result = new Date(1000);
 
     const year = Number(value.substring(0, 4));
     const month = Number(value.substring(5, 7));
@@ -25,8 +25,8 @@ function parseDate(value)
 
 function parseAmericanDate(value)
 {
-    // 6/18/2019
-    const result = new Date();
+    // ex. 6/18/2019
+    const result = new Date(1000);
 
     const dateArray = value.split('/');
     const year = Number(dateArray[2]);

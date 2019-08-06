@@ -4,6 +4,7 @@ const ConsoleHelper = require('./util/ConsoleHelper.js');
 main();
 
 const CONFIG_PATH = './config.json';
+const DEBUG_MODE = true;
 
 async function main()
 {
@@ -56,6 +57,13 @@ async function main()
     else
     {
         console.log("......Hooray! Everything is as expected...");
+
+        if (DEBUG_MODE)
+        {
+            console.log("......Finding debug info for you...");
+            await outputDebugInfo(db, config);
+        }
+
         console.log("......Generating reports for you...");
         await outputReports(db, config);
     }
@@ -169,7 +177,7 @@ async function processDatabase(db, config)
     await autoSubmissionResolver.resolve(db);
     // 2nd pass - Evaluate post type
     await assignSubmissionResolver.resolve(db);
-    await slipUserResolver.resolve(db, new Date(2018, 7 - 1, 19));
+    await slipUserResolver.resolve(db, new Date(Date.UTC(2018, 7 - 1, 19)));
 }
 
 async function outputDebugInfo(db, config)

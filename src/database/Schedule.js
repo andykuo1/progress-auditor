@@ -29,18 +29,19 @@ function calculateNumberOfSlipDays(schedule)
 function createSchedule(startDate, endDate, opts={})
 {
     const threshold = opts.threshold || 0;
+    const thresholdTime = ONE_DAYTIME * threshold;
 
     const firstSunday = getNextSunday(startDate, threshold);
 
     // Add the remaining week due dates. This includes the last
     // week (even if incomplete, they still need to turn it in)...
-    const endTime = endDate.getTime() - ONE_DAYTIME * threshold;
-    const pastSunday = getPastSunday(startDate, threshold);
+    const endTime = endDate.getTime() - thresholdTime;
+    const pastSunday = getPastSunday(startDate);
     const lastSunday = new Date(pastSunday);
     // As long as we have started this week (even if it ends in-progress)
     // calculate last Sunday...
     let sundayCount = 0;
-    while(lastSunday.getTime() < endTime)
+    while(lastSunday.getTime() + thresholdTime < endTime)
     {
         // Go to next Sunday...
         lastSunday.setDate(lastSunday.getDate() + 7);
