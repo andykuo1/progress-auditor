@@ -18,8 +18,11 @@ function calculateSlipDays(submitDate, dueDate)
     }
 }
 
-async function resolve(db, currentDate)
+async function resolve(db)
 {
+    // HACK: There should be a better way to get today's date.
+    const currentDate = db.currentDate;
+
     // Dependent on accurate assignment resolution for submissions...
     for(const userID of UserDatabase.getUsers(db))
     {

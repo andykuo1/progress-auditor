@@ -16,6 +16,9 @@ async function main()
     console.log("Starting...");
     const db = await setupDatabase();
 
+    // HACK: How do people access today's date?
+    db.currentDate = CURRENT_DATE;
+
     /**
      * Loading - Where all data should be loaded from file. This
      * should be raw data as defined by the user. No modifications
@@ -54,6 +57,8 @@ async function main()
         console.log("......Oh no! We found some errors...");
         console.log("......Finding debug info for you...");
         await outputDebugInfo(db, config);
+
+        console.log("...Failed!");
     }
     else
     {
@@ -67,6 +72,8 @@ async function main()
 
         console.log("......Generating reports for you...");
         await outputReports(db, config);
+
+        console.log("...Success!");
     }
 
     /**
@@ -74,7 +81,7 @@ async function main()
      * sure nothing leaks.
      */
     ConsoleHelper.quit();
-    console.log("...Complete!");
+    console.log("......Stopped.");
 }
 
 async function setupDatabase()
@@ -106,12 +113,27 @@ async function loadConfig(configPath)
             /* ...??? */
         ],
         parsers: [
+            // 2019
+            { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/2019/cohort.csv", opts: {} },
+            { filePath: "./parser/contributions-parser.js", inputPath: "./__TEST__/in/2019/contributions.csv" },
+            { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/2019/reviews.csv" },
+            /*
+            // 2018
             { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/cohort.csv", opts: {} },
             { filePath: "./parser/contributions-parser.js", inputPath: "./__TEST__/in/contributions.csv" },
             { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/reviews.csv" },
+            */
         ],
         reviewers: [
             // { name: "change-owner", filePath: "./src/reviewer/SubmissionChangeOwnerHandler.js" }
+        ],
+        resolvers: [
+            // Order matters here!
+            { filePath: "./resolver/auto-submission-resolver.js", opts: {} },
+            { filePath: "./resolver/intro-submission-resolver.js" },
+            // 2nd pass - Evaluate post type
+            { filePath: "./resolver/assign-submission-resolver.js" },
+            { filePath: "./resolver/slip-user-resolver.js" }
         ]
     }
 }
@@ -164,19 +186,19 @@ async function processReviews(db, config)
 
 async function processDatabase(db, config)
 {
-    // Try to auto-resolve unassigned assignments by post id.
+    // Try to auto-resolve any issues in the database...
 
-    // NOTE: Custom submission resolvers...
-    const autoSubmissionResolver = require('./resolver/auto-submission-resolver.js');
-    const introSubmissionResolver = require('./resolver/intro-submission-resolver.js');
-    const assignSubmissionResolver = require('./resolver/assign-submission-resolver.js');
-    const slipUserResolver = require('./resolver/slip-user-resolver.js');
-    
-    await introSubmissionResolver.resolve(db);
-    await autoSubmissionResolver.resolve(db);
-    // 2nd pass - Evaluate post type
-    await assignSubmissionResolver.resolve(db);
-    await slipUserResolver.resolve(db, CURRENT_DATE);
+    const resolverResults = [];
+    for(const resolverConfig of config.resolvers)
+    {
+        const filePath = path.resolve(__dirname, resolverConfig.filePath);
+        const resolver = require(filePath);
+
+        console.log(`......Resolving with '${path.basename(resolverConfig.filePath)}'...`);
+        resolverResults.push(resolver.resolve(db, resolverConfig.opts));
+    }
+
+    return Promise.all(resolverResults);
 }
 
 async function outputDebugInfo(db, config)
