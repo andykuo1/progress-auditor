@@ -172,11 +172,14 @@ function clearSubmissionsByOwner(db, ownerKey)
     // Remove from list mapping...
     const submissionListMapping = db[SUBMISSION_KEY][SUBMISSION_LIST_KEY];
     const assignedSubmissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
-    for(const submissions of Object.values(assignedSubmissions))
+    if (assignedSubmissions)
     {
-        for(const submission of submissions)
+        for(const submissions of Object.values(assignedSubmissions))
         {
-            submissionListMapping.delete(submission.id);
+            for(const submission of submissions)
+            {
+                submissionListMapping.delete(submission.id);
+            }
         }
     }
     // Remove from owner mapping...

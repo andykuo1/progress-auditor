@@ -5,7 +5,10 @@ const TableBuilder = require('./util/TableBuilder.js');
 main();
 
 const CONFIG_PATH = './config.json';
-const CURRENT_DATE =  new Date(Date.UTC(2018, 7 - 1, 19));
+// 2019
+const CURRENT_DATE =  new Date(Date.UTC(2019, 7 - 1, 8));
+// 2018
+// const CURRENT_DATE =  new Date(Date.UTC(2018, 7 - 1, 19));
 
 async function main()
 {
@@ -109,23 +112,26 @@ async function loadConfig(configPath)
 {
     // TODO: This should loaded externally, rather than be hard-coded...
     return {
-        debug: false,
+        debug: true,
         assignments: [
             /* ...??? */
             // Order does not matter.
+            { name: "intro", filePath: "./assigner/date-assigner.js", opts: {} },
+            { name: "week", filePath: "./assigner/weekly-assigner.js", opts: {} },
+            { name: "last", filePath: "./assigner/date-assigner.js", opts: {} }
         ],
         parsers: [
             // Order matters here! Lower entries will overwrite higher ones.
-            /*
             // 2019
             { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/2019/cohort.csv", opts: {} },
             { filePath: "./parser/contributions-parser.js", inputPath: "./__TEST__/in/2019/contributions.csv" },
             { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/2019/reviews.csv" },
-            */
+            /*
             // 2018
             { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/cohort.csv", opts: {} },
             { filePath: "./parser/contributions-parser.js", inputPath: "./__TEST__/in/contributions.csv" },
             { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/reviews.csv" },
+            */
         ],
         reviewers: [
             // Order does not matter

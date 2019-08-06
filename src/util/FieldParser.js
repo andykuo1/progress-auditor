@@ -5,7 +5,9 @@ function parseName(value)
 
 function parseEmail(value, ...values)
 {
-    const result = value.split(',').map(e=>e.trim());
+    const result = value.split(',').map(e => {
+        if (e) return e.trim().toLowerCase();
+    });
     if (values.length > 0)
     {
         for(const nextValue of values)
