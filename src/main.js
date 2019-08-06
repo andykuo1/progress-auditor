@@ -5,7 +5,6 @@ const TableBuilder = require('./util/TableBuilder.js');
 main();
 
 const CONFIG_PATH = './config.json';
-const DEBUG_MODE = true;
 const CURRENT_DATE =  new Date(Date.UTC(2018, 7 - 1, 19));
 
 async function main()
@@ -65,7 +64,7 @@ async function main()
     {
         console.log("......Hooray! Everything is as expected...");
 
-        if (DEBUG_MODE)
+        if (config.debug)
         {
             console.log("......Finding debug info for you...");
             await outputDebugInfo(db, config);
@@ -110,10 +109,13 @@ async function loadConfig(configPath)
 {
     // TODO: This should loaded externally, rather than be hard-coded...
     return {
+        debug: false,
         assignments: [
             /* ...??? */
+            // Order does not matter.
         ],
         parsers: [
+            // Order matters here! Lower entries will overwrite higher ones.
             /*
             // 2019
             { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/2019/cohort.csv", opts: {} },
@@ -126,6 +128,7 @@ async function loadConfig(configPath)
             { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/reviews.csv" },
         ],
         reviewers: [
+            // Order does not matter
             { name: "ignore_owner", filePath: "./reviewer/ignore-owner-submission-reviewer.js" },
             { name: "ignore_submission", filePath: "./reviewer/ignore-submission-reviewer.js" },
             { name: "change_assignment", filePath: "./reviewer/change-assignment-submission-reviewer.js" },
@@ -133,7 +136,7 @@ async function loadConfig(configPath)
             { name: "unknown", filePath: "./reviewer/unknown-reviewer.js" },
         ],
         resolvers: [
-            // Order matters here!
+            // Order matters here! The higher ones execute before the lower ones.
             { filePath: "./resolver/auto-submission-resolver.js", opts: {} },
             { filePath: "./resolver/intro-submission-resolver.js" },
             // 2nd pass - Evaluate post type

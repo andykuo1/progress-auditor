@@ -51,7 +51,7 @@ function writeToFile(filepath, content)
             return console.log(err);
         }
 
-        console.log("The file was saved!");
+        console.log("File saved:", filepath);
     }); 
 }
 
