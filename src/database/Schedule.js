@@ -37,14 +37,14 @@ function createSchedule(startDate, endDate, opts={})
     // week (even if incomplete, they still need to turn it in)...
     const endTime = endDate.getTime() - thresholdTime;
     const pastSunday = getPastSunday(startDate);
-    const lastSunday = new Date(pastSunday);
+    const lastSunday = new Date(pastSunday.getTime());
     // As long as we have started this week (even if it ends in-progress)
     // calculate last Sunday...
     let sundayCount = 0;
     while(lastSunday.getTime() + thresholdTime < endTime)
     {
         // Go to next Sunday...
-        lastSunday.setDate(lastSunday.getDate() + 7);
+        lastSunday.setUTCDate(lastSunday.getUTCDate() + 7);
         ++sundayCount;
     }
 

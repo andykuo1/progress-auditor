@@ -149,7 +149,7 @@ async function loadAssignments(db, config)
 
         AssignmentGenerator.assign(db, userID, 'intro', offsetDate(schedule.startDate, 7));
         AssignmentGenerator.assignWeekly(db, userID, 'week', schedule.firstSunday, schedule.lastSunday);
-        AssignmentGenerator.assign(db, userID, 'last', new Date(schedule.lastSunday));
+        AssignmentGenerator.assign(db, userID, 'last', new Date(schedule.lastSunday.getTime()));
     }
 }
 

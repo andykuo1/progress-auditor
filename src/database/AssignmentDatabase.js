@@ -33,7 +33,7 @@ function addAssignment(db, userID, assignmentID, dueDate, attributes={})
     }
     else
     {
-        const assignment = Assignment.createAssignment(new Date(dueDate), attributes);
+        const assignment = Assignment.createAssignment(new Date(dueDate.getTime()), attributes);
         ownedAssignments[assignmentID] = assignment;
         return assignment;
     }

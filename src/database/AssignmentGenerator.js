@@ -14,7 +14,7 @@ function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, weekDa
     const result = [];
 
     let weekDate;
-    if (startDate.getDay() < weekDay)
+    if (startDate.getUTCDay() < weekDay)
     {
         // Week day for this week already passed. Use the next one.
         weekDate = getNextSunday(startDate);
@@ -24,7 +24,7 @@ function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, weekDa
         // Week day for this week has yet to pass. Use this one.
         weekDate = getPastSunday(startDate);
     }
-    weekDate.setDate(weekDate.getDate() + weekDay);
+    weekDate.setUTCDate(weekDate.getUTCDate() + weekDay);
 
     // Generate assignments...
     let count = 1;
@@ -35,7 +35,7 @@ function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, weekDa
         result.push(assignment);
 
         // Go to next week day...
-        weekDate.setDate(weekDate.getDate() + DAYS_PER_WEEK);
+        weekDate.setUTCDate(weekDate.getUTCDate() + DAYS_PER_WEEK);
 
         if (++count >= MAX_GENERATED_ASSIGNMENTS) break;
     }

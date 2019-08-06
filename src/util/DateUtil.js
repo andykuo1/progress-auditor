@@ -16,8 +16,8 @@ function isWithinDates(date, fromDate, toDate)
  */
 function getPastSunday(date, offset=0)
 {
-    const result = new Date(date);
-    result.setDate(result.getDate() - result.getDay() + offset);
+    const result = new Date(date.getTime());
+    result.setUTCDate(result.getUTCDate() - result.getUTCDay() + offset);
     return result;
 }
 
@@ -29,15 +29,15 @@ function getPastSunday(date, offset=0)
  */
 function getNextSunday(date, offset=0)
 {
-    const result = new Date(date);
-    result.setDate(result.getDate() - result.getDay() + 7 + offset);
+    const result = new Date(date.getTime());
+    result.setUTCDate(result.getUTCDate() - result.getUTCDay() + 7 + offset);
     return result;
 }
 
 function offsetDate(date, offset=0)
 {
-    const result = new Date(date);
-    if (offset) result.setDate(result.getDate() + offset);
+    const result = new Date(date.getTime());
+    if (offset) result.setUTCDate(result.getUTCDate() + offset);
     return result;
 }
 
