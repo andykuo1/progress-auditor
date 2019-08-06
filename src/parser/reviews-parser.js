@@ -4,11 +4,11 @@ const ReviewDatabase = require('../database/ReviewDatabase.js');
 
 /**
  * Create ReviewDatabase based on input file.
- * @param {String} filepath The path to the file to parse.
  * @param {Database} db The database to write to.
+ * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-async function parse(filepath, db, opts={})
+async function parse(db, filepath, opts={})
 {
     ReviewDatabase.setupDatabase(db);
 

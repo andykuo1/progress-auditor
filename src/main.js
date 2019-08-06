@@ -5,6 +5,7 @@ main();
 
 const CONFIG_PATH = './config.json';
 const DEBUG_MODE = true;
+const CURRENT_DATE =  new Date(Date.UTC(2018, 7 - 1, 19));
 
 async function main()
 {
@@ -87,6 +88,7 @@ async function setupDatabase()
     const SubmissionDatabase = require('./database/SubmissionDatabase.js');
     const AssignmentDatabase = require('./database/AssignmentDatabase.js');
     const ReviewDatabase = require('./database/ReviewDatabase.js');
+
     UserDatabase.setupDatabase(db);
     ScheduleDatabase.setupDatabase(db);
     SubmissionDatabase.setupDatabase(db);
@@ -101,36 +103,33 @@ async function loadConfig(configPath)
     // TODO: This should loaded externally, rather than be hard-coded...
     return {
         assignments: [
-            { name: 'intro', schedule: 'from-start:0' },
-            { name: 'week[]', schedue: 'weekly:sunday'},
-            { name: 'last', schedule: 'from-last: 0'}
+            /* ...??? */
         ],
         parsers: [
-            { filePath: "./src/parser/cohort-parser.js", opts: ['./__TEST__/in/cohort.csv'] },
-            { filePath: "./src/parser/contributions-parser.js", opts: ['./__TEST__/in/contributions.csv'] },
-            { filePath: "./src/parser/reviews-parser.js", opts: ['./__TEST__/in/reviews.csv'] },
+            { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/cohort.csv", opts: {} },
+            { filePath: "./parser/contributions-parser.js", inputPath: "./__TEST__/in/contributions.csv" },
+            { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/reviews.csv" },
         ],
         reviewers: [
-
+            // { name: "change-owner", filePath: "./src/reviewer/SubmissionChangeOwnerHandler.js" }
         ]
     }
 }
 
 async function loadDatabase(db, config)
 {
-    const INPUT_DIR = path.resolve(__dirname, '__TEST__/in/');
-    const cohortParser = require('./parser/cohort-parser.js');
-    const contributionsParser = require('./parser/contributions-parser.js');
-    const reviewsParser = require('./parser/reviews-parser.js');
+    const parserResults = [];
+    for(const parserConfig of config.parsers)
+    {
+        const filePath = path.resolve(__dirname, parserConfig.filePath);
+        const inputPath = path.resolve(__dirname, parserConfig.inputPath);
+        const parser = require(filePath);
 
-    // Create users and schedules...
-    await cohortParser.parse(path.resolve(INPUT_DIR, 'cohort.csv'), db);
+        console.log(`......Parsing '${path.basename(parserConfig.inputPath)}' with '${path.basename(parserConfig.filePath)}'...`);
+        parserResults.push(parser.parse(db, inputPath, parserConfig.opts));
+    }
 
-    // Create submissions...
-    await contributionsParser.parse(path.resolve(INPUT_DIR, 'contributions.csv'), db);
-
-    // Create reviews...
-    await reviewsParser.parse(path.resolve(INPUT_DIR, 'reviews.csv'), db);
+    return Promise.all(parserResults);
 }
 
 async function loadAssignments(db, config)
@@ -177,7 +176,7 @@ async function processDatabase(db, config)
     await autoSubmissionResolver.resolve(db);
     // 2nd pass - Evaluate post type
     await assignSubmissionResolver.resolve(db);
-    await slipUserResolver.resolve(db, new Date(Date.UTC(2018, 7 - 1, 19)));
+    await slipUserResolver.resolve(db, CURRENT_DATE);
 }
 
 async function outputDebugInfo(db, config)
