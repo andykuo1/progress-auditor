@@ -85,6 +85,7 @@ async function main()
      */
     ConsoleHelper.quit();
     console.log("......Stopped.");
+    console.log();
 }
 
 async function setupDatabase()
@@ -98,12 +99,14 @@ async function setupDatabase()
     const SubmissionDatabase = require('./database/SubmissionDatabase.js');
     const AssignmentDatabase = require('./database/AssignmentDatabase.js');
     const ReviewDatabase = require('./database/ReviewDatabase.js');
+    const VacationDatabase = require('./database/VacationDatabase.js');
 
     UserDatabase.setupDatabase(db);
     ScheduleDatabase.setupDatabase(db);
     SubmissionDatabase.setupDatabase(db);
     AssignmentDatabase.setupDatabase(db);
     ReviewDatabase.setupDatabase(db);
+    VacationDatabase.setupDatabase(db);
 
     return db;
 }
@@ -126,6 +129,7 @@ async function loadConfig(configPath)
             { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/2019/cohort.csv", opts: { threshold: 3 } },
             { filePath: "./parser/contributions-parser.js", inputPath: "./__TEST__/in/2019/contributions.csv" },
             { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/2019/reviews.csv" },
+            { filePath: "./parser/vacations-parser.js", inputPath: "./__TEST__/in/2019/vacations.csv" },
             /*
             // 2018
             { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/cohort.csv", opts: {} },
@@ -181,7 +185,6 @@ async function loadAssignments(db, config)
     for(const userID of UserDatabase.getUsers(db))
     {
         const schedule = ScheduleDatabase.getScheduleByUserID(db, userID);
-
         AssignmentGenerator.assign(db, userID, 'intro', offsetDate(schedule.startDate, 7));
         AssignmentGenerator.assignWeekly(db, userID, 'week', schedule.firstSunday, schedule.lastSunday);
         AssignmentGenerator.assign(db, userID, 'last', new Date(schedule.lastSunday.getTime()));
@@ -192,6 +195,7 @@ async function processReviews(db, config)
 {
     // Process reviews...
     const ReviewDatabase = require('./database/ReviewDatabase.js');
+    console.log(`......Looking over our work...`);
 
     const reviewers = new Map();
     for(const reviewerConfig of config.reviewers)
@@ -200,7 +204,7 @@ async function processReviews(db, config)
         const name = reviewerConfig.name;
         const reviewer = require(filePath);
 
-        console.log(`......Reviewing '${name}' with '${path.basename(reviewerConfig.filePath)}'...`);
+        console.log(`.........Reviewing '${name}' with '${path.basename(reviewerConfig.filePath)}'...`);
 
         reviewers.set(name, reviewer);
     }
@@ -231,6 +235,7 @@ async function processReviews(db, config)
 async function processDatabase(db, config)
 {
     // Try to auto-resolve any issues in the database...
+    console.log(`......Helping you fix a few things...`);
 
     const resolverResults = [];
     for(const resolverConfig of config.resolvers)
@@ -238,7 +243,7 @@ async function processDatabase(db, config)
         const filePath = path.resolve(__dirname, resolverConfig.filePath);
         const resolver = require(filePath);
 
-        console.log(`......Resolving with '${path.basename(resolverConfig.filePath)}'...`);
+        console.log(`.........Resolving with '${path.basename(resolverConfig.filePath)}'...`);
         resolverResults.push(resolver.resolve(db, resolverConfig.opts));
     }
 
@@ -255,6 +260,7 @@ async function outputDebugInfo(db, config)
     const SubmissionDatabase = require('./database/SubmissionDatabase.js');
     const AssignmentDatabase = require('./database/AssignmentDatabase.js');
     const ReviewDatabase = require('./database/ReviewDatabase.js');
+    const VacationDatabase = require('./database/VacationDatabase.js');
     const { writeToFile } = require('./util/FileUtil.js');
 
     UserDatabase.outputLog(db, OUTPUT_DIR);
@@ -262,6 +268,7 @@ async function outputDebugInfo(db, config)
     SubmissionDatabase.outputLog(db, OUTPUT_DIR);
     AssignmentDatabase.outputLog(db, OUTPUT_DIR);
     ReviewDatabase.outputLog(db, OUTPUT_DIR);
+    VacationDatabase.outputLog(db, OUTPUT_DIR);
 
     let output;
     if (db.getErrors().length <= 0)

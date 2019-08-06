@@ -1,4 +1,4 @@
-const { getPastSunday, getNextSunday } = require('../util/DateUtil.js');
+const { getPastSunday, getNextEffectiveSunday } = require('../util/DateUtil.js');
 
 const ONE_DAYTIME = 86400000;
 
@@ -31,16 +31,8 @@ function createSchedule(startDate, endDate, opts={})
     const threshold = opts.threshold || 0;
     const thresholdTime = ONE_DAYTIME * threshold;
 
-    let firstSunday;
     // Whether to count the current week as the start week, or use the next week instead.
-    if (startDate.getUTCDay() > threshold)
-    {
-        firstSunday = getNextSunday(new Date(startDate.getTime() + 7 * ONE_DAYTIME));
-    }
-    else
-    {
-        firstSunday = getNextSunday(startDate);
-    }
+    const firstSunday = getNextEffectiveSunday(startDate, threshold);
 
     // Add the remaining week due dates. This includes the last
     // week (even if incomplete, they still need to turn it in)...

@@ -1,4 +1,5 @@
 const Vacation = require('./Vacation.js');
+const { isWithinDates, getDaysBetween } = require('../util/DateUtil.js');
 
 const VACATION_KEY = 'vacation';
 const OUTPUT_LOG = 'db.vacation.log';
@@ -12,7 +13,7 @@ function setupDatabase(db)
     return db;
 }
 
-function addVacation(db, vacationID, ownerKey, startDate, endDate=startDate, padding=0, attributes = {})
+function addVacation(db, vacationID, userID, startDate, endDate=startDate, padding=0, attributes = {})
 {
     const vacationMapping = db[VACATION_KEY];
 
@@ -24,10 +25,35 @@ function addVacation(db, vacationID, ownerKey, startDate, endDate=startDate, pad
     else
     {
         // Create vacation...
-        const vacation = Vacation.createVacation(vacationID, ownerKey, startDate, endDate, padding, attributes);
+        const vacation = Vacation.createVacation(vacationID, userID, startDate, endDate, padding, attributes);
         vacationMapping.set(vacationID, vacation);
         return vacation;
     }
+}
+
+/**
+ * Assumes all vacations are disjoint. In other words, they do not overlap.
+ * @param {Database} db The database to work off with.
+ * @param {*} userID The user that we want to find vacations from.
+ * @param {Date} date The date to offset.
+ */
+function offsetDateByVacations(db, userID, date)
+{
+    const vacationMapping = db[VACATION_KEY];
+    const vacations = getVacationsByUserID(db, userID);
+    vacations.sort((a, b) => vacationMapping.get(a).effectiveStartDate.getTime() - vacationMapping.get(b).effectiveStartDate.getTime());
+
+    let result = new Date(date.getTime());
+    for(const vacationID of vacations)
+    {
+        const vacation = vacationMapping.get(vacationID);
+        if (isWithinDates(result, vacation.effectiveStartDate, vacation.effectiveEndDate))
+        {
+            const days = getDaysBetween(vacation.effectiveStartDate, result);
+            result.setUTCDate(vacation.effectiveEndDate.getUTCDate() + days);
+        }
+    }
+    return result;
 }
 
 function getVacations(db)
@@ -40,24 +66,18 @@ function getVacationByID(db, id)
     return db[VACATION_KEY].get(id);
 }
 
-function getVacationByOwnerKey(db, ownerKey)
+function getVacationsByUserID(db, userID)
 {
     const vacationMapping = db[VACATION_KEY];
+    const result = [];
     for(const vacationData of vacationMapping.values())
     {
-        if (Array.isArray(vacationData.ownerKey))
+        if (vacationData.userID == userID)
         {
-            if (vacationData.ownerKey.includes(ownerKey))
-            {
-                return vacationData.id;
-            }
-        }
-        else if (vacationData.ownerKey == ownerKey)
-        {
-            return vacationData.id;
+            result.push(vacationData.id);
         }
     }
-    return null;
+    return result;
 }
 
 function getVacationsByAttribute(db, attributeName, attributeValue)
@@ -107,9 +127,10 @@ module.exports = {
     VACATION_KEY,
     setupDatabase,
     addVacation,
+    offsetDateByVacations,
     getVacations,
     getVacationByID,
-    getVacationByOwnerKey,
+    getVacationsByUserID,
     getVacationsByAttribute,
     outputLog,
 };
