@@ -5,7 +5,7 @@ async function review(db, reviewID, reviewType, reviewParams)
     const targetSubmission = SubmissionDatabase.getSubmissionByID(db, reviewParams[0]);
     if (!targetSubmission)
     {
-        db.throwError('[INVALID_REVIEW_PARAM] Submission for id is already removed.');
+        db.throwError(`[INVALID_REVIEW_PARAM] Submission for id '${reviewParams[0]}' has already been removed.`);
         return;
     }
 
