@@ -1,3 +1,5 @@
+const IDENTITY = function(a) { return a; }
+
 class TableBuilder
 {
     constructor()
@@ -11,7 +13,7 @@ class TableBuilder
         this.entries.push(dataArgs);
     }
 
-    addColumn(header, dataCallback)
+    addColumn(header, dataCallback = IDENTITY)
     {
         this.columns.push({
             header,

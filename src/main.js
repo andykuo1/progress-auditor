@@ -1,5 +1,6 @@
 const path = require('path');
 const ConsoleHelper = require('./util/ConsoleHelper.js');
+const TableBuilder = require('./util/TableBuilder.js');
 
 main();
 
@@ -113,16 +114,16 @@ async function loadConfig(configPath)
             /* ...??? */
         ],
         parsers: [
+            /*
             // 2019
             { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/2019/cohort.csv", opts: {} },
             { filePath: "./parser/contributions-parser.js", inputPath: "./__TEST__/in/2019/contributions.csv" },
             { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/2019/reviews.csv" },
-            /*
+            */
             // 2018
             { filePath: "./parser/cohort-parser.js", inputPath: "./__TEST__/in/cohort.csv", opts: {} },
             { filePath: "./parser/contributions-parser.js", inputPath: "./__TEST__/in/contributions.csv" },
             { filePath: "./parser/reviews-parser.js", inputPath: "./__TEST__/in/reviews.csv" },
-            */
         ],
         reviewers: [
             // { name: "change-owner", filePath: "./src/reviewer/SubmissionChangeOwnerHandler.js" }
@@ -253,87 +254,41 @@ async function outputReports(db, config)
     // OUTOFBOUNDS = 0x25A0 (filled square) (DARK)
     const OUTOFBOUNDS_TOKEN = '_';
 
+    const tableBuilder = new TableBuilder();
+    tableBuilder.addColumn('User ID');
+    tableBuilder.addColumn('Used Slips', (userID) => {
+        return UserDatabase.getUserByID(db, userID).attributes.slips.used;
+    });
+    tableBuilder.addColumn('Remaining Slips', (userID) => {
+        return UserDatabase.getUserByID(db, userID).attributes.slips.remaining;
+    });
+    tableBuilder.addColumn('Max Slips', (userID) => {
+        return UserDatabase.getUserByID(db, userID).attributes.slips.max;
+    });
+    tableBuilder.addColumn('Auto-report', (userID) => {
+        return 'N/A';
+    });
+
     const assignments = ['intro', 'week[1]', 'week[2]', 'week[3]', 'week[4]', 'week[5]', 'week[6]'];
-    const assignmentColumns = [];
     for(const assignmentID of assignments)
     {
-        assignmentColumns.push({
-            header: assignmentID + ' Status',
-            data(db, userID)
-            {
-                const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
-                if (!assignment) return 'ERROR';
-                return assignment.attributes.status;
-            }
-        },
-        {
-            header: assignmentID + ' Slips',
-            data(db, userID)
-            {
-                const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
-                if (!assignment) return 'ERROR';
-                return assignment.attributes.slips;
-            }
+        tableBuilder.addColumn(assignmentID + ' Status', (userID) => {
+            const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
+            if (!assignment) return '!ERROR';
+            return assignment.attributes.status;
+        });
+        tableBuilder.addColumn(assignmentID + ' Slips', (userID) => {
+            const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
+            if (!assignment) return '!ERROR';
+            return assignment.attributes.slips;
         });
     }
 
-    const outputTable = generateUserTable(db, [
-        {
-            header: 'Used Slips',
-            data(db, userID)
-            {
-                return UserDatabase.getUserByID(db, userID).attributes.slips.used;
-            }
-        },
-        {
-            header: 'Remaining Slips',
-            data(db, userID)
-            {
-                return UserDatabase.getUserByID(db, userID).attributes.slips.remaining;
-            }
-        },
-        {
-            header: 'Max Slips',
-            data(db, userID)
-            {
-                return UserDatabase.getUserByID(db, userID).attributes.slips.max;
-            }
-        },
-        {
-            header: 'Auto-report',
-            data(db, userID)
-            {
-                return 'N/A';
-            }
-        },
-        ...assignmentColumns
-    ]);
-    
-    writeTableToCSV(path.resolve(OUTPUT_DIR, 'slip-days.csv'), outputTable);
-}
-
-function generateUserTable(db, columns)
-{
-    const UserDatabase = require('./database/UserDatabase.js');
-    
-    const result = [];
-
-    const header = columns.map(e => e.header);
-    header.unshift('User ID');
-    result.push(header);
-
     for(const userID of UserDatabase.getUsers(db))
     {
-        const row = [];
-        row.push(userID);
-        
-        for(const column of columns)
-        {
-            row.push(column.data(db, userID));
-        }
-
-        result.push(row);
+        tableBuilder.addEntry(userID);
     }
-
-    return result;
+    
+    const outputTable = tableBuilder.build();
+    writeTableToCSV(path.resolve(OUTPUT_DIR, 'slip-days.csv'), outputTable);
 }
