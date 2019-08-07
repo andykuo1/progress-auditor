@@ -1,8 +1,8 @@
-const UserDatabase = require('../database/UserDatabase.js');
-const ScheduleDatabase = require('../database/ScheduleDatabase.js');
-const SubmissionDatabase = require('../database/SubmissionDatabase.js');
-const AssignmentDatabase = require('../database/AssignmentDatabase.js');
-const { compareDates } = require('../util/DateUtil.js');
+import * as UserDatabase from '../database/UserDatabase.js';
+import * as ScheduleDatabase from '../database/ScheduleDatabase.js';
+import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
+import * as AssignmentDatabase from '../database/AssignmentDatabase.js';
+import { compareDates } from '../util/DateUtil.js';
 
 const SUBMISSION_TYPE_UNKNOWN = 'unknown';
 const SUBMISSION_TYPE_SOURCE = 'source';
@@ -55,7 +55,7 @@ function getNearestSubmission(submissions, targetDate)
  * Searches through all submissions and assigns them to the appropriate assignment.
  * @param {Database} db The database to resolve for.
  */
-async function resolve(db)
+export async function resolve(db)
 {
     for(const ownerKey of SubmissionDatabase.getOwners(db))
     {
@@ -121,7 +121,3 @@ async function resolve(db)
         }
     }
 }
-
-module.exports = {
-    resolve
-};

@@ -1,19 +1,6 @@
-const { getPastSunday, getNextEffectiveSunday } = require('../util/DateUtil.js');
+import { getPastSunday, getNextEffectiveSunday } from '../util/DateUtil.js';
 
-const ONE_DAYTIME = 86400000;
-
-/**
- * Calculates the number of days starting from the
- * passed-in date to the other.
- * @param {Date} fromDate   The date from.
- * @param {Date} toDate     The date to.
- * @returns {Number}        The number of days between the passed-in dates.
- *                          Can assume to be a whole number.
- */
-function getNumberOfDaysBetween(fromDate, toDate)
-{
-    return Math.round(Math.abs((fromDate.getTime() - toDate.getTime()) / (ONE_DAYTIME)));
-}
+export const ONE_DAYTIME = 86400000;
 
 /**
  * Calculates the number of available slip days for the
@@ -21,12 +8,12 @@ function getNumberOfDaysBetween(fromDate, toDate)
  * @param {Object} schedule The schedule for the user.
  * @returns {Number} The number of slip days available.
  */
-function calculateNumberOfSlipDays(schedule)
+export function calculateNumberOfSlipDays(schedule)
 {
     return 3 * schedule.weeks;
 }
 
-function createSchedule(startDate, endDate, opts={})
+export function createSchedule(startDate, endDate, opts={})
 {
     const threshold = opts.threshold || 0;
     const thresholdTime = ONE_DAYTIME * threshold;
@@ -66,8 +53,3 @@ function createSchedule(startDate, endDate, opts={})
         lastSunday,
     };
 }
-
-module.exports = {
-    calculateNumberOfSlipDays,
-    createSchedule,
-};

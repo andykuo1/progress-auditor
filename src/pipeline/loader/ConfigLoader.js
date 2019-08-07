@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { readJSONFile } = require('../../util/FileUtil.js');
+import { readJSONFile } from '../../util/FileUtil.js';
 
 const DEFAULT_CONFIG_FILE_NAME = 'config.js';
 
@@ -16,7 +16,7 @@ const DEFAULT_CONFIG_FILE_NAME = 'config.js';
  * @param {String} configPath The path to the config file.
  * @returns {Object} The config loaded from this file.
  */
-async function loadConfig(configPath)
+export async function loadConfig(configPath)
 {
     console.log(`......Finding config file '${configPath}'...`);
 
@@ -143,7 +143,3 @@ function mergeConfigs(src, dst)
     }
     return dst;
 }
-
-module.exports = {
-    loadConfig
-};

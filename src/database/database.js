@@ -1,7 +1,7 @@
 /**
  * Creates a database to hold all your data :)
  */
-function createDatabase()
+export function createDatabase()
 {
     return {
         _errors: [],
@@ -29,7 +29,3 @@ function createDatabase()
         }
     };
 }
-
-module.exports = {
-    createDatabase
-};

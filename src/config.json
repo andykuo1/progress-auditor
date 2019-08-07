@@ -1,7 +1,0 @@
-{
-    "include": [
-        "./__TEST__/in/config.json"
-    ],
-    "outputPath": "./__TEST__/out/",
-    "debug": true
-}

@@ -1,27 +1,22 @@
-const path = require('path');
-const ConsoleHelper = require('./util/ConsoleHelper.js');
-const { loadConfig } = require('./pipeline/loader/ConfigLoader.js');
-const { setupDatabase } = require('./pipeline/setup/DatabaseSetup.js');
-const { loadDatabase } = require('./pipeline/loader/DatabaseLoader.js');
-const { loadAssignments } = require('./pipeline/loader/AssignmentLoader.js');
-const { processReviews } = require('./pipeline/processor/ReviewProcessor.js');
-const { processDatabase } = require('./pipeline/processor/DatabaseProcessor.js');
-const ReportOutput = require('./pipeline/output/ReportOutput.js');
-const DebugInfoOutput = require('./pipeline/output/DebugInfoOutput.js');
-const { parseAmericanDate } = require('./util/ParseUtil.js');
+import * as ConsoleHelper from './util/ConsoleHelper.js';
+import { loadConfig } from './pipeline/loader/ConfigLoader.js';
+import { setupDatabase } from './pipeline/setup/DatabaseSetup.js';
+import { loadDatabase } from './pipeline/loader/DatabaseLoader.js';
+import { loadAssignments } from './pipeline/loader/AssignmentLoader.js';
+import { processReviews } from './pipeline/processor/ReviewProcessor.js';
+import { processDatabase } from './pipeline/processor/DatabaseProcessor.js';
+import * as ReportOutput from './pipeline/output/ReportOutput.js';
+import * as DebugInfoOutput from './pipeline/output/DebugInfoOutput.js';
+import { parseAmericanDate } from './util/ParseUtil.js';
 
-const CONFIG_PATH = './src/config.json';
-
-main();
-
-async function main()
+export async function main(configPath = './config.json')
 {
     /**
      * Setup - Where all resources that loaders require to import
      * should be initialized.
      */
     console.log("Starting...");
-    const config = await loadConfig(CONFIG_PATH);
+    const config = await loadConfig(configPath);
     const db = await setupDatabase(config);
 
     // HACK: How do people access today's date?
@@ -69,7 +64,7 @@ async function main()
     {
         console.log("......Oh no! We found some errors...");
         console.log("......Finding debug info for you...");
-        await DebugInfoOutput.output(db, config);
+        await DebugInfoOutput.output(db, config.outputPath);
 
         console.log("...Failed!");
     }
@@ -80,11 +75,11 @@ async function main()
         if (config.debug)
         {
             console.log("......Finding debug info for you...");
-            await DebugInfoOutput.output(db, config);
+            await DebugInfoOutput.output(db, config.outputPath);
         }
 
         console.log("......Generating reports for you...");
-        await ReportOutput.output(db, config);
+        await ReportOutput.output(db, config.outputPath);
 
         console.log("...Success!");
     }

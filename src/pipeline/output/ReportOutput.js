@@ -1,13 +1,12 @@
 const path = require('path');
-const UserDatabase = require('../../database/UserDatabase.js');
-const AssignmentDatabase = require('../../database/AssignmentDatabase.js');
-const { writeTableToCSV } = require('../../util/FileUtil.js');
-const TableBuilder = require('../../util/TableBuilder.js');
 
-async function output(db, config)
+import * as UserDatabase from '../../database/UserDatabase.js';
+import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
+import { writeTableToCSV } from '../../util/FileUtil.js';
+import TableBuilder from '../../util/TableBuilder.js';
+
+export async function output(db, outputPath, opts={})
 {
-    const outputDir = config.outputPath;
-
     // COMPLETE = 0x2713 (checkmark)
     const COMPLETE_TOKEN = '\u2713';
     // INCOMPLETE = 0x2717 (cross) (RED)
@@ -67,9 +66,5 @@ async function output(db, config)
     }
     
     const outputTable = tableBuilder.build();
-    writeTableToCSV(path.resolve(outputDir, 'slip-days.csv'), outputTable);
+    writeTableToCSV(path.resolve(outputPath, 'slip-days.csv'), outputTable);
 }
-
-module.exports = {
-    output
-};

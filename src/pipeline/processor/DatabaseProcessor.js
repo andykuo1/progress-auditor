@@ -1,6 +1,6 @@
 const path = require('path');
 
-async function processDatabase(db, config)
+export async function processDatabase(db, config)
 {
     // Try to auto-resolve any issues in the database...
     console.log(`......Helping you fix a few things...`);
@@ -17,7 +17,3 @@ async function processDatabase(db, config)
 
     return Promise.all(resolverResults);
 }
-
-module.exports = {
-    processDatabase
-};

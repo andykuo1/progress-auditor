@@ -1,6 +1,6 @@
-const { readCSVFileByRow } = require('../util/FileUtil.js');
-const { parseDate } = require('../util/ParseUtil.js');
-const ReviewDatabase = require('../database/ReviewDatabase.js');
+import { readCSVFileByRow } from '../util/FileUtil.js';
+import { parseDate } from '../util/ParseUtil.js';
+import * as ReviewDatabase from '../database/ReviewDatabase.js';
 
 /**
  * Create ReviewDatabase based on input file.
@@ -8,7 +8,7 @@ const ReviewDatabase = require('../database/ReviewDatabase.js');
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-async function parse(db, filepath, opts={})
+export async function parse(db, filepath, opts={})
 {
     ReviewDatabase.setupDatabase(db);
 
@@ -48,7 +48,3 @@ async function parse(db, filepath, opts={})
 
     return db;
 }
-
-module.exports = {
-    parse
-};

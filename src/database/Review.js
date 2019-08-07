@@ -1,4 +1,4 @@
-function createReview(reviewID, reviewDate, comment, type, params)
+export function createReview(reviewID, reviewDate, comment, type, params)
 {
     return {
         id: reviewID,
@@ -8,7 +8,3 @@ function createReview(reviewID, reviewDate, comment, type, params)
         params
     };
 }
-
-module.exports = {
-    createReview
-};

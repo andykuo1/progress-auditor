@@ -1,6 +1,6 @@
-const SubmissionDatabase = require('../database/SubmissionDatabase.js');
+import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
 
-async function review(db, reviewID, reviewType, reviewParams)
+export async function review(db, reviewID, reviewType, reviewParams)
 {
     const submission = SubmissionDatabase.getSubmissionByID(db, reviewParams[1]);
     if (!submission)
@@ -11,7 +11,3 @@ async function review(db, reviewID, reviewType, reviewParams)
 
     SubmissionDatabase.changeSubmissionAssignment(db, submission, reviewParams[0]);
 }
-
-module.exports = {
-    review
-};

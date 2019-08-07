@@ -1,9 +1,9 @@
-const Review = require('./Review.js');
+import * as Review from './Review.js';
 
-const REVIEW_KEY = 'review';
+export const REVIEW_KEY = 'review';
 const OUTPUT_LOG = 'db.review.log';
 
-function setupDatabase(db)
+export function setupDatabase(db)
 {
     if (!(REVIEW_KEY in db))
     {
@@ -12,7 +12,7 @@ function setupDatabase(db)
     return db;
 }
 
-function addReview(db, reviewID, reviewDate, comment, type, params)
+export function addReview(db, reviewID, reviewDate, comment, type, params)
 {
     const reviewMapping = db[REVIEW_KEY];
 
@@ -29,17 +29,17 @@ function addReview(db, reviewID, reviewDate, comment, type, params)
     }
 }
 
-function getReviews(db)
+export function getReviews(db)
 {
     return db[REVIEW_KEY].keys();
 }
 
-function getReviewByID(db, reviewID)
+export function getReviewByID(db, reviewID)
 {
     return db[REVIEW_KEY].get(reviewID);
 }
 
-function outputLog(db, outputDir = '.')
+export function outputLog(db, outputDir = '.')
 {
     const reviewMapping = db[REVIEW_KEY];
     const result = {};
@@ -52,12 +52,3 @@ function outputLog(db, outputDir = '.')
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
     require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }
-
-module.exports = {
-    REVIEW_KEY,
-    setupDatabase,
-    addReview,
-    getReviews,
-    getReviewByID,
-    outputLog,
-};

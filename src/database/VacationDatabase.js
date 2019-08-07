@@ -1,10 +1,10 @@
-const Vacation = require('./Vacation.js');
-const { ONE_DAYTIME, isWithinDates, getDaysBetween } = require('../util/DateUtil.js');
+import * as Vacation from './Vacation.js';
+import { ONE_DAYTIME, isWithinDates, getDaysBetween } from '../util/DateUtil.js';
 
-const VACATION_KEY = 'vacation';
+export const VACATION_KEY = 'vacation';
 const OUTPUT_LOG = 'db.vacation.log';
 
-function setupDatabase(db)
+export function setupDatabase(db)
 {
     if (!(VACATION_KEY in db))
     {
@@ -13,7 +13,7 @@ function setupDatabase(db)
     return db;
 }
 
-function addVacation(db, vacationID, userID, startDate, endDate=startDate, padding=0, attributes = {})
+export function addVacation(db, vacationID, userID, startDate, endDate=startDate, padding=0, attributes = {})
 {
     const vacationMapping = db[VACATION_KEY];
 
@@ -37,7 +37,7 @@ function addVacation(db, vacationID, userID, startDate, endDate=startDate, paddi
  * @param {*} userID The user that we want to find vacations from.
  * @param {Date} date The date to offset.
  */
-function offsetDateByVacations(db, userID, date)
+export function offsetDateByVacations(db, userID, date)
 {
     const vacationMapping = db[VACATION_KEY];
     const vacations = getVacationsByUserID(db, userID);
@@ -56,17 +56,17 @@ function offsetDateByVacations(db, userID, date)
     return result;
 }
 
-function getVacations(db)
+export function getVacations(db)
 {
     return db[VACATION_KEY].keys();
 }
 
-function getVacationByID(db, id)
+export function getVacationByID(db, id)
 {
     return db[VACATION_KEY].get(id);
 }
 
-function getVacationsByUserID(db, userID)
+export function getVacationsByUserID(db, userID)
 {
     const vacationMapping = db[VACATION_KEY];
     const result = [];
@@ -80,7 +80,7 @@ function getVacationsByUserID(db, userID)
     return result;
 }
 
-function getVacationsByAttribute(db, attributeName, attributeValue)
+export function getVacationsByAttribute(db, attributeName, attributeValue)
 {
     let result = [];
     const vacationMapping = db[VACATION_KEY];
@@ -109,7 +109,7 @@ function getVacationsByAttribute(db, attributeName, attributeValue)
     return result;
 }
 
-function outputLog(db, outputDir = '.')
+export function outputLog(db, outputDir = '.')
 {
     const vacationMapping = db[VACATION_KEY];
     const result = {};
@@ -122,15 +122,3 @@ function outputLog(db, outputDir = '.')
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
     require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }
-
-module.exports = {
-    VACATION_KEY,
-    setupDatabase,
-    addVacation,
-    offsetDateByVacations,
-    getVacations,
-    getVacationByID,
-    getVacationsByUserID,
-    getVacationsByAttribute,
-    outputLog,
-};

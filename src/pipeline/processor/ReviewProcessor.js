@@ -1,8 +1,8 @@
 const path = require('path');
 
-const ReviewDatabase = require('../../database/ReviewDatabase.js');
+import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 
-async function processReviews(db, config)
+export async function processReviews(db, config)
 {
     // Process reviews...
     console.log(`......Looking over our work...`);
@@ -41,7 +41,3 @@ async function processReviews(db, config)
 
     return Promise.all(reviewResults);
 }
-
-module.exports = {
-    processReviews
-};

@@ -1,0 +1,10 @@
+{
+    "debug": true,
+    "include": [
+        "./__TEST__/in/config.json"
+    ],
+    "outputPath": "./__TEST__/out/",
+    "outputs": [
+        { "filePath": "./pipeline/output/ReportOutput.js", "opts": {} }
+    ]
+}

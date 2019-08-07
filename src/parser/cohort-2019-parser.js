@@ -1,8 +1,8 @@
-const { readCSVFileByRow } = require('../util/FileUtil.js');
-const { parseAmericanDate } = require('../util/ParseUtil.js');
-const { parseEmail, parseName } = require('../util/FieldParser.js');
-const UserDatabase = require('../database/UserDatabase.js');
-const ScheduleDatabase = require('../database/ScheduleDatabase.js');
+import { readCSVFileByRow } from '../util/FileUtil.js';
+import { parseAmericanDate } from '../util/ParseUtil.js';
+import { parseEmail, parseName } from '../util/FieldParser.js';
+import * as UserDatabase from '../database/UserDatabase.js';
+import * as ScheduleDatabase from '../database/ScheduleDatabase.js';
 
 /**
  * Create UserDatabase and ScheduleDatabase based on input file.
@@ -10,7 +10,7 @@ const ScheduleDatabase = require('../database/ScheduleDatabase.js');
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-async function parse(db, filepath, opts={ threshold: 2 })
+export async function parse(db, filepath, opts={ threshold: 2 })
 {
     UserDatabase.setupDatabase(db);
     ScheduleDatabase.setupDatabase(db);
@@ -54,7 +54,3 @@ async function parse(db, filepath, opts={ threshold: 2 })
 
     return db;
 }
-
-module.exports = {
-    parse
-};

@@ -1,8 +1,8 @@
-const { readCSVFileByRow } = require('../util/FileUtil.js');
-const { stringHash } = require('../util/MathHelper.js');
-const { parseDate } = require('../util/ParseUtil.js');
-const { parseEmail } = require('../util/FieldParser.js');
-const SubmissionDatabase = require('../database/SubmissionDatabase.js');
+import { readCSVFileByRow } from '../util/FileUtil.js';
+import { stringHash } from '../util/MathHelper.js';
+import { parseDate } from '../util/ParseUtil.js';
+import { parseEmail } from '../util/FieldParser.js';
+import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
 
 function evaluatePostAssignment(headerContent, bodyContent)
 {
@@ -127,7 +127,7 @@ Result:
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-async function parse(db, filepath, opts={})
+export async function parse(db, filepath, opts={})
 {
     SubmissionDatabase.setupDatabase(db);
 
@@ -195,7 +195,3 @@ async function parse(db, filepath, opts={})
 
     return db;
 }
-
-module.exports = {
-    parse
-};

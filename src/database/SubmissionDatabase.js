@@ -1,12 +1,12 @@
-const Submission = require('./Submission.js');
-const { compareDates } = require('../util/DateUtil.js');
+import * as Submission from './Submission.js';
+import { compareDates } from '../util/DateUtil.js';
 
-const SUBMISSION_KEY = 'submission';
-const SUBMISSION_OWNER_KEY = 'owner';
-const SUBMISSION_LIST_KEY = 'list';
+export const SUBMISSION_KEY = 'submission';
+export const SUBMISSION_OWNER_KEY = 'owner';
+export const SUBMISSION_LIST_KEY = 'list';
 const OUTPUT_LOG = 'db.submission.log';
 
-function setupDatabase(db)
+export function setupDatabase(db)
 {
     if (!(SUBMISSION_KEY in db)) db[SUBMISSION_KEY] = {};
     
@@ -23,7 +23,7 @@ function setupDatabase(db)
     return db;
 }
 
-function addSubmission(db, submissionID, ownerKey, assignmentID, submissionDate, attributes={})
+export function addSubmission(db, submissionID, ownerKey, assignmentID, submissionDate, attributes={})
 {
     const submissionMapping = db[SUBMISSION_KEY];
     const submissionOwnerMapping = submissionMapping[SUBMISSION_OWNER_KEY];
@@ -64,7 +64,7 @@ function addSubmission(db, submissionID, ownerKey, assignmentID, submissionDate,
  * @param {Object} assignedSubmissions The assignment-submissions mapping to add to.
  * @returns {Submission} The submission added.
  */
-function addSubmissionToAssignment(submission, assignmentID, assignedSubmissions)
+export function addSubmissionToAssignment(submission, assignmentID, assignedSubmissions)
 {
     // Makes sure the submission has the same assignment.
     submission.assignment = assignmentID;
@@ -105,7 +105,7 @@ function addSubmissionToAssignment(submission, assignmentID, assignedSubmissions
  * specified, will not add the submission back into assignments.
  * @returns {Submission} The changed submission.
  */
-function changeSubmissionAssignment(db, submission, newAssignmentID=undefined)
+export function changeSubmissionAssignment(db, submission, newAssignmentID=undefined)
 {
     const submissionOwnerMapping = db[SUBMISSION_KEY][SUBMISSION_OWNER_KEY];
     const assignedSubmissions = submissionOwnerMapping.get(submission.owner);
@@ -137,12 +137,12 @@ function changeSubmissionAssignment(db, submission, newAssignmentID=undefined)
  * @param {String} ownerKey The owner key to search by (is not the same as user id).
  * @returns {Array<Submission>} An array of the owner's submissions, null if owner not found.
  */
-function getAssignedSubmissionsByOwnerKey(db, ownerKey)
+export function getAssignedSubmissionsByOwnerKey(db, ownerKey)
 {
     return db[SUBMISSION_KEY][SUBMISSION_OWNER_KEY].get(ownerKey);
 }
 
-function getSubmissionByID(db, submissionID)
+export function getSubmissionByID(db, submissionID)
 {
     return db[SUBMISSION_KEY][SUBMISSION_LIST_KEY].get(submissionID);
 }
@@ -152,7 +152,7 @@ function getSubmissionByID(db, submissionID)
  * @param {Database} db The database to search through.
  * @returns {Iterable<String>} An iterable of owner ids.
  */
-function getOwners(db)
+export function getOwners(db)
 {
     return db[SUBMISSION_KEY][SUBMISSION_OWNER_KEY].keys();
 }
@@ -162,12 +162,12 @@ function getOwners(db)
  * @param {Database} db The database to search through.
  * @returns {Iterable<String>} An iterable of submission ids.
  */
-function getSubmissions(db)
+export function getSubmissions(db)
 {
     return db[SUBMISSION_KEY][SUBMISSION_LIST_KEY].keys();
 }
 
-function clearSubmissionsByOwner(db, ownerKey)
+export function clearSubmissionsByOwner(db, ownerKey)
 {
     // Remove from list mapping...
     const submissionListMapping = db[SUBMISSION_KEY][SUBMISSION_LIST_KEY];
@@ -187,7 +187,7 @@ function clearSubmissionsByOwner(db, ownerKey)
     submissionOwnerMapping.delete(ownerKey);
 }
 
-function removeSubmissionByID(db, submissionID)
+export function removeSubmissionByID(db, submissionID)
 {
     // Remove from list mapping...
     const submissionListMapping = db[SUBMISSION_KEY][SUBMISSION_LIST_KEY];
@@ -203,7 +203,7 @@ function removeSubmissionByID(db, submissionID)
     changeSubmissionAssignment(db, submission);
 }
 
-function outputLog(db, outputDir = '.')
+export function outputLog(db, outputDir = '.')
 {
     const submissionOwnerMapping = db[SUBMISSION_KEY][SUBMISSION_OWNER_KEY];
     const submissionListMapping = db[SUBMISSION_KEY][SUBMISSION_LIST_KEY];
@@ -224,19 +224,3 @@ function outputLog(db, outputDir = '.')
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
     require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }
-
-module.exports = {
-    SUBMISSION_KEY,
-    SUBMISSION_OWNER_KEY,
-    SUBMISSION_LIST_KEY,
-    setupDatabase,
-    addSubmission,
-    getSubmissionByID,
-    changeSubmissionAssignment,
-    getAssignedSubmissionsByOwnerKey,
-    clearSubmissionsByOwner,
-    removeSubmissionByID,
-    getOwners,
-    getSubmissions,
-    outputLog,
-};

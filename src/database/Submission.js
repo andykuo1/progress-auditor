@@ -1,4 +1,3 @@
-
 /**
  * @param {String} submissionID A globally unique identifier for this submission data object.
  * @param {String} ownerKey The owner of the submission.
@@ -7,7 +6,7 @@
  * @param {Object} attributes Any additional properties.
  * @returns {Submission} The submission data object.
  */
-function createSubmission(submissionID, ownerKey, assignmentID, submitDate, attributes={})
+export function createSubmission(submissionID, ownerKey, assignmentID, submitDate, attributes={})
 {
     return {
         id: submissionID,
@@ -17,7 +16,3 @@ function createSubmission(submissionID, ownerKey, assignmentID, submitDate, attr
         attributes,
     };
 }
-
-module.exports = {
-    createSubmission
-};

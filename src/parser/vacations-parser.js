@@ -1,7 +1,7 @@
-const { readCSVFileByRow } = require('../util/FileUtil.js');
-const { parseDate, parseAmericanDate } = require('../util/ParseUtil.js');
-const { parseEmail } = require('../util/FieldParser.js');
-const VacationDatabase = require('../database/VacationDatabase.js');
+import { readCSVFileByRow } from '../util/FileUtil.js';
+import { parseAmericanDate } from '../util/ParseUtil.js';
+import { parseEmail } from '../util/FieldParser.js';
+import * as VacationDatabase from '../database/VacationDatabase.js';
 
 /**
  * Create VacationDatabase based on input file.

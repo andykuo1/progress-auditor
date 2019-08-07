@@ -1,24 +1,19 @@
 const readline = require('readline');
 
-const interface = readline.createInterface({
+const readlineInterface = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
-async function question(message)
+export async function question(message)
 {
     return new Promise((resolve, reject) => {
-        interface.on('close', reject);
-        interface.question(message, resolve);
+        readlineInterface.on('close', reject);
+        readlineInterface.question(message, resolve);
     });
 }
 
-async function quit()
+export async function quit()
 {
-    interface.close();
+    readlineInterface.close();
 }
-
-module.exports = {
-    question,
-    quit
-};

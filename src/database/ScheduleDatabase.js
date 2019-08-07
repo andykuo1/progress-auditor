@@ -1,9 +1,9 @@
-const Schedule = require('./Schedule.js');
+import * as Schedule from './Schedule.js';
 
-const SCHEDULE_KEY = 'schedule';
+export const SCHEDULE_KEY = 'schedule';
 const OUTPUT_LOG = 'db.schedule.log';
 
-function setupDatabase(db)
+export function setupDatabase(db)
 {
     if (!(SCHEDULE_KEY in db))
     {
@@ -12,7 +12,7 @@ function setupDatabase(db)
     return db;
 }
 
-function addSchedule(db, userID, startDate, endDate, attributes={})
+export function addSchedule(db, userID, startDate, endDate, attributes={})
 {
     const scheduleMapping = db[SCHEDULE_KEY];
 
@@ -29,12 +29,12 @@ function addSchedule(db, userID, startDate, endDate, attributes={})
     }
 }
 
-function getScheduleByUserID(db, userID)
+export function getScheduleByUserID(db, userID)
 {
     return db[SCHEDULE_KEY].get(userID);
 }
 
-function outputLog(db, outputDir = '.')
+export function outputLog(db, outputDir = '.')
 {
     const scheduleMapping = db[SCHEDULE_KEY];
     const result = {};
@@ -47,11 +47,3 @@ function outputLog(db, outputDir = '.')
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
     require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }
-
-module.exports = {
-    SCHEDULE_KEY,
-    setupDatabase,
-    addSchedule,
-    getScheduleByUserID,
-    outputLog,
-};

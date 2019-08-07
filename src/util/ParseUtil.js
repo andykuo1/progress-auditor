@@ -1,4 +1,4 @@
-function parseDate(value)
+export function parseDate(value)
 {
     // 2018-06-10 06:20:30 UTC
     const result = new Date(1000);
@@ -23,7 +23,7 @@ function parseDate(value)
     return result;
 }
 
-function parseAmericanDate(value)
+export function parseAmericanDate(value)
 {
     // ex. 6/18/2019
     const result = new Date(1000);
@@ -41,8 +41,3 @@ function parseAmericanDate(value)
 
     return result;
 }
-
-module.exports = {
-    parseDate,
-    parseAmericanDate,
-};

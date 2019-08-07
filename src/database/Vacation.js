@@ -1,4 +1,4 @@
-const { ONE_DAYTIME, getDaysBetween, getPastSunday, getNextEffectiveSunday } = require('../util/DateUtil.js');
+import { ONE_DAYTIME, getDaysBetween, getPastSunday, getNextEffectiveSunday } from '../util/DateUtil.js';
 
 function computeDatesWithPadding(padding, startDate, endDate)
 {
@@ -31,7 +31,7 @@ function computeDatesWithPadding(padding, startDate, endDate)
  * @param {Object} attributes Any additional information about the vacation.
  * @returns {Object} The vacation data object.
  */
-function createVacation(vacationID, userID, startDate, endDate, padding, attributes)
+export function createVacation(vacationID, userID, startDate, endDate, padding, attributes)
 {
     const [newStartDate, newEndDate] = computeDatesWithPadding(padding, startDate, endDate);
     return {
@@ -48,7 +48,3 @@ function createVacation(vacationID, userID, startDate, endDate, padding, attribu
         attributes
     };
 }
-
-module.exports = {
-    createVacation
-};

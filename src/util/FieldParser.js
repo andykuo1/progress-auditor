@@ -1,9 +1,9 @@
-function parseName(value)
+export function parseName(value)
 {
     return value;
 }
 
-function parseEmail(value, ...values)
+export function parseEmail(value, ...values)
 {
     const result = value.split(',').map(e => {
         if (e) return e.trim().toLowerCase();
@@ -30,8 +30,3 @@ function parseEmail(value, ...values)
     if (result.length === 1) return result[0];
     else return result;
 }
-
-module.exports = {
-    parseName,
-    parseEmail,
-};

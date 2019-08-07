@@ -1,6 +1,6 @@
 const path = require('path');
 
-async function loadDatabase(db, config)
+export async function loadDatabase(db, config)
 {
     if (!('parsers' in config))
     {
@@ -21,7 +21,3 @@ async function loadDatabase(db, config)
 
     return Promise.all(parserResults);
 }
-
-module.exports = {
-    loadDatabase
-};

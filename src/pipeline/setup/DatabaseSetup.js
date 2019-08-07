@@ -1,14 +1,13 @@
-const Database = require('../../database/Database.js');
-const UserDatabase = require('../../database/UserDatabase.js');
-const ScheduleDatabase = require('../../database/ScheduleDatabase.js');
-const SubmissionDatabase = require('../../database/SubmissionDatabase.js');
-const AssignmentDatabase = require('../../database/AssignmentDatabase.js');
-const ReviewDatabase = require('../../database/ReviewDatabase.js');
-const VacationDatabase = require('../../database/VacationDatabase.js');
-
+import * as Database from '../../database/Database.js';
+import * as UserDatabase from '../../database/UserDatabase.js';
+import * as ScheduleDatabase from '../../database/ScheduleDatabase.js';
+import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
+import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
+import * as ReviewDatabase from '../../database/ReviewDatabase.js';
+import * as VacationDatabase from '../../database/VacationDatabase.js';
 
 // TODO: this is still hard-coded...
-async function setupDatabase(config)
+export async function setupDatabase(config)
 {
     const db = Database.createDatabase();
 
@@ -22,7 +21,3 @@ async function setupDatabase(config)
 
     return db;
 }
-
-module.exports = {
-    setupDatabase
-};

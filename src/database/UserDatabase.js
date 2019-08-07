@@ -1,9 +1,9 @@
-const User = require('./User.js');
+import * as User from './User.js';
 
-const USER_KEY = 'user';
+export const USER_KEY = 'user';
 const OUTPUT_LOG = 'db.user.log';
 
-function setupDatabase(db)
+export function setupDatabase(db)
 {
     if (!(USER_KEY in db))
     {
@@ -12,7 +12,7 @@ function setupDatabase(db)
     return db;
 }
 
-function addUser(db, userID, ownerKey, userName, attributes = {})
+export function addUser(db, userID, ownerKey, userName, attributes = {})
 {
     const userMapping = db[USER_KEY];
 
@@ -30,17 +30,17 @@ function addUser(db, userID, ownerKey, userName, attributes = {})
     }
 }
 
-function getUsers(db)
+export function getUsers(db)
 {
     return db[USER_KEY].keys();
 }
 
-function getUserByID(db, id)
+export function getUserByID(db, id)
 {
     return db[USER_KEY].get(id);
 }
 
-function getUserByOwnerKey(db, ownerKey)
+export function getUserByOwnerKey(db, ownerKey)
 {
     const userMapping = db[USER_KEY];
     for(const userData of userMapping.values())
@@ -60,7 +60,7 @@ function getUserByOwnerKey(db, ownerKey)
     return null;
 }
 
-function getUsersByAttribute(db, attributeName, attributeValue)
+export function getUsersByAttribute(db, attributeName, attributeValue)
 {
     let result = [];
     const userMapping = db[USER_KEY];
@@ -89,7 +89,7 @@ function getUsersByAttribute(db, attributeName, attributeValue)
     return result;
 }
 
-function outputLog(db, outputDir = '.')
+export function outputLog(db, outputDir = '.')
 {
     const userMapping = db[USER_KEY];
     const result = {};
@@ -102,14 +102,3 @@ function outputLog(db, outputDir = '.')
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
     require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }
-
-module.exports = {
-    USER_KEY,
-    setupDatabase,
-    addUser,
-    getUsers,
-    getUserByID,
-    getUserByOwnerKey,
-    getUsersByAttribute,
-    outputLog,
-};

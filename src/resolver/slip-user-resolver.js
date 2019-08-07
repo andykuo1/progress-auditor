@@ -1,9 +1,7 @@
-const UserDatabase = require('../database/UserDatabase.js');
-const ScheduleDatabase = require('../database/ScheduleDatabase.js');
-const AssignmentDatabase = require('../database/AssignmentDatabase.js');
-const { compareDates } = require('../util/DateUtil.js');
-
-const ONE_DAYTIME = 86400000;
+import * as UserDatabase from '../database/UserDatabase.js';
+import * as ScheduleDatabase from '../database/ScheduleDatabase.js';
+import * as AssignmentDatabase from '../database/AssignmentDatabase.js';
+import { ONE_DAYTIME, compareDates } from '../util/DateUtil.js';
 
 function calculateSlipDays(submitDate, dueDate)
 {
@@ -23,7 +21,7 @@ function calculateSlipDays(submitDate, dueDate)
  * already being assigned appropriately.
  * @param {Database} db The database to resolve for.
  */
-async function resolve(db)
+export async function resolve(db)
 {
     // HACK: There should be a better way to get today's date.
     const currentDate = db.currentDate;
@@ -77,7 +75,3 @@ async function resolve(db)
         };
     }
 }
-
-module.exports = {
-    resolve
-};

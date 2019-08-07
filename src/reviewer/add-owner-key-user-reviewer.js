@@ -1,6 +1,6 @@
-const UserDatabase = require('../database/UserDatabase.js');
+import * as UserDatabase from '../database/UserDatabase.js';
 
-async function review(db, reviewID, reviewType, reviewParams)
+export async function review(db, reviewID, reviewType, reviewParams)
 {
     const user = UserDatabase.getUserByID(db, reviewParams[0]);
     if (!user)
@@ -18,7 +18,3 @@ async function review(db, reviewID, reviewType, reviewParams)
         user.ownerKey = [user.ownerKey, reviewParams[1]];
     }
 }
-
-module.exports = {
-    review
-};

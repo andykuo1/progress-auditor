@@ -1,10 +1,6 @@
-const SubmissionDatabase = require('../database/SubmissionDatabase.js');
+import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
 
-async function review(db, reviewID, reviewType, reviewParams)
+export async function review(db, reviewID, reviewType, reviewParams)
 {
     SubmissionDatabase.clearSubmissionsByOwner(db, reviewParams[0]);
 }
-
-module.exports = {
-    review
-};

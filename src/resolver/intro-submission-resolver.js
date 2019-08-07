@@ -1,11 +1,11 @@
-const SubmissionDatabase = require('../database/SubmissionDatabase.js');
-const UserDatabase = require('../database/UserDatabase.js');
+import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
+import * as UserDatabase from '../database/UserDatabase.js';
 
 /**
  * Searches all unassigned submissions to check if they could also be 'intro' assignments.
  * @param {Database} db The database to resolve for.
  */
-async function resolve(db)
+export async function resolve(db)
 {
     for(const ownerKey of SubmissionDatabase.getOwners(db))
     {
@@ -29,7 +29,3 @@ async function resolve(db)
         }
     }
 }
-
-module.exports = {
-    resolve
-};

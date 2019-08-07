@@ -45,4 +45,4 @@ class TableBuilder
     }
 }
 
-module.exports = TableBuilder;
+export default TableBuilder;

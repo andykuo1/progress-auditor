@@ -1,17 +1,17 @@
-const AssignmentDatabase = require('./AssignmentDatabase.js');
-const VacationDatabase = require('./VacationDatabase.js');
-const { getPastSunday, getNextSunday, compareDates } = require('../util/DateUtil.js');
+import * as AssignmentDatabase from './AssignmentDatabase.js';
+import * as VacationDatabase from './VacationDatabase.js';
+import { getPastSunday, getNextSunday, compareDates } from '../util/DateUtil.js';
 
 const DAYS_PER_WEEK = 7;
 const MAX_GENERATED_ASSIGNMENTS = 100;
 
-function assign(db, userID, assignmentID, dueDate, attributes = {})
+export function assign(db, userID, assignmentID, dueDate, attributes = {})
 {
     const newDueDate = VacationDatabase.offsetDateByVacations(db, userID, dueDate);
     return AssignmentDatabase.addAssignment(db, userID, assignmentID, newDueDate, attributes);
 }
 
-function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, weekDay = 0, attributes = {})
+export function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, weekDay = 0, attributes = {})
 {
     const result = [];
 
@@ -47,8 +47,3 @@ function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, weekDa
 
     return result;
 }
-
-module.exports = {
-    assign,
-    assignWeekly,
-};

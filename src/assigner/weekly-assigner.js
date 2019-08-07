@@ -1,4 +1,4 @@
-async function assign(db, assignmentName, userID, opts = {})
+export async function assign(db, assignmentName, userID, opts = {})
 {
     const result = [];
 
@@ -36,7 +36,3 @@ async function assign(db, assignmentName, userID, opts = {})
 
     return result;
 }
-
-module.exports = {
-    assign
-};

@@ -1,10 +1,10 @@
-const SubmissionDatabase = require('../database/SubmissionDatabase.js');
+import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
 
 /**
  * Searches through all submissions and tries to assign them by post id.
  * @param {Database} db The database to resolve for.
  */
-async function resolve(db)
+export async function resolve(db)
 {
     for(const submissionID of SubmissionDatabase.getSubmissions(db))
     {
@@ -38,7 +38,3 @@ async function resolve(db)
         }
     }
 }
-
-module.exports = {
-    resolve
-};

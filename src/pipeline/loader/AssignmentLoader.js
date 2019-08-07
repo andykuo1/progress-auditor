@@ -1,10 +1,10 @@
-const UserDatabase = require('../../database/UserDatabase.js');
-const ScheduleDatabase = require('../../database/ScheduleDatabase.js');
-const { offsetDate } = require('../../util/DateUtil.js');
-const AssignmentGenerator = require('../../database/AssignmentGenerator.js');
+import * as UserDatabase from '../../database/UserDatabase.js';
+import * as ScheduleDatabase from '../../database/ScheduleDatabase.js';
+import { offsetDate } from '../../util/DateUtil.js';
+import * as AssignmentGenerator from '../../database/AssignmentGenerator.js';
 
 // TODO: this is still hard-coded...
-async function loadAssignments(db, config)
+export async function loadAssignments(db, config)
 {
     // Create assignments...
     
@@ -17,7 +17,3 @@ async function loadAssignments(db, config)
         AssignmentGenerator.assign(db, userID, 'last', new Date(schedule.lastSunday.getTime()));
     }
 }
-
-module.exports = {
-    loadAssignments
-};

@@ -6,7 +6,7 @@
  * @param {Object} attributes Any additional information about the user.
  * @returns {Object} The user data object.
  */
-function createUser(userID, ownerKey, userName, attributes)
+export function createUser(userID, ownerKey, userName, attributes)
 {
     return {
         id: userID,
@@ -15,7 +15,3 @@ function createUser(userID, ownerKey, userName, attributes)
         attributes
     };
 }
-
-module.exports = {
-    createUser
-};
