@@ -4,5 +4,5 @@ main();
 
 async function main()
 {
-    await Main.main('./dist/config.json');
+    await Main.run('./dist/config.json');
 }
