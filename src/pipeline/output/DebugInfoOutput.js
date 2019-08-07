@@ -9,18 +9,18 @@ const { writeToFile } = require('../../util/FileUtil.js');
 
 async function output(db, config)
 {
-    const OUTPUT_DIR = './src/__TEST__/out/';
+    const outputDir = config.outputPath;
 
     // Output all database logs...
-    UserDatabase.outputLog(db, OUTPUT_DIR);
-    ScheduleDatabase.outputLog(db, OUTPUT_DIR);
-    SubmissionDatabase.outputLog(db, OUTPUT_DIR);
-    AssignmentDatabase.outputLog(db, OUTPUT_DIR);
-    ReviewDatabase.outputLog(db, OUTPUT_DIR);
-    VacationDatabase.outputLog(db, OUTPUT_DIR);
+    UserDatabase.outputLog(db, outputDir);
+    ScheduleDatabase.outputLog(db, outputDir);
+    SubmissionDatabase.outputLog(db, outputDir);
+    AssignmentDatabase.outputLog(db, outputDir);
+    ReviewDatabase.outputLog(db, outputDir);
+    VacationDatabase.outputLog(db, outputDir);
 
     // Output computed config file...
-    writeToFile(path.resolve(OUTPUT_DIR, 'config.log'), JSON.stringify(config, null, 4));
+    writeToFile(path.resolve(outputDir, 'config.log'), JSON.stringify(config, null, 4));
 
     // Output error list...
     let output;
@@ -32,7 +32,7 @@ async function output(db, config)
     {
         output = "It's okay. We'll get through this.\n\n" + db.getErrors().join('\n');
     }
-    writeToFile(path.resolve(OUTPUT_DIR, 'errors.txt'), output);
+    writeToFile(path.resolve(outputDir, 'errors.txt'), output);
 }
 
 module.exports = {

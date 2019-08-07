@@ -6,7 +6,7 @@ const TableBuilder = require('../../util/TableBuilder.js');
 
 async function output(db, config)
 {
-    const OUTPUT_DIR = './src/__TEST__/out/';
+    const outputDir = config.outputPath;
 
     // COMPLETE = 0x2713 (checkmark)
     const COMPLETE_TOKEN = '\u2713';
@@ -67,7 +67,7 @@ async function output(db, config)
     }
     
     const outputTable = tableBuilder.build();
-    writeTableToCSV(path.resolve(OUTPUT_DIR, 'slip-days.csv'), outputTable);
+    writeTableToCSV(path.resolve(outputDir, 'slip-days.csv'), outputTable);
 }
 
 module.exports = {
