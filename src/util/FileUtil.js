@@ -2,10 +2,16 @@ const fs = require('fs');
 const readline = require('readline');
 const Papa = require('papaparse');
 
+function readJSONFile(filepath)
+{
+    const data = fs.readFileSync(filepath);
+    return JSON.parse(data);
+}
+
 /**
  * Reads a csv file asynchronously and processes the file by row.
  * @param {String} filepath The file path to the file to be read.
- * @param {*} callback The callback function to process the row read.
+ * @param {Function} callback The callback function to process the row read.
  */
 function readCSVFileByRow(filepath, callback)
 {
@@ -23,7 +29,7 @@ function readCSVFileByRow(filepath, callback)
 /**
  * Reads a file asynchronously and processes the file by line.
  * @param {String} filepath The file path to the file to be read.
- * @param {*} callback The callback function to process the line read.
+ * @param {Function} callback The callback function to process the line read.
  */
 function readFileByLine(filepath, callback)
 {
@@ -44,7 +50,6 @@ function readFileByLine(filepath, callback)
 // TODO: Temporary hack for writing files, NOT ASYNC!
 function writeToFile(filepath, content)
 {
-    const fs = require('fs');
     fs.writeFile(filepath, content, function(err) {
         if (err)
         {
@@ -63,6 +68,7 @@ function writeTableToCSV(filepath, table)
 module.exports = {
     readFileByLine,
     readCSVFileByRow,
+    readJSONFile,
     writeToFile,
     writeTableToCSV,
 };
