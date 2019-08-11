@@ -1,9 +1,26 @@
 {
     "include": [
-        "./assigner/",
+        "../base/parser",
         "./parser/",
         "./resolver/",
         "./reviewer/",
         "./output/"
+    ],
+    "assignments": [
+        {
+            "name": "intro",
+            "filePath": "./assignment/intro-assignment.js",
+            "opts": {}
+        },
+        {
+            "name": "week",
+            "filePath": "./assignment/weekly-assignment.js",
+            "opts": {}
+        },
+        {
+            "name": "last",
+            "filePath": "./assignment/last-assignment.js",
+            "opts": {}
+        }
     ]
 }

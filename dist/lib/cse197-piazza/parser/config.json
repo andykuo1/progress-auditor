@@ -10,14 +10,6 @@
         {
             "filePath": "./contributions-parser.js",
             "inputFile": "contributions.csv"
-        },
-        {
-            "filePath": "./reviews-parser.js",
-            "inputFile": "reviews.csv"
-        },
-        {
-            "filePath": "./vacations-parser.js",
-            "inputFile": "vacations.csv"
         }
     ]
 }
