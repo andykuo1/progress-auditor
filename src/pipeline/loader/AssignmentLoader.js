@@ -1,19 +1,31 @@
 import * as UserDatabase from '../../database/UserDatabase.js';
 import * as ScheduleDatabase from '../../database/ScheduleDatabase.js';
-import { offsetDate } from '../../util/DateUtil.js';
-import * as AssignmentGenerator from '../../database/AssignmentGenerator.js';
 
-// TODO: this is still hard-coded...
 export async function loadAssignments(db, config)
 {
-    // Create assignments...
-    
-    // NOTE: Custom assignment handlers...
-    for(const userID of UserDatabase.getUsers(db))
+    if (!('assignments' in config))
     {
-        const schedule = ScheduleDatabase.getScheduleByUserID(db, userID);
-        AssignmentGenerator.assign(db, userID, 'intro', offsetDate(schedule.startDate, 7));
-        AssignmentGenerator.assignWeekly(db, userID, 'week', schedule.firstSunday, schedule.lastSunday);
-        AssignmentGenerator.assign(db, userID, 'last', new Date(schedule.lastSunday.getTime()));
+        console.log('......No assignments found...');
+        return Promise.resolve([]);
     }
+
+    // Create assignments...
+    const assignmentResults = [];
+    for(const assignmentConfig of config.assignments)
+    {
+        const name = assignmentConfig.name;
+        const filePath = assignmentConfig.filePath;
+        const assignment = require(filePath);
+
+        console.log(`......Assigning '${path.basename(assignmentConfig.name)}' with '${path.basename(assignmentConfig.filePath)}'...`);
+
+        for(const userID of UserDatabase.getUsers(db))
+        {
+            const schedule = ScheduleDatabase.getScheduleByUserID(db, userID);
+            
+            assignmentResults.push(assignment.parse(db, name, userID, schedule, assignmentConfig.opts));
+        }
+    }
+
+    return Promise.all(assignmentResults);
 }

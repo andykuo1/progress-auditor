@@ -1,7 +1,6 @@
 // database
 import * as Assignment from './database/Assignment.js';
 import * as AssignmentDatabase from './database/AssignmentDatabase.js';
-import * as AssignmentGenerator from './database/AssignmentGenerator.js';
 import * as Database from './database/Database.js';
 import * as Review from './database/Review.js';
 import * as ReviewDatabase from './database/ReviewDatabase.js';
@@ -16,7 +15,6 @@ import * as VacationDatabase from './database/VacationDatabase.js';
 const DATABASE_EXPORTS = {
     Assignment,
     AssignmentDatabase,
-    AssignmentGenerator,
     Database,
     Review,
     ReviewDatabase,
@@ -38,7 +36,6 @@ import * as DatabaseLoader from './pipeline/loader/DatabaseLoader.js';
 import * as ReviewProcessor from './pipeline/processor/ReviewProcessor.js';
 import * as DatabaseProcessor from './pipeline/processor/DatabaseProcessor.js';
 import * as OutputProcessor from './pipeline/processor/OutputProcessor.js';
-import * as DebugInfoOutput from './lib/output/DebugInfoOutput.js';
 const PIPELINE_EXPORTS = {
     DatabaseSetup,
     AssignmentLoader,
@@ -46,8 +43,7 @@ const PIPELINE_EXPORTS = {
     DatabaseLoader,
     ReviewProcessor,
     DatabaseProcessor,
-    OutputProcessor,
-    DebugInfoOutput
+    OutputProcessor
 };
 
 // util
@@ -68,6 +64,14 @@ const UTIL_EXPORTS = {
     TableBuilder
 };
 
+// lib
+import * as DebugInfoOutput from './lib/output/DebugInfoOutput.js';
+import * as AssignmentGenerator from './lib/AssignmentGenerator.js';
+const LIB_EXPORTS = {
+    DebugInfoOutput,
+    AssignmentGenerator
+};
+
 import { loadConfig } from './pipeline/loader/ConfigLoader.js';
 import { setupDatabase } from './pipeline/setup/DatabaseSetup.js';
 import { loadDatabase } from './pipeline/loader/DatabaseLoader.js';
@@ -78,7 +82,8 @@ import { processDatabase } from './pipeline/processor/DatabaseProcessor.js';
 export const Library = {
     ...DATABASE_EXPORTS,
     ...PIPELINE_EXPORTS,
-    ...UTIL_EXPORTS
+    ...UTIL_EXPORTS,
+    ...LIB_EXPORTS
 };
 
 export async function run(configPath = './config.json')

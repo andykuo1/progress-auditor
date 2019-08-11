@@ -20,6 +20,12 @@ export async function loadConfig(configPath)
 {
     console.log(`......Finding config file '${configPath}'...`);
 
+    if (!fs.existsSync(configPath))
+    {
+        console.error('Cannot find non-existant config file.');
+        return Promise.resolve({});
+    }
+
     let parentConfig;
     let parentDir;
     if (fs.lstatSync(configPath).isDirectory())
