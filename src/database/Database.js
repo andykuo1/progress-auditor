@@ -1,5 +1,7 @@
 /**
  * Creates a database to hold all your data :)
+ * 
+ * It also has some extra error-handling to help you log errors.
  */
 export function createDatabase()
 {

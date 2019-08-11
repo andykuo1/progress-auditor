@@ -1,8 +1,19 @@
 import * as Assignment from './Assignment.js';
 
+/**
+ * The key for the database to access Assignment data.
+ */
 export const ASSIGNMENT_KEY = 'assignment';
+
+/**
+ * The name of the output log for this data.
+ */
 const OUTPUT_LOG = 'db.assignment.log';
 
+/**
+ * Prepares the database to be used for assignments.
+ * @param {Database} db The database to prepare the sub-database for.
+ */
 export function setupDatabase(db)
 {
     if (!(ASSIGNMENT_KEY in db))
@@ -12,6 +23,14 @@ export function setupDatabase(db)
     return db;
 }
 
+/**
+ * Adds an assignment, by id, to a given user with the specified due date.
+ * @param {Database} db The current database to add to.
+ * @param {*} userID The unique id of the user to add the assignment for.
+ * @param {*} assignmentID The associated unique id for the assignment.
+ * @param {Date} dueDate The due date for the assignment.
+ * @param {Object} attributes Any additional options to be saved with the assignment.
+ */
 export function addAssignment(db, userID, assignmentID, dueDate, attributes={})
 {
     const assignmentMapping = db[ASSIGNMENT_KEY];
@@ -44,11 +63,21 @@ export function getAssignmentByID(db, userID, assignmentID)
     return db[ASSIGNMENT_KEY].get(userID)[assignmentID];
 }
 
+/**
+ * 
+ * @param {Database} db The current database.
+ * @param {*} userID The target user to search for.
+ */
 export function getAssignmentsByUser(db, userID)
 {
     return db[ASSIGNMENT_KEY].get(userID);
 }
 
+/**
+ * Outputs all information related to assignments in this database.
+ * @param {Database} db The current database.
+ * @param {String} outputDir The output directory that will contain the output log.
+ */
 export function outputLog(db, outputDir = '.')
 {
     const assignmentMapping = db[ASSIGNMENT_KEY];

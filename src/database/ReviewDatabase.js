@@ -1,8 +1,19 @@
 import * as Review from './Review.js';
 
+/**
+ * The key for the database to access Review data.
+ */
 export const REVIEW_KEY = 'review';
+
+/**
+ * The name of the output log for this data.
+ */
 const OUTPUT_LOG = 'db.review.log';
 
+/**
+ * Prepares the database to be used for reviews.
+ * @param {Database} db The database to prepare the sub-database for.
+ */
 export function setupDatabase(db)
 {
     if (!(REVIEW_KEY in db))
@@ -12,6 +23,15 @@ export function setupDatabase(db)
     return db;
 }
 
+/**
+ * Adds a review, by id, with the specified attributes.
+ * @param {Database} db The current database to add to.
+ * @param {*} reviewID The associated unique id for the review.
+ * @param {Date} reviewDate The date the review was created.
+ * @param {String} comment Comments related to this review.
+ * @param {String} type The type of review. This is usually associated with a reviewer script.
+ * @param {Array} params A variable length array of parameters for the review.
+ */
 export function addReview(db, reviewID, reviewDate, comment, type, params)
 {
     const reviewMapping = db[REVIEW_KEY];
@@ -39,6 +59,11 @@ export function getReviewByID(db, reviewID)
     return db[REVIEW_KEY].get(reviewID);
 }
 
+/**
+ * Outputs all information related to reviews in this database.
+ * @param {Database} db The current database.
+ * @param {String} outputDir The output directory that will contain the output log.
+ */
 export function outputLog(db, outputDir = '.')
 {
     const reviewMapping = db[REVIEW_KEY];
