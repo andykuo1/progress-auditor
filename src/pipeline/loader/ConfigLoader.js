@@ -13,6 +13,7 @@ const DEFAULT_CONFIG_FILE_NAME = 'config.json';
  * include list, those will load first, and therefore also be overriden by the last config.
  * And this "root" config will override all of them. If the property overriden is an array,
  * it will attempt to merge them instead.
+ * 
  * @param {String} configPath The path to the config file.
  * @returns {Object} The config loaded from this file.
  */
@@ -103,6 +104,8 @@ function resolveConfigPathEntry(parentPath, value)
     }
     else if (typeof value === 'string')
     {
+        // TODO: Implement path macros.
+        // const index = value.indexOf('$EXEC_PATH');
         return path.resolve(parentPath, value);
     }
     else
