@@ -8,7 +8,7 @@ function evaluatePostAssignment(headerContent, bodyContent)
 {
     // Intro Assignment
     {
-        if (/intro/i.test(headerContent) || /week ?0+/i.test(headerContent))
+        if (/intro/i.test(headerContent))
         {
             return 'intro';
         }
@@ -19,7 +19,14 @@ function evaluatePostAssignment(headerContent, bodyContent)
         const result = pattern.exec(headerContent);
         if (result && result.length > 0)
         {
-            return 'week[' + result[1] + ']';
+            if (result[1] == '0')
+            {
+                return 'intro';
+            }
+            else
+            {
+                return 'week[' + Number.parseInt(result[1]) + ']';
+            }
         }
     }
     // Last Assignment
