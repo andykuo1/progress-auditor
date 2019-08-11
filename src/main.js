@@ -37,8 +37,8 @@ import * as ConfigLoader from './pipeline/loader/ConfigLoader.js';
 import * as DatabaseLoader from './pipeline/loader/DatabaseLoader.js';
 import * as ReviewProcessor from './pipeline/processor/ReviewProcessor.js';
 import * as DatabaseProcessor from './pipeline/processor/DatabaseProcessor.js';
-import * as DebugInfoOutput from './pipeline/output/DebugInfoOutput.js';
-import * as ReportOutput from './pipeline/output/ReportOutput.js';
+import * as OutputProcessor from './pipeline/processor/OutputProcessor.js';
+import * as DebugInfoOutput from './lib/output/DebugInfoOutput.js';
 const PIPELINE_EXPORTS = {
     DatabaseSetup,
     AssignmentLoader,
@@ -46,8 +46,8 @@ const PIPELINE_EXPORTS = {
     DatabaseLoader,
     ReviewProcessor,
     DatabaseProcessor,
-    DebugInfoOutput,
-    ReportOutput
+    OutputProcessor,
+    DebugInfoOutput
 };
 
 // util
@@ -66,7 +66,7 @@ const UTIL_EXPORTS = {
     MathHelper,
     ParseUtil,
     TableBuilder
-}
+};
 
 import { loadConfig } from './pipeline/loader/ConfigLoader.js';
 import { setupDatabase } from './pipeline/setup/DatabaseSetup.js';
@@ -153,8 +153,10 @@ export async function run(configPath = './config.json')
             await DebugInfoOutput.output(db, config.outputPath);
         }
 
-        console.log("......Generating reports for you...");
-        await ReportOutput.output(db, config.outputPath);
+        if (config.outputs)
+        {
+            await OutputProcessor.processOutput(db, config);
+        }
 
         console.log("...Success!");
     }

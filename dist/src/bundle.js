@@ -1406,6 +1406,30 @@ var DatabaseProcessor = /*#__PURE__*/Object.freeze({
 
 const path$4 = require('path');
 
+async function processOutput(db, config)
+{
+    // Process outputs...
+    console.log("......Generating reports for you...");
+
+    const outputResults = [];
+    for(const outputConfig of config.outputs)
+    {
+        const filePath = outputConfig.filePath;
+        const output = require(filePath);
+
+        console.log(`.........Outputting with '${path$4.basename(outputConfig.filePath)}'...`);
+        outputResults.push(output.output(db, config.outputPath, outputConfig.opts));
+    }
+
+    return Promise.all(outputResults);
+}
+
+var OutputProcessor = /*#__PURE__*/Object.freeze({
+    processOutput: processOutput
+});
+
+const path$5 = require('path');
+
 async function output(db, outputPath, config)
 {
     // Output all database logs...
@@ -1417,7 +1441,7 @@ async function output(db, outputPath, config)
     outputLog$1(db, outputPath);
 
     // Output computed config file...
-    writeToFile(path$4.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
+    writeToFile(path$5.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
 
     // Output error list...
     let output;
@@ -1429,115 +1453,11 @@ async function output(db, outputPath, config)
     {
         output = "It's okay. We'll get through this.\n\n" + db.getErrors().join('\n');
     }
-    writeToFile(path$4.resolve(outputPath, 'errors.txt'), output);
+    writeToFile(path$5.resolve(outputPath, 'errors.txt'), output);
 }
 
 var DebugInfoOutput = /*#__PURE__*/Object.freeze({
     output: output
-});
-
-const IDENTITY = function(a) { return a; };
-
-class TableBuilder
-{
-    constructor()
-    {
-        this.entries = [];
-        this.columns = [];
-    }
-    
-    addEntry(...dataArgs)
-    {
-        this.entries.push(dataArgs);
-    }
-
-    addColumn(header, dataCallback = IDENTITY)
-    {
-        this.columns.push({
-            header,
-            data: dataCallback
-        });
-    }
-
-    build()
-    {
-        const headerRow = [];
-        for(const column of this.columns)
-        {
-            headerRow.push(column.header);
-        }
-
-        const table = [];
-        table.push(headerRow);
-        for(const entry of this.entries)
-        {
-            const row = [];
-            for(const column of this.columns)
-            {
-                const value = column.data.apply(null, entry);
-                row.push(value);
-            }
-            table.push(row);
-        }
-        return table;
-    }
-}
-
-const path$5 = require('path');
-
-async function output$1(db, outputPath, config)
-{
-
-    const tableBuilder = new TableBuilder();
-    tableBuilder.addColumn('User ID');
-    tableBuilder.addColumn('Used Slips', (userID) => {
-        return getUserByID(db, userID).attributes.slips.used;
-    });
-    tableBuilder.addColumn('Remaining Slips', (userID) => {
-        return getUserByID(db, userID).attributes.slips.remaining;
-    });
-    tableBuilder.addColumn('Average Slips', (userID) => {
-        return getUserByID(db, userID).attributes.slips.average;
-    });
-    tableBuilder.addColumn('Max Slips', (userID) => {
-        return getUserByID(db, userID).attributes.slips.max;
-    });
-    tableBuilder.addColumn('Auto-report', (userID) => {
-        // The auto-report threshold formula
-        // Check the average if maintained from today, would it exceed by the end date.
-        const averageSlips = getUserByID(db, userID).attributes.slips.average;
-        // Check if there are any holes in submissions.
-        // Check if intro or week 1 is past due date.
-        return 'N/A';
-    });
-
-    const assignments = ['intro', 'week[1]', 'week[2]', 'week[3]', 'week[4]', 'week[5]', 'week[6]'];
-    for(const assignmentID of assignments)
-    {
-        tableBuilder.addColumn(assignmentID + ' Status', (userID) => {
-            const assignment = getAssignmentByID(db, userID, assignmentID);
-            if (!assignment) return '!ERROR';
-            return assignment.attributes.status;
-        });
-        tableBuilder.addColumn(assignmentID + ' Slips', (userID) => {
-            const assignment = getAssignmentByID(db, userID, assignmentID);
-            if (!assignment) return '!ERROR';
-            return assignment.attributes.slips;
-        });
-    }
-
-    // Populate the table...
-    for(const userID of getUsers(db))
-    {
-        tableBuilder.addEntry(userID);
-    }
-    
-    const outputTable = tableBuilder.build();
-    writeTableToCSV(path$5.resolve(outputPath, 'slip-days.csv'), outputTable);
-}
-
-var ReportOutput = /*#__PURE__*/Object.freeze({
-    output: output$1
 });
 
 const readline$1 = require('readline');
@@ -1685,6 +1605,53 @@ var ParseUtil = /*#__PURE__*/Object.freeze({
     parseAmericanDate: parseAmericanDate
 });
 
+const IDENTITY = function(a) { return a; };
+
+class TableBuilder
+{
+    constructor()
+    {
+        this.entries = [];
+        this.columns = [];
+    }
+    
+    addEntry(...dataArgs)
+    {
+        this.entries.push(dataArgs);
+    }
+
+    addColumn(header, dataCallback = IDENTITY)
+    {
+        this.columns.push({
+            header,
+            data: dataCallback
+        });
+    }
+
+    build()
+    {
+        const headerRow = [];
+        for(const column of this.columns)
+        {
+            headerRow.push(column.header);
+        }
+
+        const table = [];
+        table.push(headerRow);
+        for(const entry of this.entries)
+        {
+            const row = [];
+            for(const column of this.columns)
+            {
+                const value = column.data.apply(null, entry);
+                row.push(value);
+            }
+            table.push(row);
+        }
+        return table;
+    }
+}
+
 // database
 const DATABASE_EXPORTS = {
     Assignment,
@@ -1709,8 +1676,8 @@ const PIPELINE_EXPORTS = {
     DatabaseLoader,
     ReviewProcessor,
     DatabaseProcessor,
-    DebugInfoOutput,
-    ReportOutput
+    OutputProcessor,
+    DebugInfoOutput
 };
 const UTIL_EXPORTS = {
     ConsoleHelper,
@@ -1800,8 +1767,11 @@ async function run(configPath = './config.json')
             await output(db, config.outputPath);
         }
 
-        console.log("......Generating reports for you...");
-        await output$1(db, config.outputPath);
+        if (config.outputs)
+        {
+            console.log("......Generating reports for you...");
+            await processOutput(db, config);
+        }
 
         console.log("...Success!");
     }

@@ -6,6 +6,6 @@
     "inputPath": "./__TEST__/in/",
     "outputPath": "./__TEST__/out/",
     "outputs": [
-        { "filePath": "./pipeline/output/ReportOutput.js", "opts": {} }
+        { "filePath": "./lib/cse197-piazza/output/ReportOutput.js", "opts": {} }
     ]
 }
