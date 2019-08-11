@@ -2,19 +2,21 @@
   "name": "CSE197Dashboard",
   "version": "1.0.0",
   "description": "## Version 1 Everything will be based on CSV.",
-  "main": "index.js",
+  "main": "./src/main.js",
+  "bin": "./src/bin.js",
   "scripts": {
     "start": "node ./dist/bundle.js",
-    "build": "rollup ./src/main.js --file ./dist/bundle.js --format cjs",
+    "build": "rollup ./src/bin.js --file ./dist/src/bundle.js --format cjs && pkg ./dist/src/bundle.js --out-path ./dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Andrew Kuo",
+  "license": "MIT",
   "dependencies": {
     "papaparse": "^5.0.0"
   },
   "devDependencies": {
+    "pkg": "^4.4.0",
     "rollup": "^1.19.4"
   }
 }

@@ -75,32 +75,16 @@ import { loadAssignments } from './pipeline/loader/AssignmentLoader.js';
 import { processReviews } from './pipeline/processor/ReviewProcessor.js';
 import { processDatabase } from './pipeline/processor/DatabaseProcessor.js';
 
-const EXPORTS = {
+export const Library = {
     ...DATABASE_EXPORTS,
     ...PIPELINE_EXPORTS,
     ...UTIL_EXPORTS
 };
 
-/*
-function setupModuleRequire()
-{
-    const Module = require('module');
-    const ModuleRequire = Module.prototype.require;
-    
-    Module.prototype.require = function(filepath) {
-        if (filepath === 'main')
-        {
-            return EXPORTS;
-        }
-        return ModuleRequire.apply(this, arguments);
-    };
-}
-*/
-
-async function run(configPath = './config.json')
+export async function run(configPath = './config.json')
 {
     // Declare Library as global variable.
-    global.Library = EXPORTS;
+    global.Library = Library;
 
     /**
      * Setup - Where all resources that loaders require to import
@@ -183,6 +167,3 @@ async function run(configPath = './config.json')
     console.log("......Stopped.");
     console.log();
 }
-
-// Start it.
-run();

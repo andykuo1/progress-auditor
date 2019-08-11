@@ -1,0 +1,11 @@
+{
+    "debug": true,
+    "include": [
+        "./lib/cse197-piazza"
+    ],
+    "inputPath": "./__TEST__/in/",
+    "outputPath": "./__TEST__/out/",
+    "outputs": [
+        { "filePath": "./pipeline/output/ReportOutput.js", "opts": {} }
+    ]
+}
