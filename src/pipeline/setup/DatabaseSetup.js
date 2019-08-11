@@ -10,8 +10,7 @@ import * as VacationDatabase from '../../database/VacationDatabase.js';
 export async function setupDatabase(config)
 {
     const db = Database.createDatabase();
-
-    // NOTE: User-defined databases...
+    
     UserDatabase.setupDatabase(db);
     ScheduleDatabase.setupDatabase(db);
     SubmissionDatabase.setupDatabase(db);

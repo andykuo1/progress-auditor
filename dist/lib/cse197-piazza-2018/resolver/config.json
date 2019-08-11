@@ -1,0 +1,17 @@
+{
+    "resolvers": [
+        {
+            "filePath": "./auto-submission-resolver.js",
+            "opts": {}
+        },
+        {
+            "filePath": "./intro-submission-resolver.js"
+        },
+        {
+            "filePath": "./assign-submission-resolver.js"
+        },
+        {
+            "filePath": "./slip-user-resolver.js"
+        }
+    ]
+}

@@ -1,6 +1,7 @@
 const path = require('path');
 
 import * as ReviewDatabase from '../../database/ReviewDatabase.js';
+import * as NullReviewer from '../../lib/reviewer/NullReviewer.js';
 
 export async function processReviews(db, config)
 {
@@ -8,6 +9,9 @@ export async function processReviews(db, config)
     console.log(`......Looking over our work...`);
 
     const reviewers = new Map();
+    // Add default review type
+    reviewers.set('unknown', NullReviewer.review);
+    // Add the remaining config reviewers...
     for(const reviewerConfig of config.reviewers)
     {
         const filePath = reviewerConfig.filePath;
@@ -18,7 +22,8 @@ export async function processReviews(db, config)
 
         reviewers.set(name, reviewer);
     }
-
+    
+    // Run the reviews...
     const reviewResults = [];
     for(const reviewID of ReviewDatabase.getReviews(db))
     {

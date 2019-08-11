@@ -1,0 +1,23 @@
+{
+    "parsers": [
+        {
+            "filePath": "./cohort-2018-parser.js",
+            "inputFile": "cohort.csv",
+            "opts": {
+                "threshold": 3
+            }
+        },
+        {
+            "filePath": "./contributions-parser.js",
+            "inputFile": "contributions.csv"
+        },
+        {
+            "filePath": "./reviews-parser.js",
+            "inputFile": "reviews.csv"
+        },
+        {
+            "filePath": "./vacations-parser.js",
+            "inputFile": "vacations.csv"
+        }
+    ]
+}
