@@ -5,7 +5,7 @@
   "main": "./src/main.js",
   "bin": "./src/bin.js",
   "scripts": {
-    "start": "npm run build && ./dist/bundle-macos",
+    "start": "./dist/bundle-macos",
     "build": "rollup --config ./rollup.config.js --file ./dist/src/bundle.js --format cjs && pkg ./dist/src/bundle.js --out-path ./dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -3,7 +3,7 @@
         "./parser/",
         "./resolver/",
         "./reviewer/",
-        "./output/",
+        "./output/"
     ],
     "assignments": [
         {

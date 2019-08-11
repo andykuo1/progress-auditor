@@ -1,6 +1,8 @@
 import * as UserDatabase from '../../database/UserDatabase.js';
 import * as ScheduleDatabase from '../../database/ScheduleDatabase.js';
 
+const path = require('path');
+
 export async function loadAssignments(db, config)
 {
     if (!('assignments' in config))
@@ -23,7 +25,7 @@ export async function loadAssignments(db, config)
         {
             const schedule = ScheduleDatabase.getScheduleByUserID(db, userID);
             
-            assignmentResults.push(assignment.parse(db, name, userID, schedule, assignmentConfig.opts));
+            assignmentResults.push(assignment.assign(db, name, userID, schedule, assignmentConfig.opts));
         }
     }
 

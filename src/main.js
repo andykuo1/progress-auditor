@@ -144,7 +144,7 @@ export async function run(configPath = './config.json')
     {
         console.log("......Oh no! We found some errors...");
         console.log("......Finding debug info for you...");
-        await DebugInfoOutput.output(db, config.outputPath);
+        await DebugInfoOutput.output(db, config.outputPath, config);
 
         console.log("...Failed!");
     }
@@ -155,13 +155,10 @@ export async function run(configPath = './config.json')
         if (config.debug)
         {
             console.log("......Finding debug info for you...");
-            await DebugInfoOutput.output(db, config.outputPath);
+            await DebugInfoOutput.output(db, config.outputPath, config);
         }
 
-        if (config.outputs)
-        {
-            await OutputProcessor.processOutput(db, config);
-        }
+        await OutputProcessor.processOutput(db, config);
 
         console.log("...Success!");
     }

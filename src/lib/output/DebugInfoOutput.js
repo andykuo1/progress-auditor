@@ -4,7 +4,7 @@ import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
 import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
 import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 import * as VacationDatabase from '../../database/VacationDatabase.js';
-import { writeToFile } from '../../util/FileUtil.js';
+import * as FileUtil from '../../util/FileUtil.js';
 
 const path = require('path');
 
@@ -19,7 +19,7 @@ export async function output(db, outputPath, config)
     VacationDatabase.outputLog(db, outputPath);
 
     // Output computed config file...
-    writeToFile(path.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
+    FileUtil.writeToFile(path.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
 
     // Output error list...
     let output;
@@ -31,5 +31,5 @@ export async function output(db, outputPath, config)
     {
         output = "It's okay. We'll get through this.\n\n" + db.getErrors().join('\n');
     }
-    writeToFile(path.resolve(outputPath, 'errors.txt'), output);
+    FileUtil.writeToFile(path.resolve(outputPath, 'errors.txt'), output);
 }
