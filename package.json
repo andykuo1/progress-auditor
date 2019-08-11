@@ -1,7 +1,7 @@
 {
   "name": "CSE197Dashboard",
   "version": "1.0.0",
-  "description": "## Version 1 Everything will be based on CSV.",
+  "description": "A program that streamlines and tracks the grading and logistics of discussion-based turnin processes.",
   "main": "./src/main.js",
   "bin": "./src/bin.js",
   "scripts": {

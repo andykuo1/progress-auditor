@@ -6,7 +6,7 @@
 ---
 
 ## Purpose
-To make a program that streamlines and tracks the grading and logistics of discussion-based turnin process.
+To make a program that streamlines and tracks the grading and logistics of discussion-based turnin processes.
 
 ## Table of Contents
 * [Usage](#usage)
