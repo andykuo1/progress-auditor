@@ -6,7 +6,7 @@
   "bin": "./src/bin.js",
   "scripts": {
     "start": "node ./dist/bundle.js",
-    "build": "rollup ./src/bin.js --file ./dist/src/bundle.js --format cjs && pkg ./dist/src/bundle.js --out-path ./dist/",
+    "build": "rollup --config ./rollup.config.js --file ./dist/src/bundle.js --format cjs && pkg ./dist/src/bundle.js --out-path ./dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "pkg": "^4.4.0",
-    "rollup": "^1.19.4"
+    "rollup": "^1.19.4",
+    "rollup-plugin-terser": "^5.1.1"
   }
 }

@@ -3,6 +3,7 @@
         "./assigner/",
         "./parser/",
         "./resolver/",
-        "./reviewer/"
+        "./reviewer/",
+        "./output/"
     ]
 }

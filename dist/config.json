@@ -4,8 +4,5 @@
         "./lib/cse197-piazza"
     ],
     "inputPath": "./__TEST__/in/",
-    "outputPath": "./__TEST__/out/",
-    "outputs": [
-        { "filePath": "./lib/cse197-piazza/output/ReportOutput.js", "opts": {} }
-    ]
+    "outputPath": "./__TEST__/out/"
 }
