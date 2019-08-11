@@ -1,11 +1,8 @@
-import * as UserDatabase from '../database/UserDatabase.js';
-import * as ScheduleDatabase from '../database/ScheduleDatabase.js';
-import * as AssignmentDatabase from '../database/AssignmentDatabase.js';
-import { ONE_DAYTIME, compareDates } from '../util/DateUtil.js';
+const { UserDatabase, ScheduleDatabase, AssignmentDatabase, DateUtil } = Library;
 
 function calculateSlipDays(submitDate, dueDate)
 {
-    const days = Math.floor(dueDate.getTime() / ONE_DAYTIME) - Math.floor(submitDate.getTime() / ONE_DAYTIME);
+    const days = Math.floor(dueDate.getTime() / DateUtil.ONE_DAYTIME) - Math.floor(submitDate.getTime() / DateUtil.ONE_DAYTIME);
     if (days < 0)
     {
         return -days;
@@ -21,7 +18,7 @@ function calculateSlipDays(submitDate, dueDate)
  * already being assigned appropriately.
  * @param {Database} db The database to resolve for.
  */
-export async function resolve(db)
+async function resolve(db)
 {
     // HACK: There should be a better way to get today's date.
     const currentDate = db.currentDate;
@@ -41,7 +38,7 @@ export async function resolve(db)
             const assignment = assignments[assignmentID];
 
             const dueDate = assignment.dueDate;
-            if (compareDates(currentDate, dueDate) < 0)
+            if (DateUtil.compareDates(currentDate, dueDate) < 0)
             {
                 assignment.attributes.status = '_';
                 assignment.attributes.slip = 0;
@@ -75,3 +72,7 @@ export async function resolve(db)
         };
     }
 }
+
+module.exports = {
+    resolve
+};

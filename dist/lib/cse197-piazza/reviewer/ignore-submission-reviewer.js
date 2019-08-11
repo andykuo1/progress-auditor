@@ -1,6 +1,6 @@
-import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
+const { SubmissionDatabase } = Library;
 
-export async function review(db, reviewID, reviewType, reviewParams)
+async function review(db, reviewID, reviewType, reviewParams)
 {
     const targetSubmission = SubmissionDatabase.getSubmissionByID(db, reviewParams[0]);
     if (!targetSubmission)
@@ -25,3 +25,7 @@ export async function review(db, reviewID, reviewType, reviewParams)
         SubmissionDatabase.removeSubmissionByID(db, submissionID);
     }
 }
+
+module.exports = {
+    review
+};

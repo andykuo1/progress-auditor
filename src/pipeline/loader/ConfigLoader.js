@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 import { readJSONFile } from '../../util/FileUtil.js';
 
-const DEFAULT_CONFIG_FILE_NAME = 'config.js';
+const DEFAULT_CONFIG_FILE_NAME = 'config.json';
 
 /**
  * Loads the config from the filepath. If there exists the 'include' property, it will

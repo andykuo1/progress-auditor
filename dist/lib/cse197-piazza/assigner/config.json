@@ -1,0 +1,19 @@
+{
+    "assignments": [
+        {
+            "name": "intro",
+            "filePath": "./date-assigner.js",
+            "opts": {}
+        },
+        {
+            "name": "week",
+            "filePath": "./weekly-assigner.js",
+            "opts": {}
+        },
+        {
+            "name": "last",
+            "filePath": "./date-assigner.js",
+            "opts": {}
+        }
+    ]
+}

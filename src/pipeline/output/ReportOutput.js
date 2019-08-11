@@ -5,7 +5,7 @@ import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
 import { writeTableToCSV } from '../../util/FileUtil.js';
 import TableBuilder from '../../util/TableBuilder.js';
 
-export async function output(db, outputPath, opts={})
+export async function output(db, outputPath, config)
 {
     // COMPLETE = 0x2713 (checkmark)
     const COMPLETE_TOKEN = '\u2713';

@@ -1,6 +1,4 @@
-import { readCSVFileByRow } from '../util/FileUtil.js';
-import { parseDate } from '../util/ParseUtil.js';
-import * as ReviewDatabase from '../database/ReviewDatabase.js';
+const { ReviewDatabase, FileUtil, ParseUtil } = Library;
 
 /**
  * Create ReviewDatabase based on input file.
@@ -8,12 +6,12 @@ import * as ReviewDatabase from '../database/ReviewDatabase.js';
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-export async function parse(db, filepath, opts={})
+async function parse(db, filepath, opts={})
 {
     ReviewDatabase.setupDatabase(db);
 
     let first = true;
-    await readCSVFileByRow(filepath, (row) => {
+    await FileUtil.readCSVFileByRow(filepath, (row) => {
         // Skip header...
         if (first) { first = false; return; }
 
@@ -28,7 +26,7 @@ export async function parse(db, filepath, opts={})
         try
         {
             const reviewID = row[0];
-            const reviewDate = parseDate(row[1]);
+            const reviewDate = ParseUtil.parseDate(row[1]);
             const comments = row[2];
             const reviewType = row[3];
             const params = [];
@@ -48,3 +46,7 @@ export async function parse(db, filepath, opts={})
 
     return db;
 }
+
+module.exports = {
+    parse
+};

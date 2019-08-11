@@ -1,0 +1,8 @@
+{
+    "include": [
+        "./assigner/",
+        "./parser/",
+        "./resolver/",
+        "./reviewer/"
+    ]
+}

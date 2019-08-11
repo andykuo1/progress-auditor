@@ -1,8 +1,4 @@
-import { readCSVFileByRow } from '../util/FileUtil.js';
-import { stringHash } from '../util/MathHelper.js';
-import { parseDate } from '../util/ParseUtil.js';
-import { parseEmail } from '../util/FieldParser.js';
-import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
+const { SubmissionDatabase, FileUtil, MathHelper, ParseUtil, FieldParser } = Library;
 
 function evaluatePostAssignment(headerContent, bodyContent)
 {
@@ -134,12 +130,12 @@ Result:
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-export async function parse(db, filepath, opts={})
+async function parse(db, filepath, opts={})
 {
     SubmissionDatabase.setupDatabase(db);
 
     let first = true;
-    await readCSVFileByRow(filepath, (row) => {
+    await FileUtil.readCSVFileByRow(filepath, (row) => {
         // Skip header...
         if (first) { first = false; return; }
 
@@ -173,12 +169,12 @@ export async function parse(db, filepath, opts={})
                 || postPart === 'updated_s_answer') return;
 
             // NOTE: To use, requires ownerKey -> userID Mapping
-            const ownerKey = parseEmail(row[9]);
-            const submitDate = parseDate(row[3]);
+            const ownerKey = FieldParser.parseEmail(row[9]);
+            const submitDate = ParseUtil.parseDate(row[3]);
             const postID = row[1];
             // NOTE: This has to be unique AND deterministic. In other words,
             // it must uniquely identify this submission given the same input.
-            const submissionID = (Array.isArray(ownerKey) ? ownerKey[0] : ownerKey) + "#" + postID + "_" + stringHash(row[3]);
+            const submissionID = (Array.isArray(ownerKey) ? ownerKey[0] : ownerKey) + "#" + postID + "_" + MathHelper.stringHash(row[3]);
 
             const assignmentID = evaluatePostAssignment(row[6], row[5]);
             const attributes = {
@@ -202,3 +198,7 @@ export async function parse(db, filepath, opts={})
 
     return db;
 }
+
+module.exports = {
+    parse
+};

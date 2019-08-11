@@ -8,7 +8,7 @@ import { writeToFile } from '../../util/FileUtil.js';
 
 const path = require('path');
 
-export async function output(db, outputPath, opts={})
+export async function output(db, outputPath, config)
 {
     // Output all database logs...
     UserDatabase.outputLog(db, outputPath);

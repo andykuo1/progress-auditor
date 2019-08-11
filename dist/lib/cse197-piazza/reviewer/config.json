@@ -1,0 +1,24 @@
+{
+    "reviewers": [
+        {
+            "name": "ignore_owner",
+            "filePath": "./ignore-owner-submission-reviewer.js"
+        },
+        {
+            "name": "ignore_submission",
+            "filePath": "./ignore-submission-reviewer.js"
+        },
+        {
+            "name": "change_assignment",
+            "filePath": "./change-assignment-submission-reviewer.js"
+        },
+        {
+            "name": "add_owner_key",
+            "filePath": "./add-owner-key-user-reviewer.js"
+        },
+        {
+            "name": "unknown",
+            "filePath": "./unknown-reviewer.js"
+        }
+    ]
+}

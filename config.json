@@ -1,9 +1,10 @@
 {
     "debug": true,
     "include": [
-        "./__TEST__/in/2019-2/config.json"
+        "./dist/lib/cse197-piazza"
     ],
-    "outputPath": "./__TEST__/out/",
+    "inputPath": "./dist/__TEST__/in/",
+    "outputPath": "./dist/__TEST__/out/",
     "outputs": [
         { "filePath": "./pipeline/output/ReportOutput.js", "opts": {} }
     ]

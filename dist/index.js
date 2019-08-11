@@ -1,8 +1,8 @@
-const Main = require('./bundle.js');
+const Exports = require('./bundle.js');
 
 main();
 
 async function main()
 {
-    await Main.run('./dist/config.json');
+    await Exports.run('./dist/config.json');
 }

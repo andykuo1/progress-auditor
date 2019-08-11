@@ -1,7 +1,4 @@
-import { readCSVFileByRow } from '../util/FileUtil.js';
-import { parseAmericanDate } from '../util/ParseUtil.js';
-import { parseEmail } from '../util/FieldParser.js';
-import * as VacationDatabase from '../database/VacationDatabase.js';
+const { VacationDatabase, FileUtil, ParseUtil, FieldParser } = Library;
 
 /**
  * Create VacationDatabase based on input file.
@@ -14,7 +11,7 @@ async function parse(db, filepath, opts={})
     VacationDatabase.setupDatabase(db);
 
     let first = true;
-    await readCSVFileByRow(filepath, (row) => {
+    await FileUtil.readCSVFileByRow(filepath, (row) => {
         // Skip header...
         if (first) { first = false; return; }
 
@@ -27,9 +24,9 @@ async function parse(db, filepath, opts={})
         try
         {
             const vacationID = row[0];
-            const userID = parseEmail(row[1]);
-            const startDate = parseAmericanDate(row[2]);
-            const endDate = parseAmericanDate(row[3]);
+            const userID = FieldParser.parseEmail(row[1]);
+            const startDate = ParseUtil.parseAmericanDate(row[2]);
+            const endDate = ParseUtil.parseAmericanDate(row[3]);
             const padding = row[4];
 
             const vacation = VacationDatabase.addVacation(db, vacationID, userID, startDate, endDate, padding);

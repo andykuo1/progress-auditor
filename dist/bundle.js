@@ -1,7 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
 /**
  * @param {Date} dueDate The date the assignment is due.
  * @param {Object} attributes Any additional attributes for the assignment.
@@ -1154,7 +1152,7 @@ var FileUtil = /*#__PURE__*/Object.freeze({
 const path = require('path');
 const fs$1 = require('fs');
 
-const DEFAULT_CONFIG_FILE_NAME = 'config.js';
+const DEFAULT_CONFIG_FILE_NAME = 'config.json';
 
 /**
  * Loads the config from the filepath. If there exists the 'include' property, it will
@@ -1310,14 +1308,19 @@ async function loadDatabase(db, config)
         return Promise.resolve([]);
     }
     
+    const inputParentPath = config.inputPath || '.';
     const parserResults = [];
     for(const parserConfig of config.parsers)
     {
         const filePath = parserConfig.filePath;
-        const inputPath = parserConfig.inputPath;
+        const inputFile = parserConfig.inputFile;
+        console.log(inputFile, inputParentPath);
+        if (!inputFile) db.throwError('Invalid config - missing input file for parser');
+
+        const inputPath = path$1.resolve(inputParentPath, parserConfig.inputFile);
         const parser = require(filePath);
 
-        console.log(`......Parsing '${path$1.basename(parserConfig.inputPath)}' with '${path$1.basename(parserConfig.filePath)}'...`);
+        console.log(`......Parsing '${path$1.basename(parserConfig.inputFile)}' with '${path$1.basename(parserConfig.filePath)}'...`);
         parserResults.push(parser.parse(db, inputPath, parserConfig.opts));
     }
 
@@ -1400,7 +1403,7 @@ var DatabaseProcessor = /*#__PURE__*/Object.freeze({
 
 const path$4 = require('path');
 
-async function output(db, outputPath, opts={})
+async function output(db, outputPath, config)
 {
     // Output all database logs...
     outputLog$5(db, outputPath);
@@ -1479,7 +1482,7 @@ class TableBuilder
 
 const path$5 = require('path');
 
-async function output$1(db, outputPath, opts={})
+async function output$1(db, outputPath, config)
 {
 
     const tableBuilder = new TableBuilder();
@@ -1680,9 +1683,69 @@ var ParseUtil = /*#__PURE__*/Object.freeze({
 });
 
 // database
+const DATABASE_EXPORTS = {
+    Assignment,
+    AssignmentDatabase,
+    AssignmentGenerator,
+    Database,
+    Review,
+    ReviewDatabase,
+    Schedule,
+    ScheduleDatabase,
+    Submission,
+    SubmissionDatabase,
+    User,
+    UserDatabase,
+    Vacation,
+    VacationDatabase
+};
+const PIPELINE_EXPORTS = {
+    DatabaseSetup,
+    AssignmentLoader,
+    ConfigLoader,
+    DatabaseLoader,
+    ReviewProcessor,
+    DatabaseProcessor,
+    DebugInfoOutput,
+    ReportOutput
+};
+const UTIL_EXPORTS = {
+    ConsoleHelper,
+    DateUtil,
+    FieldParser,
+    FileUtil,
+    MathHelper,
+    ParseUtil,
+    TableBuilder
+};
+
+const EXPORTS = {
+    ...DATABASE_EXPORTS,
+    ...PIPELINE_EXPORTS,
+    ...UTIL_EXPORTS
+};
+
+/*
+function setupModuleRequire()
+{
+    const Module = require('module');
+    const ModuleRequire = Module.prototype.require;
+    
+    Module.prototype.require = function(filepath) {
+        if (filepath === 'main')
+        {
+            return EXPORTS;
+        }
+        return ModuleRequire.apply(this, arguments);
+    };
+}
+*/
 
 async function run(configPath = './config.json')
 {
+    // Declare Library as global variable.
+    global.Library = EXPORTS;
+
     /**
      * Setup - Where all resources that loaders require to import
      * should be initialized.
@@ -1765,33 +1828,5 @@ async function run(configPath = './config.json')
     console.log();
 }
 
-exports.Assignment = Assignment;
-exports.AssignmentDatabase = AssignmentDatabase;
-exports.AssignmentGenerator = AssignmentGenerator;
-exports.AssignmentLoader = AssignmentLoader;
-exports.ConfigLoader = ConfigLoader;
-exports.ConsoleHelper = ConsoleHelper;
-exports.Database = Database;
-exports.DatabaseLoader = DatabaseLoader;
-exports.DatabaseProcessor = DatabaseProcessor;
-exports.DatabaseSetup = DatabaseSetup;
-exports.DateUtil = DateUtil;
-exports.DebugInfoOutput = DebugInfoOutput;
-exports.FieldParser = FieldParser;
-exports.FileUtil = FileUtil;
-exports.MathHelper = MathHelper;
-exports.ParseUtil = ParseUtil;
-exports.ReportOutput = ReportOutput;
-exports.Review = Review;
-exports.ReviewDatabase = ReviewDatabase;
-exports.ReviewProcessor = ReviewProcessor;
-exports.Schedule = Schedule;
-exports.ScheduleDatabase = ScheduleDatabase;
-exports.Submission = Submission;
-exports.SubmissionDatabase = SubmissionDatabase;
-exports.TableBuilder = TableBuilder;
-exports.User = User;
-exports.UserDatabase = UserDatabase;
-exports.Vacation = Vacation;
-exports.VacationDatabase = VacationDatabase;
-exports.run = run;
+// Start it.
+run();

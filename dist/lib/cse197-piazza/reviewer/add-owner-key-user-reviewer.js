@@ -1,6 +1,6 @@
-import * as UserDatabase from '../database/UserDatabase.js';
+const { UserDatabase } = Library;
 
-export async function review(db, reviewID, reviewType, reviewParams)
+async function review(db, reviewID, reviewType, reviewParams)
 {
     const user = UserDatabase.getUserByID(db, reviewParams[0]);
     if (!user)
@@ -18,3 +18,7 @@ export async function review(db, reviewID, reviewType, reviewParams)
         user.ownerKey = [user.ownerKey, reviewParams[1]];
     }
 }
+
+module.exports = {
+    review
+};

@@ -13,7 +13,7 @@ import * as User from './database/User.js';
 import * as UserDatabase from './database/UserDatabase.js';
 import * as Vacation from './database/Vacation.js';
 import * as VacationDatabase from './database/VacationDatabase.js';
-export {
+const DATABASE_EXPORTS = {
     Assignment,
     AssignmentDatabase,
     AssignmentGenerator,
@@ -39,7 +39,7 @@ import * as ReviewProcessor from './pipeline/processor/ReviewProcessor.js';
 import * as DatabaseProcessor from './pipeline/processor/DatabaseProcessor.js';
 import * as DebugInfoOutput from './pipeline/output/DebugInfoOutput.js';
 import * as ReportOutput from './pipeline/output/ReportOutput.js';
-export {
+const PIPELINE_EXPORTS = {
     DatabaseSetup,
     AssignmentLoader,
     ConfigLoader,
@@ -58,7 +58,7 @@ import * as FileUtil from './util/FileUtil.js';
 import * as MathHelper from './util/MathHelper.js';
 import * as ParseUtil from './util/ParseUtil.js';
 import TableBuilder from './util/TableBuilder.js';
-export {
+const UTIL_EXPORTS = {
     ConsoleHelper,
     DateUtil,
     FieldParser,
@@ -75,8 +75,33 @@ import { loadAssignments } from './pipeline/loader/AssignmentLoader.js';
 import { processReviews } from './pipeline/processor/ReviewProcessor.js';
 import { processDatabase } from './pipeline/processor/DatabaseProcessor.js';
 
-export async function run(configPath = './config.json')
+const EXPORTS = {
+    ...DATABASE_EXPORTS,
+    ...PIPELINE_EXPORTS,
+    ...UTIL_EXPORTS
+};
+
+/*
+function setupModuleRequire()
 {
+    const Module = require('module');
+    const ModuleRequire = Module.prototype.require;
+    
+    Module.prototype.require = function(filepath) {
+        if (filepath === 'main')
+        {
+            return EXPORTS;
+        }
+        return ModuleRequire.apply(this, arguments);
+    };
+}
+*/
+
+async function run(configPath = './config.json')
+{
+    // Declare Library as global variable.
+    global.Library = EXPORTS;
+
     /**
      * Setup - Where all resources that loaders require to import
      * should be initialized.
@@ -158,3 +183,6 @@ export async function run(configPath = './config.json')
     console.log("......Stopped.");
     console.log();
 }
+
+// Start it.
+run();

@@ -1,0 +1,24 @@
+{
+    "parsers": [
+        {
+            "__comment": "Use cohort-2019 for future formats. Otherwise, try cohort-2019-parser.js",
+            "filePath": "./cohort-2019-parser.js",
+            "inputFile": "cohort.csv",
+            "opts": {
+                "threshold": 3
+            }
+        },
+        {
+            "filePath": "./contributions-parser.js",
+            "inputFile": "contributions.csv"
+        },
+        {
+            "filePath": "./reviews-parser.js",
+            "inputFile": "reviews.csv"
+        },
+        {
+            "filePath": "./vacations-parser.js",
+            "inputFile": "vacations.csv"
+        }
+    ]
+}

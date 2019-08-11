@@ -1,8 +1,4 @@
-import { readCSVFileByRow } from '../util/FileUtil.js';
-import { parseAmericanDate } from '../util/ParseUtil.js';
-import { parseEmail, parseName } from '../util/FieldParser.js';
-import * as UserDatabase from '../database/UserDatabase.js';
-import * as ScheduleDatabase from '../database/ScheduleDatabase.js';
+const { UserDatabase, ScheduleDatabase, FileUtil, ParseUtil, FieldParser } = Library;
 
 /**
  * Create UserDatabase and ScheduleDatabase based on input file.
@@ -10,13 +6,13 @@ import * as ScheduleDatabase from '../database/ScheduleDatabase.js';
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-export async function parse(db, filepath, opts={ threshold: 2 })
+async function parse(db, filepath, opts={ threshold: 2 })
 {
     UserDatabase.setupDatabase(db);
     ScheduleDatabase.setupDatabase(db);
 
     let first = true;
-    await readCSVFileByRow(filepath, (row) => {
+    await FileUtil.readCSVFileByRow(filepath, (row) => {
         // Skip header...
         if (first) { first = false; return; }
 
@@ -37,14 +33,13 @@ export async function parse(db, filepath, opts={ threshold: 2 })
         // ...
         try
         {
-            const userID = parseEmail(row[6]);
-            // The only difference between 2018 and 2019, is the removed extra owner key.
-            const ownerKey = parseEmail(row[6]);//, row[1]);
-            const userName = parseName(`${row[3]} ${row[2]}`);
+            const userID = FieldParser.parseEmail(row[6]);
+            const ownerKey = FieldParser.parseEmail(row[6], row[1]);
+            const userName = FieldParser.parseName(`${row[3]} ${row[2]}`);
             const user = UserDatabase.addUser(db, userID, ownerKey, userName);
 
-            const startDate = parseAmericanDate(row[11]);
-            const endDate = parseAmericanDate(row[12]);
+            const startDate = ParseUtil.parseAmericanDate(row[11]);
+            const endDate = ParseUtil.parseAmericanDate(row[12]);
             const schedule = ScheduleDatabase.addSchedule(db, userID, startDate, endDate, { threshold: opts.threshold });
         }
         catch(e)
@@ -55,3 +50,7 @@ export async function parse(db, filepath, opts={ threshold: 2 })
 
     return db;
 }
+
+module.exports = {
+    parse
+};

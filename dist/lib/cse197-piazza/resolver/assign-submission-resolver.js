@@ -1,8 +1,4 @@
-import * as UserDatabase from '../database/UserDatabase.js';
-import * as ScheduleDatabase from '../database/ScheduleDatabase.js';
-import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
-import * as AssignmentDatabase from '../database/AssignmentDatabase.js';
-import { compareDates } from '../util/DateUtil.js';
+const { UserDatabase, ScheduleDatabase, SubmissionDatabase, AssignmentDatabase, DateUtil } = Library;
 
 const SUBMISSION_TYPE_UNKNOWN = 'unknown';
 const SUBMISSION_TYPE_SOURCE = 'source';
@@ -33,7 +29,7 @@ function getNearestSubmission(submissions, targetDate)
     let minDateOffset = Infinity;
     for(const submission of submissions)
     {
-        const dateOffset = compareDates(submission.date, targetDate);
+        const dateOffset = DateUtil.compareDates(submission.date, targetDate);
 
         // If there exists a submission BEFORE the due date, return that one.
         if (minSubmission && dateOffset > 0)
@@ -55,7 +51,7 @@ function getNearestSubmission(submissions, targetDate)
  * Searches through all submissions and assigns them to the appropriate assignment.
  * @param {Database} db The database to resolve for.
  */
-export async function resolve(db)
+async function resolve(db)
 {
     for(const ownerKey of SubmissionDatabase.getOwners(db))
     {
@@ -121,3 +117,7 @@ export async function resolve(db)
         }
     }
 }
+
+module.exports = {
+    resolve
+};
