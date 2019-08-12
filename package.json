@@ -1,6 +1,6 @@
 {
   "name": "CSE197Dashboard",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A program that streamlines and tracks the grading and logistics of discussion-based turnin processes.",
   "main": "./src/main.js",
   "bin": "./src/bin.js",
