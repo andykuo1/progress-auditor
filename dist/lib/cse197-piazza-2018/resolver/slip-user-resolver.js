@@ -33,9 +33,9 @@ async function resolve(db)
         let daySlips = 0;
         const user = UserDatabase.getUserByID(db, userID);
         const assignments = AssignmentDatabase.getAssignmentsByUser(db, userID);
-        for(const assignmentID of Object.keys(assignments))
+        for(const assignmentID of assignments)
         {
-            const assignment = assignments[assignmentID];
+            const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
 
             const dueDate = assignment.dueDate;
             if (DateUtil.compareDates(currentDate, dueDate) < 0)

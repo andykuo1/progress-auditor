@@ -1,4 +1,4 @@
-const { AssignmentGenerator } = Library;
+const { AssignmentGenerator, UserDatabase } = Library;
 
 async function assign(db, name, userID, userSchedule, opts={})
 {

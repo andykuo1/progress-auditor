@@ -36,7 +36,8 @@ async function parse(db, filepath, opts={ threshold: 2 })
             const userID = FieldParser.parseEmail(row[6]);
             const ownerKey = FieldParser.parseEmail(row[6], row[1]);
             const userName = FieldParser.parseName(`${row[3]} ${row[2]}`);
-            const user = UserDatabase.addUser(db, userID, ownerKey, userName);
+            const pid = row[5].trim().toUpperCase();
+            const user = UserDatabase.addUser(db, userID, ownerKey, userName, { pid });
 
             const startDate = ParseUtil.parseAmericanDate(row[11]);
             const endDate = ParseUtil.parseAmericanDate(row[12]);

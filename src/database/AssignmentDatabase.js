@@ -52,7 +52,7 @@ export function addAssignment(db, userID, assignmentID, dueDate, attributes={})
     }
     else
     {
-        const assignment = Assignment.createAssignment(new Date(dueDate.getTime()), attributes);
+        const assignment = Assignment.createAssignment(assignmentID, new Date(dueDate.getTime()), attributes);
         ownedAssignments[assignmentID] = assignment;
         return assignment;
     }
@@ -70,7 +70,7 @@ export function getAssignmentByID(db, userID, assignmentID)
  */
 export function getAssignmentsByUser(db, userID)
 {
-    return db[ASSIGNMENT_KEY].get(userID);
+    return Object.keys(db[ASSIGNMENT_KEY].get(userID));
 }
 
 /**
