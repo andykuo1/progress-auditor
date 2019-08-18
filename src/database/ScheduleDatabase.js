@@ -12,6 +12,15 @@ export function setupDatabase(db)
     return db;
 }
 
+export function clearDatabase(db)
+{
+    if (SCHEDULE_KEY in db)
+    {
+        delete db[SCHEDULE_KEY];
+    }
+    return db;
+}
+
 export function addSchedule(db, userID, startDate, endDate, attributes={})
 {
     const scheduleMapping = db[SCHEDULE_KEY];

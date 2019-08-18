@@ -12,6 +12,15 @@ export function setupDatabase(db)
     return db;
 }
 
+export function clearDatabase(db)
+{
+    if (USER_KEY in db)
+    {
+        delete db[USER_KEY];
+    }
+    return db;
+}
+
 export function addUser(db, userID, ownerKey, userName, attributes = {})
 {
     const userMapping = db[USER_KEY];

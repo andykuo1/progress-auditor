@@ -8,7 +8,7 @@ const path = require('path');
  * @param {Database} db The database to load data into.
  * @param {Object} config The config.
  */
-export async function loadAssignments(db, config)
+export async function processAssignments(db, config)
 {
     const registry = db._registry;
     if (!('assigners' in registry) || !Array.isArray(registry.assigners))

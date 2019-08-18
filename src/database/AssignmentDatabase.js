@@ -23,6 +23,15 @@ export function setupDatabase(db)
     return db;
 }
 
+export function clearDatabase(db)
+{
+    if (ASSIGNMENT_KEY in db)
+    {
+        delete db[ASSIGNMENT_KEY];
+    }
+    return db;
+}
+
 /**
  * Adds an assignment, by id, to a given user with the specified due date.
  * @param {Database} db The current database to add to.

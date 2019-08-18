@@ -35,3 +35,18 @@ export async function setupDatabase(config)
 
     return db;
 }
+
+export async function clearDatabase(db, config)
+{
+    delete db.currentDate;
+    
+    // Actually clear the databases...
+    UserDatabase.clearDatabase(db);
+    ScheduleDatabase.clearDatabase(db);
+    SubmissionDatabase.clearDatabase(db);
+    AssignmentDatabase.clearDatabase(db);
+    ReviewDatabase.clearDatabase(db);
+    VacationDatabase.clearDatabase(db);
+
+    return db;
+}

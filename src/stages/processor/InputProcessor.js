@@ -5,7 +5,7 @@ const path = require('path');
  * @param {Database} db The database to load data into.
  * @param {Object} config The config.
  */
-export async function loadDatabase(db, config)
+export async function processInputs(db, config)
 {
     const registry = db._registry;
     if (!('parsers' in registry) || !Array.isArray(registry.parsers))

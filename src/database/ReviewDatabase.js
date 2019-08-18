@@ -23,6 +23,15 @@ export function setupDatabase(db)
     return db;
 }
 
+export function clearDatabase(db)
+{
+    if (REVIEW_KEY in db)
+    {
+        delete db[REVIEW_KEY];
+    }
+    return db;
+}
+
 /**
  * Adds a review, by id, with the specified attributes.
  * @param {Database} db The current database to add to.

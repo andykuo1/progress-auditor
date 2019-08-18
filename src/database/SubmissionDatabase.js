@@ -23,6 +23,15 @@ export function setupDatabase(db)
     return db;
 }
 
+export function clearDatabase(db)
+{
+    if (SUBMISSION_KEY in db)
+    {
+        delete db[SUBMISSION_KEY];
+    }
+    return db;
+}
+
 export function addSubmission(db, submissionID, ownerKey, assignmentID, submissionDate, attributes={})
 {
     const submissionMapping = db[SUBMISSION_KEY];

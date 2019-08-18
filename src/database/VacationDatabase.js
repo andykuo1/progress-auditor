@@ -13,6 +13,15 @@ export function setupDatabase(db)
     return db;
 }
 
+export function clearDatabase(db)
+{
+    if (VACATION_KEY in db)
+    {
+        delete db[VACATION_KEY];
+    }
+    return db;
+}
+
 export function addVacation(db, vacationID, userID, startDate, endDate=startDate, padding=0, attributes = {})
 {
     const vacationMapping = db[VACATION_KEY];
