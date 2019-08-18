@@ -29,13 +29,13 @@ const DATABASE_EXPORTS = {
 };
 
 // pipeline
-import * as DatabaseSetup from './pipeline/setup/DatabaseSetup.js';
-import * as AssignmentLoader from './pipeline/loader/AssignmentLoader.js';
-import * as ConfigLoader from './pipeline/loader/ConfigLoader.js';
-import * as DatabaseLoader from './pipeline/loader/DatabaseLoader.js';
-import * as ReviewProcessor from './pipeline/processor/ReviewProcessor.js';
-import * as DatabaseProcessor from './pipeline/processor/DatabaseProcessor.js';
-import * as OutputProcessor from './pipeline/processor/OutputProcessor.js';
+import * as DatabaseSetup from './stages/setup/DatabaseSetup.js';
+import * as AssignmentLoader from './stages/loader/AssignmentLoader.js';
+import * as ConfigLoader from './stages/loader/ConfigLoader.js';
+import * as DatabaseLoader from './stages/loader/DatabaseLoader.js';
+import * as ReviewProcessor from './stages/processor/ReviewProcessor.js';
+import * as DatabaseProcessor from './stages/processor/DatabaseProcessor.js';
+import * as OutputProcessor from './stages/processor/OutputProcessor.js';
 const PIPELINE_EXPORTS = {
     DatabaseSetup,
     AssignmentLoader,
@@ -72,12 +72,12 @@ const LIB_EXPORTS = {
     AssignmentGenerator
 };
 
-import { loadConfig } from './pipeline/loader/ConfigLoader.js';
-import { setupDatabase } from './pipeline/setup/DatabaseSetup.js';
-import { loadDatabase } from './pipeline/loader/DatabaseLoader.js';
-import { loadAssignments } from './pipeline/loader/AssignmentLoader.js';
-import { processReviews } from './pipeline/processor/ReviewProcessor.js';
-import { processDatabase } from './pipeline/processor/DatabaseProcessor.js';
+import { loadConfig } from './stages/loader/ConfigLoader.js';
+import { setupDatabase } from './stages/setup/DatabaseSetup.js';
+import { loadDatabase } from './stages/loader/DatabaseLoader.js';
+import { loadAssignments } from './stages/loader/AssignmentLoader.js';
+import { processReviews } from './stages/processor/ReviewProcessor.js';
+import { processDatabase } from './stages/processor/DatabaseProcessor.js';
 
 export const Library = {
     ...DATABASE_EXPORTS,
