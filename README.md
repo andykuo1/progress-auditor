@@ -1,7 +1,9 @@
-# Internship Dashboard
+# Progress Auditor
 *CSE 197 Submission Management Program*
 
-> Professor Mia Minnes
+Created by Professor Mia Minnes
+
+Developed by Andrew Kuo
 
 ---
 
@@ -138,6 +140,6 @@ If you have any more questions, please contact Professor Mia Minnes or Andrew Ku
 
 Or, you can contact me:
 ank060@ucsd.edu
-(Please begin the subject with 'CSE 197 Dashboard - ');
+(Please begin the subject with 'UCSD Progress Auditor - ');
 
 Thank you for reading me!
