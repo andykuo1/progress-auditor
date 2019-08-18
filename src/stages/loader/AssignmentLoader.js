@@ -3,29 +3,30 @@ import * as ScheduleDatabase from '../../database/ScheduleDatabase.js';
 
 const path = require('path');
 
+/**
+ * Assumes assigners have already been loaded.
+ * @param {Database} db The database to load data into.
+ * @param {Object} config The config.
+ */
 export async function loadAssignments(db, config)
 {
-    if (!('assignments' in config))
+    const registry = db._registry;
+    if (!('assigners' in registry) || !Array.isArray(registry.assigners))
     {
-        console.log('......No assignments found...');
         return Promise.resolve([]);
     }
 
     // Create assignments...
     const assignmentResults = [];
-    for(const assignmentConfig of config.assignments)
+    for(const assignerEntry of registry.assigners)
     {
-        const name = assignmentConfig.name;
-        const filePath = assignmentConfig.filePath;
-        const assignment = require(filePath);
-
-        console.log(`......Assigning '${path.basename(assignmentConfig.name)}' with '${path.basename(assignmentConfig.filePath)}'...`);
+        const [assignment, filePath, name, opts] = assignerEntry;
+        console.log(`......Assigning '${path.basename(name)}' with '${path.basename(filePath)}'...`);
 
         for(const userID of UserDatabase.getUsers(db))
         {
             const schedule = ScheduleDatabase.getScheduleByUserID(db, userID);
-            
-            assignmentResults.push(assignment.assign(db, name, userID, schedule, assignmentConfig.opts));
+            assignmentResults.push(assignment.assign(db, name, userID, schedule, opts));
         }
     }
 

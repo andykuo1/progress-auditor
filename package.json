@@ -1,13 +1,18 @@
 {
-  "name": "progress-audit",
+  "name": "progress-auditor",
   "version": "0.1.0",
   "description": "A program that streamlines and tracks the grading and logistics of discussion-based turnin processes.",
   "main": "./src/main.js",
-  "bin": "./src/bin.js",
+  "bin": "./dist/src/bundle.js",
   "scripts": {
-    "start": "./dist/bundle-macos",
-    "build": "rollup --config ./rollup.config.js --file ./dist/src/bundle.js --format cjs && pkg ./dist/src/bundle.js --out-path ./dist/",
+    "start": "npm run build && node ./dist/src/bundle.js",
+    "start-dist": "./dist/progress-auditor-macos",
+    "build": "rollup --config ./rollup.config.js --file ./dist/src/bundle.js --format cjs",
+    "build-dist": "pkg . --out-path ./dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "pkg": {
+    "assets": "dist/**/fonts/*.flf"
   },
   "keywords": [],
   "author": "Andrew Kuo",
@@ -16,11 +21,15 @@
     "chalk": "^2.4.2",
     "figlet": "^1.2.3",
     "inquirer": "^6.5.1",
+    "ora": "^3.4.0",
     "papaparse": "^5.0.0"
   },
   "devDependencies": {
     "pkg": "^4.4.0",
     "rollup": "^1.19.4",
+    "rollup-plugin-commonjs": "^10.0.2",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.1.1"
   }
 }

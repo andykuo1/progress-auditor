@@ -19,35 +19,59 @@ const DEFAULT_CONFIG_FILE_NAME = 'config.json';
  */
 export async function loadConfig(configPath)
 {
-    console.log(`......Finding config file '${configPath}'...`);
-
     if (!fs.existsSync(configPath))
     {
-        console.error('Cannot find non-existant config file.');
-        return Promise.resolve({});
+        return Promise.reject(`Cannot find non-existant path '${configPath}'.`);
     }
 
     let parentConfig;
     let parentDir;
     if (fs.lstatSync(configPath).isDirectory())
     {
-        parentConfig = readJSONFile(path.resolve(configPath, DEFAULT_CONFIG_FILE_NAME));
         parentDir = configPath;
+        configPath = path.resolve(parentDir, DEFAULT_CONFIG_FILE_NAME);
+
+        if (!fs.existsSync(configPath))
+        {
+            return Promise.reject(`Cannot find config file in directory '${parentDir}'.`);
+        }
     }
     else
     {
-        parentConfig = readJSONFile(configPath);
         parentDir = path.dirname(configPath);
     }
+
+    try
+    {
+        parentConfig = readJSONFile(configPath);
+    }
+    catch(e)
+    {
+        return Promise.reject([`Failed to parse config file:`, '=>', e, '<=']);
+    }
+
     parentConfig = resolveConfigPaths(parentDir, parentConfig);
 
     if ('include' in parentConfig)
     {
+        const errors = [];
         const configs = [];
         for(const includePath of parentConfig.include)
         {
-            const childConfig = await loadConfig(includePath);
-            configs.push(childConfig);
+            try
+            {
+                const childConfig = await loadConfig(includePath);
+                configs.push(childConfig);
+            }
+            catch(e)
+            {
+                errors.push(e);
+            }
+        }
+
+        if (errors.length > 0)
+        {
+            return Promise.reject([`Failed to resolve config includes:`, '=>', errors, '<=']);
         }
 
         const mergedConfig = configs.reduce((prev, current) => mergeConfigs(current, prev), {});

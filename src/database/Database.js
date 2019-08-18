@@ -7,6 +7,7 @@ export function createDatabase()
 {
     return {
         _errors: [],
+        _registry: {},
         throwError(...messages)
         {
             this._errors.push(messages.map(e => {

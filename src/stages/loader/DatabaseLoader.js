@@ -1,30 +1,25 @@
 const path = require('path');
 
+/**
+ * Assumes parsers have already been loaded.
+ * @param {Database} db The database to load data into.
+ * @param {Object} config The config.
+ */
 export async function loadDatabase(db, config)
 {
-    if (!('parsers' in config))
+    const registry = db._registry;
+    if (!('parsers' in registry) || !Array.isArray(registry.parsers))
     {
-        console.log('......No parsers found...');
         return Promise.resolve([]);
     }
     
-    const inputParentPath = config.inputPath || '.';
+    // Populate databases...
     const parserResults = [];
-    for(const parserConfig of config.parsers)
+    for(const parserEntry of registry.parsers)
     {
-        const filePath = parserConfig.filePath;
-        const inputFile = parserConfig.inputFile;
-        if (!inputFile)
-        {
-            db.throwError('Invalid config - missing input file for parser');
-            continue;
-        }
-
-        const inputPath = path.resolve(inputParentPath, parserConfig.inputFile);
-        const parser = require(filePath);
-
-        console.log(`......Parsing '${path.basename(parserConfig.inputFile)}' with '${path.basename(parserConfig.filePath)}'...`);
-        parserResults.push(parser.parse(db, inputPath, parserConfig.opts));
+        const [parser, filePath, inputPath, opts] = parserEntry;
+        console.log(`......Parsing '${path.basename(inputPath)}' with '${path.basename(filePath)}'...`);
+        parserResults.push(parser.parse(db, inputPath, opts));
     }
 
     return Promise.all(parserResults);

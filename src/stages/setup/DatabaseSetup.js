@@ -6,11 +6,26 @@ import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
 import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 import * as VacationDatabase from '../../database/VacationDatabase.js';
 
+import * as ParseUtil from '../../util/ParseUtil.js';
+
 // TODO: this is still hard-coded...
 export async function setupDatabase(config)
 {
     const db = Database.createDatabase();
+
+    // HACK: How do people access today's date?
+    let currentDate;
+    if ('currentDate' in config)
+    {
+        currentDate = ParseUtil.parseAmericanDate(config.currentDate);
+    }
+    else
+    {
+        currentDate = new Date(Date.now());
+    }
+    db.currentDate = currentDate;
     
+    // Actually setup the databases...
     UserDatabase.setupDatabase(db);
     ScheduleDatabase.setupDatabase(db);
     SubmissionDatabase.setupDatabase(db);
