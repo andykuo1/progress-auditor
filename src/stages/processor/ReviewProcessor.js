@@ -1,28 +1,23 @@
-const path = require('path');
-
 import * as ReviewDatabase from '../../database/ReviewDatabase.js';
-import * as NullReviewer from '../../lib/reviewer/NullReviewer.js';
 
+/**
+ * Assumes reviewers are already loaded.
+ * @param {Database} db The database to review.
+ * @param {Object} config The config.
+ */
 export async function processReviews(db, config)
 {
     // Process reviews...
     console.log(`......Looking over our work...`);
 
-    const reviewers = new Map();
-    // Add default review type
-    reviewers.set('unknown', NullReviewer.review);
-    // Add the remaining config reviewers...
-    for(const reviewerConfig of config.reviewers)
+    const registry = db._registry;
+    if (!('reviewers' in registry) || !(registry.reviewers instanceof Map))
     {
-        const filePath = reviewerConfig.filePath;
-        const name = reviewerConfig.name;
-        const reviewer = require(filePath);
-
-        console.log(`.........Reviewing '${name}' with '${path.basename(reviewerConfig.filePath)}'...`);
-
-        reviewers.set(name, reviewer);
+        return Promise.resolve([]);
     }
     
+    const reviewers = registry.reviewers;
+
     // Run the reviews...
     const reviewResults = [];
     for(const reviewID of ReviewDatabase.getReviews(db))

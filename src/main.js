@@ -85,6 +85,7 @@ import { loadParsers } from './stages/loader/ParserLoader.js';
 import { loadDatabase } from './stages/loader/DatabaseLoader.js';
 import { loadAssigners } from './stages/loader/AssignerLoader.js';
 import { loadAssignments } from './stages/loader/AssignmentLoader.js';
+import { loadReviewers } from './stages/loader/ReviewerLoader';
 import { processReviews } from './stages/processor/ReviewProcessor.js';
 import { processDatabase } from './stages/processor/DatabaseProcessor.js';
 
@@ -207,6 +208,18 @@ export async function run()
     }
     Menu.println("...Success!");
 
+    Menu.println("Loading reviewers...");
+    try
+    {
+        await loadReviewers(db, config);
+    }
+    catch(e)
+    {
+        Menu.printlnError(e);
+        process.exit(1);
+    }
+    Menu.println("...Success!");
+
     Menu.println();
 
     /**
@@ -223,8 +236,6 @@ export async function run()
     console.log("...Processing...");
     await processReviews(db, config);
     await processDatabase(db, config);
-
-    
 
     /**
      * Outputting - Where all data is outputted into relevant

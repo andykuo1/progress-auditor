@@ -1,6 +1,11 @@
 const path = require('path');
 const fs = require('fs');
 
+/**
+ * Assumes db is already initialized.
+ * @param {Database} db The database to load assigners for.
+ * @param {Object} config The config.
+ */
 export async function loadAssigners(db, config)
 {
     const registry = db._registry;
@@ -34,7 +39,7 @@ export async function loadAssigners(db, config)
 
         if (!filePath)
         {
-            errors.push(`Invalid assignment config:`, '=>', `Missing 'filePath' for assigner.`, '<=');
+            errors.push(`Invalid assignment config:`, '=>', `Missing 'filePath' for assignment config.`, '<=');
             continue;
         }
         else if (!fs.existsSync(filePath))
@@ -55,6 +60,11 @@ export async function loadAssigners(db, config)
         }
 
         dst.push([assignment, filePath, name, assignmentConfig.opts]);
+    }
+
+    if (errors.length > 0)
+    {
+        return Promise.reject([`Failed to resolve assignments from config:`, '=>', errors, '<=']);
     }
 
     return Promise.resolve(dst);
