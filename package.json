@@ -1,5 +1,5 @@
 {
-  "name": "CSE197Dashboard",
+  "name": "progress-audit",
   "version": "0.1.0",
   "description": "A program that streamlines and tracks the grading and logistics of discussion-based turnin processes.",
   "main": "./src/main.js",
@@ -13,6 +13,9 @@
   "author": "Andrew Kuo",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^2.4.2",
+    "figlet": "^1.2.3",
+    "inquirer": "^6.5.1",
     "papaparse": "^5.0.0"
   },
   "devDependencies": {
