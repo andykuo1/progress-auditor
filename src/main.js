@@ -33,7 +33,8 @@ import * as ConfigLoader from './stages/loader/ConfigLoader.js';
 import * as DatabaseSetup from './stages/setup/DatabaseSetup.js';
 import * as ParserLoader from './stages/loader/ParserLoader.js';
 import * as AssignerLoader from './stages/loader/AssignerLoader.js';
-import * as ReviewerLoader from './stages/loader/ReviewerLoader';
+import * as ReviewerLoader from './stages/loader/ReviewerLoader.js';
+import * as ResolverLoader from './stages/loader/ResolverLoader.js';
 import * as InputProcessor from './stages/processor/InputProcessor.js';
 import * as AssignmentProcessor from './stages/processor/AssignmentProcessor.js';
 import * as ReviewProcessor from './stages/processor/ReviewProcessor.js';
@@ -46,6 +47,7 @@ const PIPELINE_EXPORTS = {
     ParserLoader,
     AssignerLoader,
     ReviewerLoader,
+    ResolverLoader,
     InputProcessor,
     AssignmentProcessor,
     ReviewProcessor,
@@ -91,6 +93,7 @@ import { setupDatabase, clearDatabase } from './stages/setup/DatabaseSetup.js';
 import { loadParsers } from './stages/loader/ParserLoader.js';
 import { loadAssigners } from './stages/loader/AssignerLoader.js';
 import { loadReviewers } from './stages/loader/ReviewerLoader';
+import { loadResolvers } from './stages/loader/ResolverLoader';
 
 import { processInputs } from './stages/processor/InputProcessor.js';
 import { processAssignments } from './stages/processor/AssignmentProcessor.js';
@@ -153,11 +156,14 @@ export async function run()
             Menu.println("Entering review mode...");
 
             // Review each error...
+            Menu.printError(db._errors);
 
             // Restart the database...
             await clearDatabase(db, config);
 
             // Add the review to the database...
+            // db, reviewID, reviewDate, comment, type, params
+            // ReviewDatabase.addReview(db, MathHelper.uuid(), new Date(Date.now()), "Reviewed from program.", type, params);
 
             // Re-run the process again for new errors...
             await runProcessors(db, config);
@@ -282,6 +288,18 @@ async function runLoaders(db, config)
     }
     Menu.println("...Success!");
 
+    Menu.println("Loading resolvers...");
+    try
+    {
+        await loadResolvers(db, config);
+    }
+    catch(e)
+    {
+        Menu.printlnError(e);
+        process.exit(1);
+    }
+    Menu.println("...Success!");
+
     Menu.println();
 }
 
@@ -314,6 +332,7 @@ async function runProcessors(db, config)
     Menu.println("...Success!");
 
     Menu.println("Evaluating reviews...");
+    console.log('......Looking over our work...');
     try
     {
         await processReviews(db, config);
@@ -326,6 +345,7 @@ async function runProcessors(db, config)
     Menu.println("...Success!");
 
     Menu.println("Resolving database...");
+    console.log(`......Helping you fix a few things...`);
     try
     {
         await processDatabase(db, config);

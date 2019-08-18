@@ -7,9 +7,6 @@ import * as ReviewDatabase from '../../database/ReviewDatabase.js';
  */
 export async function processReviews(db, config)
 {
-    // Process reviews...
-    console.log(`......Looking over our work...`);
-
     const registry = db._registry;
     if (!('reviewers' in registry) || !(registry.reviewers instanceof Map))
     {
