@@ -16,7 +16,7 @@ export function clearDatabase(db)
 {
     if (SCHEDULE_KEY in db)
     {
-        delete db[SCHEDULE_KEY];
+        db[SCHEDULE_KEY].clear();
     }
     return db;
 }

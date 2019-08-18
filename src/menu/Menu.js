@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import figlet from 'figlet';
+import inquirer from 'inquirer';
 import { version } from '../../package.json';
 
 export const TITLE = "Progress Auditor";
@@ -73,6 +74,16 @@ export function printError(errorMessage, depth = 0)
     {
         println('  '.repeat(depth), chalk.red(((depth <= 0) ? '+' : '-') + ' ' + errorMessage));
     }
+}
+
+export async function askYesNo(message)
+{
+    const {ask} = await inquirer.prompt([{
+        name: 'ask',
+        type: 'confirm',
+        message
+    }]);
+    return ask;
 }
 
 export function evalArgs(argv)

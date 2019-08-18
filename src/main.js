@@ -101,6 +101,9 @@ import { processOutput } from './stages/processor/OutputProcessor.js';
 import chalk from 'chalk';
 import * as Menu from './menu/Menu.js';
 
+// TODO: Config properties that only require filePath should accept strings as well.
+// TODO: If files like vacations.csv or reviews.csv does not exist, it should not try to process them.
+
 export async function run()
 {
     Menu.printTitle();
@@ -137,7 +140,34 @@ export async function run()
      * which processes all user-created reviews, is computed before
      * the resolution. This is a frequent debug loop.
      */
+
     await runProcessors(db, config);
+
+    // Review resolution loop
+    while (db._errors.length >= 0)
+    {
+        Menu.println("Found errors. :(");
+        const answer = await Menu.askYesNo("Do you want to review them now?");
+        if (answer)
+        {
+            Menu.println("Entering review mode...");
+
+            // Review each error...
+
+            // Restart the database...
+            await clearDatabase(db, config);
+
+            // Add the review to the database...
+
+            // Re-run the process again for new errors...
+            await runProcessors(db, config);
+        }
+        else
+        {
+            Menu.println("Skipping errors...");
+            break;
+        }
+    }
 
     /**
      * Outputting - Where all data is outputted into relevant

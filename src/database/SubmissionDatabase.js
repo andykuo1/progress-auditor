@@ -27,7 +27,8 @@ export function clearDatabase(db)
 {
     if (SUBMISSION_KEY in db)
     {
-        delete db[SUBMISSION_KEY];
+        db[SUBMISSION_KEY][SUBMISSION_OWNER_KEY].clear();
+        db[SUBMISSION_KEY][SUBMISSION_LIST_KEY].clear();
     }
     return db;
 }

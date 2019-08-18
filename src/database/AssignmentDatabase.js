@@ -27,7 +27,7 @@ export function clearDatabase(db)
 {
     if (ASSIGNMENT_KEY in db)
     {
-        delete db[ASSIGNMENT_KEY];
+        db[ASSIGNMENT_KEY].clear();
     }
     return db;
 }

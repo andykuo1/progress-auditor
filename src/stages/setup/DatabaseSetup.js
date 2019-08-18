@@ -36,11 +36,16 @@ export async function setupDatabase(config)
     return db;
 }
 
+/**
+ * Clears the database of all data stored from parsers. This does not remove
+ * any loaded resources, such as scripts. This is used to restart the
+ * database for new reviews or other resolvers. If you want a completely NEW
+ * database, just delete it and setup a new one.
+ * @param {Database} db The database to clear data from.
+ * @param {Object} config The config.
+ */
 export async function clearDatabase(db, config)
 {
-    delete db.currentDate;
-    
-    // Actually clear the databases...
     UserDatabase.clearDatabase(db);
     ScheduleDatabase.clearDatabase(db);
     SubmissionDatabase.clearDatabase(db);
