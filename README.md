@@ -37,7 +37,7 @@ You can double-click to run them in interactive mode or execute them in the term
 This is required to test the program. Just get the current version and install it.
 
 ### Installing [Git](https://git-scm.com/)
-This is required to edit the program remotely. Just get the current version and install it. The repository is hosted at [GitHub](https://github.com/andykuo1/flapjs).
+This is required to edit the program remotely. Just get the current version and install it. The repository is hosted at [GitHub](https://github.com/andykuo1/progress-auditor).
 
 ### Installing [VS Code](https://code.visualstudio.com/)
 This is not required, but recommended (by me). Just get the current version and install it.
@@ -59,16 +59,16 @@ Open a command line or terminal and enter a directory to where to copy the proje
 cd ~/
 ```
 
-Then, clone the [repo](https://github.com/JFLAP/JFLAP-WebApp.git) to the directory.
+Then, clone the [repo](https://github.com/andykuo1/progress-auditor.git) to the directory.
 
 ```
-git clone https://github.com/JFLAP/JFLAP-WebApp.git
+git clone https://github.com/andykuo1/progress-auditor.git
 ```
 
 Navigate into the directory of the repository.
 
 ```
-cd JFLAP-WebApp
+cd progress-auditor
 ```
 
 To ensure and verify the state of the repository enter the following command:
@@ -81,7 +81,7 @@ git status
 Open a command line or terminal and enter into the project directory. This should be where you've copied the remote repository. Following the previous example:
 
 ```
-cd ~/JFLAP-WebApp
+cd ~/progress-auditor
 ```
 
 If you want to inspect the contents of this directory, it should contain the project files, such as `package.json`.
