@@ -21,7 +21,7 @@ export async function processAssignments(db, config)
     for(const assignerEntry of registry.assigners)
     {
         const [assignment, filePath, name, opts] = assignerEntry;
-        // console.log(`......Assigning '${path.basename(name)}' with '${path.basename(filePath)}'...`);
+        console.log(`......Assigning '${path.basename(name)}' with '${path.basename(filePath)}'...`);
 
         for(const userID of UserDatabase.getUsers(db))
         {

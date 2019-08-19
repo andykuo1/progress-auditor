@@ -1,3 +1,5 @@
+const path = require('path');
+
 /**
  * Assumes parsers have already been loaded.
  * @param {Database} db The database to load data into.
@@ -16,7 +18,7 @@ export async function processInputs(db, config)
     for(const parserEntry of registry.parsers)
     {
         const [parser, filePath, inputPath, opts] = parserEntry;
-        // console.log(`......Parsing '${path.basename(inputPath)}' with '${path.basename(filePath)}'...`);
+        console.log(`......Parsing '${path.basename(inputPath)}' with '${path.basename(filePath)}'...`);
         parserResults.push(parser.parse(db, inputPath, opts));
     }
 

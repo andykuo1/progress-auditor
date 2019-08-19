@@ -24,12 +24,12 @@ async function parse(db, filepath, opts={})
         try
         {
             const vacationID = row[0];
-            const userID = FieldParser.parseEmail(row[1]);
+            const ownerKey = FieldParser.parseEmail(row[1]);
             const startDate = ParseUtil.parseAmericanDate(row[2]);
             const endDate = ParseUtil.parseAmericanDate(row[3]);
             const padding = row[4];
 
-            const vacation = VacationDatabase.addVacation(db, vacationID, userID, startDate, endDate, padding);
+            const vacation = VacationDatabase.addVacation(db, vacationID, ownerKey, startDate, endDate, padding);
         }
         catch(e)
         {

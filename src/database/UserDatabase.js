@@ -98,6 +98,16 @@ export function getUsersByAttribute(db, attributeName, attributeValue)
     return result;
 }
 
+export function getOwnerKeysForUserID(db, userID)
+{
+    const userMapping = db[USER_KEY];
+    const userData = userMapping.get(userID);
+    
+    const result = userData.ownerKey;
+    if (Array.isArray(result)) return result;
+    else return [result];
+}
+
 export function outputLog(db, outputDir = '.')
 {
     const userMapping = db[USER_KEY];

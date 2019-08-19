@@ -22,7 +22,7 @@ export function clearDatabase(db)
     return db;
 }
 
-export function addVacation(db, vacationID, userID, startDate, endDate=startDate, padding=0, attributes = {})
+export function addVacation(db, vacationID, ownerKey, startDate, endDate=startDate, padding=0, attributes = {})
 {
     const vacationMapping = db[VACATION_KEY];
 
@@ -34,7 +34,7 @@ export function addVacation(db, vacationID, userID, startDate, endDate=startDate
     else
     {
         // Create vacation...
-        const vacation = Vacation.createVacation(vacationID, userID, startDate, endDate, padding, attributes);
+        const vacation = Vacation.createVacation(vacationID, ownerKey, startDate, endDate, padding, attributes);
         vacationMapping.set(vacationID, vacation);
         return vacation;
     }
@@ -43,13 +43,13 @@ export function addVacation(db, vacationID, userID, startDate, endDate=startDate
 /**
  * Assumes all vacations are disjoint. In other words, they do not overlap.
  * @param {Database} db The database to work off with.
- * @param {*} userID The user that we want to find vacations from.
+ * @param {Array<String>} ownerKeys All associated owners that we want to find vacations from.
  * @param {Date} date The date to offset.
  */
-export function offsetDateByVacations(db, userID, date)
+export function offsetDateByVacations(db, ownerKeys, date)
 {
     const vacationMapping = db[VACATION_KEY];
-    const vacations = getVacationsByUserID(db, userID);
+    const vacations = getVacationsByOwnerKeys(db, ownerKeys);
     vacations.sort((a, b) => vacationMapping.get(a).effectiveStartDate.getTime() - vacationMapping.get(b).effectiveStartDate.getTime());
 
     let result = new Date(date.getTime());
@@ -75,13 +75,19 @@ export function getVacationByID(db, id)
     return db[VACATION_KEY].get(id);
 }
 
-export function getVacationsByUserID(db, userID)
+/**
+ * Finds all vacations belonging to the passed-in owners.
+ * @param {Database} db The database to add vacations to.
+ * @param {Array<String>} ownerKeys The owner keys.
+ * @returns {Array} The vacations associated to the owner keys.
+ */
+export function getVacationsByOwnerKeys(db, ownerKeys)
 {
     const vacationMapping = db[VACATION_KEY];
     const result = [];
     for(const vacationData of vacationMapping.values())
     {
-        if (vacationData.userID == userID)
+        if (ownerKeys.includes(vacationData.ownerKey))
         {
             result.push(vacationData.id);
         }
