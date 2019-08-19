@@ -360,6 +360,10 @@ async function runOutputs(db, config)
         await DebugInfoOutput.output(db, config.outputPath, config);
 
         console.log("...Failed!");
+        console.log();
+
+        Menu.printMotivation();
+        console.log();
     }
     else
     {
