@@ -147,7 +147,7 @@ export async function run()
     await runProcessors(db, config);
 
     // Review resolution loop
-    while (db._errors.length >= 0)
+    while (db._errors.length > 0)
     {
         Menu.println("Found errors. :(");
         const answer = await Menu.askYesNo("Do you want to review them now?");
@@ -190,7 +190,7 @@ export async function run()
     console.log("......Stopped.");
     console.log();
 
-    process.exit(0);
+    // process.exit(0);
 }
 
 async function prepareConfig()
@@ -223,7 +223,6 @@ async function prepareConfig()
         Menu.printlnError(e);
         process.exit(1);
     }
-    Menu.println("...Success!");
     Menu.println();
     return config;
 }
@@ -241,7 +240,6 @@ async function prepareDatabase(config)
         Menu.printlnError(e);
         process.exit(1);
     }
-    Menu.println("...Success!");
     Menu.println();
 
     Menu.println("Date:", db.currentDate.toDateString());
@@ -262,7 +260,6 @@ async function runLoaders(db, config)
         Menu.printlnError(e);
         process.exit(1);
     }
-    Menu.println("...Success!");
 
     Menu.println("Loading assigners...");
     try
@@ -274,7 +271,6 @@ async function runLoaders(db, config)
         Menu.printlnError(e);
         process.exit(1);
     }
-    Menu.println("...Success!");
 
     Menu.println("Loading reviewers...");
     try
@@ -286,7 +282,6 @@ async function runLoaders(db, config)
         Menu.printlnError(e);
         process.exit(1);
     }
-    Menu.println("...Success!");
 
     Menu.println("Loading resolvers...");
     try
@@ -298,7 +293,6 @@ async function runLoaders(db, config)
         Menu.printlnError(e);
         process.exit(1);
     }
-    Menu.println("...Success!");
 
     Menu.println();
 }
@@ -317,7 +311,6 @@ async function runProcessors(db, config)
         Menu.printlnError(e);
         process.exit(1);
     }
-    Menu.println("...Success!");
 
     Menu.println("Assigning assignments...");
     try
@@ -329,7 +322,6 @@ async function runProcessors(db, config)
         Menu.printlnError(e);
         process.exit(1);
     }
-    Menu.println("...Success!");
 
     Menu.println("Evaluating reviews...");
     console.log('......Looking over our work...');
@@ -342,7 +334,6 @@ async function runProcessors(db, config)
         Menu.printlnError(e);
         process.exit(1);
     }
-    Menu.println("...Success!");
 
     Menu.println("Resolving database...");
     console.log(`......Helping you fix a few things...`);
@@ -355,7 +346,6 @@ async function runProcessors(db, config)
         Menu.printlnError(e);
         process.exit(1);
     }
-    Menu.println("...Success!");
 
     Menu.println();
 }
