@@ -1,10 +1,10 @@
-import * as NullReviewer from '../../lib/piazza/reviewer/NullReviewer.js';
-import * as SubmissionChangeAssignmentReviewer from '../../lib/piazza/reviewer/SubmissionChangeAssignmentReviewer.js';
-import * as SubmissionIgnoreOwnerReviewer from '../../lib/piazza/reviewer/SubmissionIgnoreOwnerReviewer.js';
-import * as SubmissionIgnoreReviewer from '../../lib/piazza/reviewer/SubmissionIgnoreReviewer.js';
-import * as SubmissionAddReviewer from '../../lib/piazza/reviewer/SubmissionAddReviewer.js';
-import * as UserAddOwnerKeyReviewer from '../../lib/piazza/reviewer/UserAddOwnerKeyReviewer.js';
-import * as AssignmentChangeStatusReviewer from '../../lib/piazza/reviewer/AssignmentChangeStatusReviewer.js';
+import * as NullReviewer from './reviewer/NullReviewer.js';
+import * as SubmissionChangeAssignmentReviewer from './reviewer/SubmissionChangeAssignmentReviewer.js';
+import * as SubmissionIgnoreOwnerReviewer from './reviewer/SubmissionIgnoreOwnerReviewer.js';
+import * as SubmissionIgnoreReviewer from './reviewer/SubmissionIgnoreReviewer.js';
+import * as SubmissionAddReviewer from './reviewer/SubmissionAddReviewer.js';
+import * as UserAddOwnerKeyReviewer from './reviewer/UserAddOwnerKeyReviewer.js';
+import * as AssignmentChangeStatusReviewer from './reviewer/AssignmentChangeStatusReviewer.js';
 
 const REGISTRY = new Map();
 

@@ -100,8 +100,8 @@ function generateProgressReport(db, userID)
         {
             inReviewAssignments.push(assignment);
         }
-        accruedSlips += assignment.attributes.slip;
-        dst.push(assignment.id, ' - ', stringifyStatus(assignment.attributes.status, assignment.attributes.slip))
+        accruedSlips += assignment.attributes.slipDays;
+        dst.push(assignment.id, ' - ', stringifyStatus(assignment.attributes.status, assignment.attributes.slipDays))
     }
     dst.push('');
     const schedule = user.schedule;

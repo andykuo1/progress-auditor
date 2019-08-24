@@ -29,8 +29,8 @@ export async function output(db, outputPath, config)
     tableBuilder.addColumn('Remaining Slips', (userID) => {
         return UserDatabase.getUserByID(db, userID).attributes.slips.remaining;
     });
-    tableBuilder.addColumn('Average Slips', (userID) => {
-        return UserDatabase.getUserByID(db, userID).attributes.slips.average;
+    tableBuilder.addColumn('Average Slips (Median)', (userID) => {
+        return UserDatabase.getUserByID(db, userID).attributes.slips.median;
     });
     tableBuilder.addColumn('Max Slips', (userID) => {
         return UserDatabase.getUserByID(db, userID).attributes.slips.max;
@@ -38,7 +38,7 @@ export async function output(db, outputPath, config)
     tableBuilder.addColumn('Auto-report', (userID) => {
         // The auto-report threshold formula
         // Check the average if maintained from today, would it exceed by the end date.
-        const averageSlips = UserDatabase.getUserByID(db, userID).attributes.slips.average;
+        const averageSlips = UserDatabase.getUserByID(db, userID).attributes.slips.mean;
         // Check if there are any holes in submissions.
         // Check if intro or week 1 is past due date.
         return 'N/A';
@@ -74,7 +74,7 @@ export async function output(db, outputPath, config)
         tableBuilder.addColumn(assignmentID + ' Slips', (userID) => {
             const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
             if (!assignment) return '!ERROR';
-            return assignment.attributes.slips;
+            return assignment.attributes.slipDays;
         });
     }
 

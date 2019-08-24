@@ -49,6 +49,11 @@ export function getUserByID(db, id)
     return db[USER_KEY].get(id);
 }
 
+/**
+ * @param {Database} db The database to search through.
+ * @param {String} ownerKey The owner key associated with the user.
+ * @returns {String} The user id, null if not found.
+ */
 export function getUserByOwnerKey(db, ownerKey)
 {
     const userMapping = db[USER_KEY];

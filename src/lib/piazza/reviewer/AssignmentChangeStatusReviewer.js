@@ -9,8 +9,8 @@ export async function review(db, reviewID, reviewType, reviewParams)
     const userID = UserDatabase.getUserByOwnerKey(db, ownerKey);
     const assignmentID = reviewParams[1];
     const status = reviewParams[2];
-    const slip = reviewParams.length > 3 ? Number(reviewParams[3]) : 0;
+    const slipDays = reviewParams.length > 3 ? Number(reviewParams[3]) : 0;
     const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
     assignment.attributes.status = status;
-    assignment.attributes.slip = slip;
+    assignment.attributes.slipDays = slipDays;
 }
