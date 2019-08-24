@@ -2,9 +2,22 @@ import * as UserDatabase from '../../../database/UserDatabase.js';
 import * as AssignmentDatabase from '../../../database/AssignmentDatabase.js';
 import * as DateUtil from '../../../util/DateUtil.js';
 
+/**
+ * This is the LAST time zone offset from UTC. This means that there does
+ * not exist any other place on Earth with an earlier time, therefore the due
+ * date MUST be passed for everyone.
+ */
+const LATEST_TIMEZONE_OFFSET = 12 * 3600000;
+
+/**
+ * Calculates the number of days past the submission, accounting for time zones and partial days.
+ * @param {Date} submitDate The date submitted.
+ * @param {Date} dueDate The date the something should have been due.
+ * @returns {Number} The number of days past the due date from submission. Otherwise, it is 0.
+ */
 function calculateSlipDays(submitDate, dueDate)
 {
-    const days = Math.floor(dueDate.getTime() / DateUtil.ONE_DAYTIME) - Math.floor(submitDate.getTime() / DateUtil.ONE_DAYTIME);
+    const days = Math.floor((dueDate.getTime() + LATEST_TIMEZONE_OFFSET) / DateUtil.ONE_DAYTIME) - Math.floor(submitDate.getTime() / DateUtil.ONE_DAYTIME);
     if (days < 0)
     {
         return -days;
