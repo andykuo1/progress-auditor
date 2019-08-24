@@ -1,10 +1,11 @@
-const { UserDatabase, SubmissionDatabase } = Library;
+import * as UserDatabase from '../../../database/UserDatabase.js';
+import * as SubmissionDatabase from '../../../database/SubmissionDatabase.js';
 
 /**
  * Searches all unassigned submissions to check if they could also be 'intro' assignments.
  * @param {Database} db The database to resolve for.
  */
-async function resolve(db)
+export async function resolve(db)
 {
     for(const ownerKey of SubmissionDatabase.getOwners(db))
     {
@@ -28,7 +29,3 @@ async function resolve(db)
         }
     }
 }
-
-module.exports = {
-    resolve
-};

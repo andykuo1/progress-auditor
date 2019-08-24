@@ -1,3 +1,8 @@
+import * as AssignSubmissionByPostIDResolver from '../../lib/piazza/resolver/AssignSubmissionByPostIDResolver.js';
+import * as AssignSubmissionByIntroResolver from '../../lib/piazza/resolver/AssignSubmissionByIntroResolver.js';
+import * as AssignSubmissionResolver from '../../lib/piazza/resolver/AssignSubmissionResolver.js';
+import * as SlipDayResolver from '../../lib/piazza/resolver/SlipDayResolver.js';
+
 /**
  * Assumes resolvers have already been loaded.
  * @param {Database} db The database to resolve data for.
@@ -5,20 +10,20 @@
  */
 export async function processDatabase(db, config)
 {
-    const registry = db._registry;
-    if (!('resolvers' in registry) || !Array.isArray(registry.resolvers))
-    {
-        return Promise.resolve([]);
-    }
-    
-    // Resolve database...
-    const resolverResults = [];
-    for(const resolverEntry of registry.resolvers)
-    {
-        const [resolver, filePath, opts] = resolverEntry;
-        // console.log(`.........Resolving with '${path.basename(resolverConfig.filePath)}'...`);
-        resolverResults.push(resolver.resolve(db, opts));
-    }
+    const scheme = config.scheme;
 
-    return Promise.all(resolverResults);
+    // Resolve database...
+    switch(scheme)
+    {
+        case 'piazza':
+            // console.log(`.........Resolving with '${path.basename(resolverConfig.filePath)}'...`);
+            return Promise.all([
+                AssignSubmissionByPostIDResolver.resolve(db, opts),
+                AssignSubmissionByIntroResolver.resolve(db, opts),
+                AssignSubmissionResolver.resolve(db, opts),
+                SlipDayResolver.resolve(db, opts),
+            ]);
+        default:
+            throw new Error(`Unknown scheme - ${scheme}`);
+    }
 }

@@ -2,8 +2,6 @@
     "include": [
         "../base/parser",
         "./parser/",
-        "./resolver/",
-        "./reviewer/",
         "./output/"
     ],
     "assignments": [

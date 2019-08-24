@@ -135,11 +135,10 @@ The entry point for the code is in `src/bin.js` (if bundled, this will be referr
 This script manages the interactive menu and handles starting the program. For the actual implementations, you should checkout `main.js`. It handles the imports/exports used and also the lifecycle of the program itself.
 
 ### Conclusion
-
 If you have any more questions, please contact Professor Mia Minnes or Andrew Kuo.
 
 Or, you can contact me:
 ank060@ucsd.edu
-(Please begin the subject with 'UCSD Progress Auditor - ');
+(Please begin the subject with 'UCSD Progress Auditor');
 
 Thank you for reading me!

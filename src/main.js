@@ -33,8 +33,6 @@ import * as ConfigLoader from './stages/loader/ConfigLoader.js';
 import * as DatabaseSetup from './stages/setup/DatabaseSetup.js';
 import * as ParserLoader from './stages/loader/ParserLoader.js';
 import * as AssignerLoader from './stages/loader/AssignerLoader.js';
-import * as ReviewerLoader from './stages/loader/ReviewerLoader.js';
-import * as ResolverLoader from './stages/loader/ResolverLoader.js';
 import * as InputProcessor from './stages/processor/InputProcessor.js';
 import * as AssignmentProcessor from './stages/processor/AssignmentProcessor.js';
 import * as ReviewProcessor from './stages/processor/ReviewProcessor.js';
@@ -46,8 +44,6 @@ const PIPELINE_EXPORTS = {
     DatabaseSetup,
     ParserLoader,
     AssignerLoader,
-    ReviewerLoader,
-    ResolverLoader,
     InputProcessor,
     AssignmentProcessor,
     ReviewProcessor,
@@ -92,8 +88,6 @@ import { loadConfig } from './stages/loader/ConfigLoader.js';
 import { setupDatabase, clearDatabase } from './stages/setup/DatabaseSetup.js';
 import { loadParsers } from './stages/loader/ParserLoader.js';
 import { loadAssigners } from './stages/loader/AssignerLoader.js';
-import { loadReviewers } from './stages/loader/ReviewerLoader';
-import { loadResolvers } from './stages/loader/ResolverLoader';
 
 import { processInputs } from './stages/processor/InputProcessor.js';
 import { processAssignments } from './stages/processor/AssignmentProcessor.js';
@@ -143,19 +137,21 @@ export async function run()
      * which processes all user-created reviews, is computed before
      * the resolution. This is a frequent debug loop.
      */
-
     await runProcessors(db, config);
 
     // Review resolution loop
     while (db._errors.length > 0)
     {
-        Menu.println("Found errors. :(");
+        Menu.println(`Found ${db._errors.length} errors. :(`);
         const answer = await Menu.askYesNo("Do you want to review them now?");
         if (answer)
         {
-            Menu.println("Entering review mode...");
-
             // Review each error...
+            for(const error of db._errors)
+            {
+
+            }
+            
             Menu.printError(db._errors);
 
             // Restart the database...
@@ -265,28 +261,6 @@ async function runLoaders(db, config)
     try
     {
         await loadAssigners(db, config);
-    }
-    catch(e)
-    {
-        Menu.printlnError(e);
-        process.exit(1);
-    }
-
-    Menu.println("Loading reviewers...");
-    try
-    {
-        await loadReviewers(db, config);
-    }
-    catch(e)
-    {
-        Menu.printlnError(e);
-        process.exit(1);
-    }
-
-    Menu.println("Loading resolvers...");
-    try
-    {
-        await loadResolvers(db, config);
     }
     catch(e)
     {

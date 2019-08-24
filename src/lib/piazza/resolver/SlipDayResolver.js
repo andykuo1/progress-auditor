@@ -1,4 +1,7 @@
-const { UserDatabase, ScheduleDatabase, AssignmentDatabase, DateUtil } = Library;
+import * as UserDatabase from '../../../database/UserDatabase.js';
+import * as ScheduleDatabase from '../../../database/ScheduleDatabase.js';
+import * as AssignmentDatabase from '../../../database/AssignmentDatabase.js';
+import * as DateUtil from '../../../util/DateUtil.js';
 
 function calculateSlipDays(submitDate, dueDate)
 {
@@ -18,7 +21,7 @@ function calculateSlipDays(submitDate, dueDate)
  * already being assigned appropriately.
  * @param {Database} db The database to resolve for.
  */
-async function resolve(db)
+export async function resolve(db)
 {
     // HACK: There should be a better way to get today's date.
     const currentDate = db.currentDate;
@@ -72,7 +75,3 @@ async function resolve(db)
         };
     }
 }
-
-module.exports = {
-    resolve
-};
