@@ -23,6 +23,9 @@ export async function output(db, outputPath, config)
 
     const tableBuilder = new TableBuilder();
     tableBuilder.addColumn('User ID');
+    tableBuilder.addColumn('Name', (userID) => {
+        return UserDatabase.getUserByID(db, userID).name;
+    });
     tableBuilder.addColumn('Used Slips', (userID) => {
         return UserDatabase.getUserByID(db, userID).attributes.slips.used;
     });
