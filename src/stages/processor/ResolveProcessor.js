@@ -1,7 +1,4 @@
-import * as AssignSubmissionByPostIDResolver from '../../lib/piazza/resolver/AssignSubmissionByPostIDResolver.js';
-import * as AssignSubmissionByIntroResolver from '../../lib/piazza/resolver/AssignSubmissionByIntroResolver.js';
-import * as AssignSubmissionResolver from '../../lib/piazza/resolver/AssignSubmissionResolver.js';
-import * as SlipDayResolver from '../../lib/piazza/resolver/SlipDayResolver.js';
+import * as PiazzaResolvers from '../../lib/piazza/PiazzaResolvers.js';
 
 /**
  * Assumes resolvers have already been loaded.
@@ -17,12 +14,7 @@ export async function processDatabase(db, config)
     {
         case 'piazza':
             // console.log(`.........Resolving with '${path.basename(resolverConfig.filePath)}'...`);
-            return Promise.all([
-                AssignSubmissionByPostIDResolver.resolve(db, opts),
-                AssignSubmissionByIntroResolver.resolve(db, opts),
-                AssignSubmissionResolver.resolve(db, opts),
-                SlipDayResolver.resolve(db, opts),
-            ]);
+            return PiazzaResolvers.resolve(db, config);
         default:
             throw new Error(`Unknown scheme - ${scheme}`);
     }

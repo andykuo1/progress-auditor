@@ -1,10 +1,5 @@
 import * as ReviewDatabase from '../../database/ReviewDatabase.js';
-
-import * as NullReviewer from '../../lib/piazza/reviewer/NullReviewer.js';
-import * as SubmissionChangeAssignmentReviewer from '../../lib/piazza/reviewer/SubmissionChangeAssignmentReviewer.js';
-import * as SubmissionIgnoreOwnerReviewer from '../../lib/piazza/reviewer/SubmissionIgnoreOwnerReviewer.js';
-import * as SubmissionIgnoreReviewer from '../../lib/piazza/reviewer/SubmissionIgnoreReviewer.js';
-import * as UserAddOwnerKeyReviewer from '../../lib/piazza/reviewer/UserAddOwnerKeyReviewer.js';
+import * as PiazzaReviewers from '../../lib/piazza/PiazzaReviewers.js';
 
 /**
  * Assumes reviewers are already loaded.
@@ -13,18 +8,13 @@ import * as UserAddOwnerKeyReviewer from '../../lib/piazza/reviewer/UserAddOwner
  */
 export async function processReviews(db, config)
 {
-    const reviewers = new Map();
+    let reviewers;
 
     const scheme = config.scheme;
     switch(scheme)
     {
         case 'piazza':
-            // TODO: This should be localized to the lib...
-            reviewers.set(NullReviewer.REVIEW_ID, NullReviewer);
-            reviewers.set(SubmissionChangeAssignmentReviewer.REVIEW_ID, SubmissionChangeAssignmentReviewer);
-            reviewers.set(SubmissionIgnoreOwnerReviewer.REVIEW_ID, SubmissionIgnoreOwnerReviewer);
-            reviewers.set(SubmissionIgnoreReviewer.REVIEW_ID, SubmissionIgnoreReviewer);
-            reviewers.set(UserAddOwnerKeyReviewer.REVIEW_ID, UserAddOwnerKeyReviewer);
+            reviewers = PiazzaReviewers.REGISTRY;
             break;
         default:
             throw new Error('Unknown scheme');
