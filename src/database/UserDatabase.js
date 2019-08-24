@@ -21,7 +21,7 @@ export function clearDatabase(db)
     return db;
 }
 
-export function addUser(db, userID, ownerKey, userName, attributes = {})
+export function addUser(db, userID, ownerKey, userName, startDate, endDate, opts, attributes = {})
 {
     const userMapping = db[USER_KEY];
 
@@ -33,7 +33,7 @@ export function addUser(db, userID, ownerKey, userName, attributes = {})
     else
     {
         // Create user...
-        const user = User.createUser(userID, ownerKey, userName, attributes);
+        const user = User.createUser(userID, ownerKey, userName, startDate, endDate, opts, attributes);
         userMapping.set(userID, user);
         return user;
     }

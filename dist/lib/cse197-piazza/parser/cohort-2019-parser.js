@@ -1,7 +1,7 @@
-const { UserDatabase, ScheduleDatabase, FileUtil, ParseUtil, FieldParser } = Library;
+const { UserDatabase, FileUtil, ParseUtil, FieldParser } = Library;
 
 /**
- * Create UserDatabase and ScheduleDatabase based on input file.
+ * Create UserDatabase based on input file.
  * @param {Database} db The database to write to.
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
@@ -9,7 +9,6 @@ const { UserDatabase, ScheduleDatabase, FileUtil, ParseUtil, FieldParser } = Lib
 async function parse(db, filepath, opts={ threshold: 2 })
 {
     UserDatabase.setupDatabase(db);
-    ScheduleDatabase.setupDatabase(db);
 
     let first = true;
     await FileUtil.readCSVFileByRow(filepath, (row) => {
@@ -37,11 +36,9 @@ async function parse(db, filepath, opts={ threshold: 2 })
             const ownerKey = FieldParser.parseEmail(row[6], row[1]);
             const userName = FieldParser.parseName(`${row[3]} ${row[2]}`);
             const pid = row[5].trim().toUpperCase();
-            const user = UserDatabase.addUser(db, userID, ownerKey, userName, { pid });
-
             const startDate = ParseUtil.parseAmericanDate(row[11]);
             const endDate = ParseUtil.parseAmericanDate(row[12]);
-            const schedule = ScheduleDatabase.addSchedule(db, userID, startDate, endDate, { threshold: opts.threshold });
+            const user = UserDatabase.addUser(db, userID, ownerKey, userName, startDate, endDate, opts, { pid });
         }
         catch(e)
         {

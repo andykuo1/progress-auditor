@@ -1,5 +1,4 @@
 import * as UserDatabase from '../../database/UserDatabase.js';
-import * as ScheduleDatabase from '../../database/ScheduleDatabase.js';
 import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
 import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
 import * as ReviewDatabase from '../../database/ReviewDatabase.js';
@@ -12,7 +11,6 @@ export async function output(db, outputPath, config)
 {
     // Output all database logs...
     UserDatabase.outputLog(db, outputPath);
-    ScheduleDatabase.outputLog(db, outputPath);
     SubmissionDatabase.outputLog(db, outputPath);
     AssignmentDatabase.outputLog(db, outputPath);
     ReviewDatabase.outputLog(db, outputPath);

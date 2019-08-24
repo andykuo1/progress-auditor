@@ -1,5 +1,4 @@
 import * as UserDatabase from '../../database/UserDatabase.js';
-import * as ScheduleDatabase from '../../database/ScheduleDatabase.js';
 
 const path = require('path');
 
@@ -25,7 +24,8 @@ export async function processAssignments(db, config)
 
         for(const userID of UserDatabase.getUsers(db))
         {
-            const schedule = ScheduleDatabase.getScheduleByUserID(db, userID);
+            const user = UserDatabase.getUserByID(db, userID);
+            const schedule = user.schedule;
             assignmentResults.push(assignment.assign(db, name, userID, schedule, opts));
         }
     }

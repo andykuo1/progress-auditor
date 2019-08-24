@@ -1,4 +1,4 @@
-const { UserDatabase, ScheduleDatabase, AssignmentDatabase, DateUtil } = Library;
+const { UserDatabase, AssignmentDatabase, DateUtil } = Library;
 
 function calculateSlipDays(submitDate, dueDate)
 {
@@ -26,12 +26,11 @@ async function resolve(db)
     // Dependent on accurate assignment resolution for submissions...
     for(const userID of UserDatabase.getUsers(db))
     {
-        const schedule = ScheduleDatabase.getScheduleByUserID(db, userID);
-        const maxSlips = schedule.weeks * 3;
-
         let totalSlips = 0;
         let daySlips = 0;
         const user = UserDatabase.getUserByID(db, userID);
+        const schedule = user.schedule;
+        const maxSlips = schedule.weeks * 3;
         const assignments = AssignmentDatabase.getAssignmentsByUser(db, userID);
         for(const assignmentID of assignments)
         {

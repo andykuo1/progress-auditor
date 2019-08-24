@@ -1,4 +1,4 @@
-const { UserDatabase, ScheduleDatabase, SubmissionDatabase, AssignmentDatabase, DateUtil } = Library;
+const { UserDatabase, SubmissionDatabase, AssignmentDatabase, DateUtil } = Library;
 
 const SUBMISSION_TYPE_UNKNOWN = 'unknown';
 const SUBMISSION_TYPE_SOURCE = 'source';
@@ -103,7 +103,6 @@ async function resolve(db)
                 {
                     db.throwError('[UNASSIGNED_SUBMISSION]\t\t', 'Found submission for unassigned assignment - cannot evaluate submission.',
                         '\nUser:', userID, UserDatabase.getUserByID(db, userID),
-                        '\nSchedule:', ScheduleDatabase.getScheduleByUserID(db, userID),
                         '\nAssignment:', assignmentID, 'for', userID, '=>\n', submissions,
                         '\nSubmitted Assignments:', Object.keys(submittedAssignments));
                 }

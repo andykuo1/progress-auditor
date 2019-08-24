@@ -1,5 +1,4 @@
 import * as UserDatabase from '../../../database/UserDatabase.js';
-import * as ScheduleDatabase from '../../../database/ScheduleDatabase.js';
 import * as SubmissionDatabase from '../../../database/SubmissionDatabase.js';
 import * as AssignmentDatabase from '../../../database/AssignmentDatabase.js';
 import * as DateUtil from '../../../util/DateUtil.js';
@@ -107,7 +106,6 @@ export async function resolve(db)
                 {
                     db.throwError('[UNASSIGNED_SUBMISSION]\t\t', 'Found submission for unassigned assignment - cannot evaluate submission.',
                         '\nUser:', userID, UserDatabase.getUserByID(db, userID),
-                        '\nSchedule:', ScheduleDatabase.getScheduleByUserID(db, userID),
                         '\nAssignment:', assignmentID, 'for', userID, '=>\n', submissions,
                         '\nSubmitted Assignments:', Object.keys(submittedAssignments));
                 }

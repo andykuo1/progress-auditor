@@ -1,5 +1,5 @@
 const path = require('path');
-const { UserDatabase, AssignmentDatabase, ScheduleDatabase, Schedule, FileUtil, TableBuilder } = Library;
+const { UserDatabase, AssignmentDatabase, Schedule, FileUtil, TableBuilder } = Library;
 
 /**
     Name: Bob Ross
@@ -99,7 +99,7 @@ function generateProgressReport(db, userID)
         dst.push(assignment.id, ' - ', stringifyStatus(assignment.attributes.status, assignment.attributes.slip))
     }
     dst.push('');
-    const schedule = ScheduleDatabase.getScheduleByUserID(db, userID);
+    const schedule = user.schedule;
     const totalSlipDays = Schedule.calculateNumberOfSlipDays(schedule);
     dst.push('Weeks Remaining:', schedule.weeks - (assignments.length - missingAssignments.length));
     dst.push('Daily accruing slip days:', slipRate);

@@ -5,7 +5,6 @@ import * as Database from './database/Database.js';
 import * as Review from './database/Review.js';
 import * as ReviewDatabase from './database/ReviewDatabase.js';
 import * as Schedule from './database/Schedule.js';
-import * as ScheduleDatabase from './database/ScheduleDatabase.js';
 import * as Submission from './database/Submission.js';
 import * as SubmissionDatabase from './database/SubmissionDatabase.js';
 import * as User from './database/User.js';
@@ -19,7 +18,6 @@ const DATABASE_EXPORTS = {
     Review,
     ReviewDatabase,
     Schedule,
-    ScheduleDatabase,
     Submission,
     SubmissionDatabase,
     User,
