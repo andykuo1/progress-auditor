@@ -1,8 +1,7 @@
 {
     "include": [
         "../base/parser/",
-        "./parser/",
-        "./output/"
+        "./parser/"
     ],
     "assignments": [
         {

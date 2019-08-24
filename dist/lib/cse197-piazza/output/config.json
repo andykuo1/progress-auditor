@@ -1,6 +1,0 @@
-{
-    "outputs": [
-        { "filePath": "./InstructorReportOutput.js", "opts": {} },
-        { "filePath": "./StudentReportOutput.js" }
-    ]
-}

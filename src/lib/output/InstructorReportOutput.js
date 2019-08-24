@@ -1,7 +1,11 @@
-const path = require('path');
-const { UserDatabase, AssignmentDatabase, FileUtil, TableBuilder } = Library;
+import * as UserDatabase from '../../database/UserDatabase.js';
+import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
+import * as FileUtil from '../../util/FileUtil.js';
+import TableBuilder from '../../util/TableBuilder.js';
 
-async function output(db, outputPath, config)
+const path = require('path');
+
+export async function output(db, outputPath, config)
 {
     // COMPLETE = 0x2713 (checkmark)
     const COMPLETE_TOKEN = '\u2713';
@@ -40,8 +44,27 @@ async function output(db, outputPath, config)
         return 'N/A';
     });
 
-    const assignments = ['intro', 'week[1]', 'week[2]', 'week[3]', 'week[4]', 'week[5]', 'week[6]'];
-    for(const assignmentID of assignments)
+    // Most recently submitted assignments...
+    const usedAssignments = new Set();
+    for(const userID of UserDatabase.getUsers(db))
+    {
+        const assignmentIDs = AssignmentDatabase.getAssignmentsByUser(db, userID);
+        for(const assignmentID of assignmentIDs)
+        {
+            if (!usedAssignments.has(assignmentID))
+            {
+                const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
+                if (assignment.attributes.status !== '_')
+                {
+                    usedAssignments.add(assignmentID);
+                }
+            }
+        }
+    }
+    const recentAssignments = Array.from(usedAssignments).reverse();
+
+    // Add assignments to table...
+    for(const assignmentID of recentAssignments)
     {
         tableBuilder.addColumn(assignmentID + ' Status', (userID) => {
             const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
@@ -64,7 +87,3 @@ async function output(db, outputPath, config)
     const outputTable = tableBuilder.build();
     FileUtil.writeTableToCSV(path.resolve(outputPath, 'slip-days.csv'), outputTable);
 }
-
-module.exports = {
-    output
-};

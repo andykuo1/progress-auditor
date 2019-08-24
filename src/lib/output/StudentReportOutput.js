@@ -1,5 +1,10 @@
+import * as UserDatabase from '../../database/UserDatabase.js';
+import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
+import * as Schedule from '../../database/Schedule.js';
+import * as FileUtil from '../../util/FileUtil.js';
+import TableBuilder from '../../util/TableBuilder.js';
+
 const path = require('path');
-const { UserDatabase, AssignmentDatabase, Schedule, FileUtil, TableBuilder } = Library;
 
 /**
     Name: Bob Ross
@@ -141,7 +146,7 @@ function generateNoticeReport(db, userID)
     return 'N/A';
 }
 
-async function output(db, outputPath, config)
+export async function output(db, outputPath, config)
 {
     const tableBuilder = new TableBuilder();
     tableBuilder.addColumn('User ID');
@@ -164,7 +169,3 @@ async function output(db, outputPath, config)
     const outputTable = tableBuilder.build();
     FileUtil.writeTableToCSV(path.resolve(outputPath, 'reports.csv'), outputTable);
 }
-
-module.exports = {
-    output
-};
