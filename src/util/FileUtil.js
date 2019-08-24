@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const readline = require('readline');
 const Papa = require('papaparse');
 
@@ -50,6 +51,7 @@ export function readFileByLine(filepath, callback)
 // TODO: Temporary hack for writing files, NOT ASYNC!
 export function writeToFile(filepath, content)
 {
+    fs.mkdirSync(path.basename(filepath), { recursive: true });
     fs.writeFile(filepath, content, function(err) {
         if (err)
         {
