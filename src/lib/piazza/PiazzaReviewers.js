@@ -4,6 +4,7 @@ import * as SubmissionIgnoreOwnerReviewer from '../../lib/piazza/reviewer/Submis
 import * as SubmissionIgnoreReviewer from '../../lib/piazza/reviewer/SubmissionIgnoreReviewer.js';
 import * as SubmissionAddReviewer from '../../lib/piazza/reviewer/SubmissionAddReviewer.js';
 import * as UserAddOwnerKeyReviewer from '../../lib/piazza/reviewer/UserAddOwnerKeyReviewer.js';
+import * as AssignmentChangeStatusReviewer from '../../lib/piazza/reviewer/AssignmentChangeStatusReviewer.js';
 
 const REGISTRY = new Map();
 
@@ -14,6 +15,7 @@ REGISTRY.set(SubmissionChangeAssignmentReviewer.REVIEW_ID, SubmissionChangeAssig
 REGISTRY.set(SubmissionIgnoreOwnerReviewer.REVIEW_ID, SubmissionIgnoreOwnerReviewer);
 REGISTRY.set(SubmissionIgnoreReviewer.REVIEW_ID, SubmissionIgnoreReviewer);
 REGISTRY.set(SubmissionAddReviewer.REVIEW_ID, SubmissionAddReviewer);
+REGISTRY.set(AssignmentChangeStatusReviewer.REVIEW_ID, AssignmentChangeStatusReviewer);
 
 export {
     REGISTRY

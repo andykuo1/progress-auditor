@@ -38,6 +38,9 @@ export async function resolve(db)
         {
             const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
 
+            // Already processed... (usually by review)
+            if ('status' in assignment.attributes && 'slip' in assignment.attributes) continue;
+
             const dueDate = assignment.dueDate;
             if (DateUtil.compareDates(currentDate, dueDate) < 0)
             {
