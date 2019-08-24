@@ -35,13 +35,31 @@ export async function output(db, outputPath, config)
     tableBuilder.addColumn('Max Slips', (userID) => {
         return UserDatabase.getUserByID(db, userID).attributes.slips.max;
     });
+    tableBuilder.addColumn('Missing Assignments', (userID) => {
+        return UserDatabase.getUserByID(db, userID).attributes.progress.missing;
+    });
     tableBuilder.addColumn('Auto-report', (userID) => {
         // The auto-report threshold formula
+        let flag = false;
         // Check the average if maintained from today, would it exceed by the end date.
-        const averageSlips = UserDatabase.getUserByID(db, userID).attributes.slips.mean;
-        // Check if there are any holes in submissions.
-        // Check if intro or week 1 is past due date.
-        return 'N/A';
+        const userAttributes = UserDatabase.getUserByID(db, userID).attributes;
+        const averageSlips = userAttributes.slips.mean;
+        const remainingAssignments = userAttributes.progress.missing + userAttributes.progress.unassigned;
+        if (averageSlips * remainingAssignments > userAttributes.slips.max)
+        {
+            flag = true;
+        }
+        // TODO: Check if there are any holes in submissions.
+        // TODO: Check if intro or week 1 is past due date.
+        // ...and the result...
+        if (flag)
+        {
+            return 'NOTICE!';
+        }
+        else
+        {
+            return 'N/A';
+        }
     });
 
     // Most recently submitted assignments...
