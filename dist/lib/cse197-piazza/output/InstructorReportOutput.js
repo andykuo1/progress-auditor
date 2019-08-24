@@ -40,8 +40,27 @@ async function output(db, outputPath, config)
         return 'N/A';
     });
 
-    const assignments = ['intro', 'week[1]', 'week[2]', 'week[3]', 'week[4]', 'week[5]', 'week[6]'];
-    for(const assignmentID of assignments)
+    // Most recently submitted assignments...
+    const usedAssignments = new Set();
+    for(const userID of UserDatabase.getUsers(db))
+    {
+        const assignmentIDs = AssignmentDatabase.getAssignmentsByUser(db, userID);
+        for(const assignmentID of assignmentIDs)
+        {
+            if (!usedAssignments.has(assignmentID))
+            {
+                const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
+                if (assignment.attributes.status !== '_')
+                {
+                    usedAssignments.add(assignmentID);
+                }
+            }
+        }
+    }
+    const recentAssignments = Array.from(usedAssignments).reverse();
+
+    // Add assignments to table...
+    for(const assignmentID of recentAssignments)
     {
         tableBuilder.addColumn(assignmentID + ' Status', (userID) => {
             const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);

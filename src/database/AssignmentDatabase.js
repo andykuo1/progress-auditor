@@ -36,7 +36,7 @@ export function clearDatabase(db)
  * Adds an assignment, by id, to a given user with the specified due date.
  * @param {Database} db The current database to add to.
  * @param {*} userID The unique id of the user to add the assignment for.
- * @param {*} assignmentID The associated unique id for the assignment.
+ * @param {String} assignmentID The associated unique id for the assignment.
  * @param {Date} dueDate The due date for the assignment.
  * @param {Object} attributes Any additional options to be saved with the assignment.
  */
