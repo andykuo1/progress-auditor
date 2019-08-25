@@ -51,7 +51,7 @@ export function readFileByLine(filepath, callback)
 // TODO: Temporary hack for writing files, NOT ASYNC!
 export function writeToFile(filepath, content)
 {
-    fs.mkdirSync(path.basename(filepath), { recursive: true });
+    fs.mkdirSync(path.dirname(filepath), { recursive: true });
     fs.writeFile(filepath, content, function(err) {
         if (err)
         {
