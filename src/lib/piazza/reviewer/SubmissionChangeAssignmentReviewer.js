@@ -9,10 +9,13 @@ export const REVIEW_PARAM_TYPES = [
 
 export async function review(db, reviewID, reviewType, reviewParams)
 {
+    if (reviewType !== REVIEW_TYPE) db.throwError(`Mismatched review type - '${REVIEW_TYPE}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 2) db.throwError(`Missing review params - expected 2 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+
     const submission = SubmissionDatabase.getSubmissionByID(db, reviewParams[1]);
     if (!submission)
     {
-        db.throwError(`[INVALID_REVIEW_PARAM] Unable to find submission for id '${reviewParams[1]}'.`);
+        db.throwError(`Invalid review param - unable to find submission for id '${reviewParams[1]}'.`, { id: [reviewID, reviewType], options: ['The submission for that id is missing from the database.', 'Or it\'s the wrong id.'] });
         return;
     }
 

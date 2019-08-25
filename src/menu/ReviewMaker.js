@@ -13,6 +13,7 @@ const chalk = require('chalk');
 export async function run(db, config, opts = {})
 {
     console.log(chalk.gray("Starting Review Maker..."));
+    console.log("Welcome to Review Maker");
 
     let result = null;
     
@@ -62,7 +63,8 @@ export async function run(db, config, opts = {})
         }
     }
 
-    console.log(chalk.gray("...Quitting Review Maker"));
+    console.log("Hope to see you soon!");
+    console.log(chalk.gray("...Stopping Review Maker"));
 }
 
 async function makeReview(db, config)
