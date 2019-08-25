@@ -15,13 +15,13 @@ export function stringHash(value='')
 }
 
 /**
- * Generates a uuidv4.
+ * Generates a uuid v4.
  * 
+ * @param {Number} a The placeholder (serves for recursion within function).
  * @returns {String} the universally unique id
  */
-export function uuid()
+export function uuid(a = undefined)
 {
-    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-    );
+    // https://gist.github.com/jed/982883
+    return a?(a^Math.random()*16>>a/4).toString(16):([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,uuid);
 }
