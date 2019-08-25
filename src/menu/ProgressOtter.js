@@ -1,3 +1,5 @@
+const chalk = require('chalk');
+
 const MOTIVATIONS = [
     "I believe in you.",
     "You are almost there.",

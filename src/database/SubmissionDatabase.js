@@ -61,7 +61,7 @@ export function addSubmission(db, submissionID, ownerKey, assignmentID, submissi
     }
     else
     {
-        db.throwError(SUBMISSION_KEY, 'Found duplicate submission with same id', submissionID);
+        db.throwError(SUBMISSION_KEY, `Found duplicate id for submission '${submissionID}'.`);
         return null;
     }
 }

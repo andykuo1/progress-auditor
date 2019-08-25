@@ -56,7 +56,7 @@ export function addAssignment(db, userID, assignmentID, dueDate, attributes={})
 
     if (assignmentID in ownedAssignments)
     {
-        db.throwError(ASSIGNMENT_KEY, 'Found duplicate assignment for user', userID);
+        db.throwError(ASSIGNMENT_KEY, `Found duplicate assignment '${assignmentID}' for user '${userID}'.`);
         return null;
     }
     else

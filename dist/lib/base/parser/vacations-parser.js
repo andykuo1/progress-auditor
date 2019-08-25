@@ -33,7 +33,7 @@ async function parse(db, filepath, opts={})
         }
         catch(e)
         {
-            db.throwError(VacationDatabase.VACATION_KEY, 'Unable to parse vacation.', e);
+            db.throwError('PARSE', 'Unable to parse vacations - ' + e);
         }
     });
 

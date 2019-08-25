@@ -79,12 +79,34 @@ export function printError(errorMessage, depth = 0)
 
 export async function askYesNo(message)
 {
-    const {ask} = await inquirer.prompt([{
-        name: 'ask',
+    const answer = await inquirer.prompt([{
+        name: 'value',
         type: 'confirm',
         message
     }]);
-    return ask;
+    return answer.value;
+}
+
+export async function askChoose(message, ...options)
+{
+    const choices = [];
+    for(const option of options)
+    {
+        choices.push({
+            name: option[0],
+            value: option[1],
+            short: option[1]
+        });
+    }
+    const answer = await inquirer.prompt([
+        {
+            name: 'value',
+            type: 'list',
+            message,
+            choices
+        }
+    ]);
+    return answer.value;
 }
 
 export function evalArgs(argv)

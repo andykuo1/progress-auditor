@@ -28,7 +28,7 @@ export function addVacation(db, vacationID, ownerKey, startDate, endDate=startDa
 
     if (vacationMapping.has(vacationID))
     {
-        db.throwError('Found duplicate vacation with id \'' + vacationID + '\'.');
+        db.throwError(VACATION_KEY, `Found duplicate id for vacation '${vacationID}'.`);
         return null;
     }
     else

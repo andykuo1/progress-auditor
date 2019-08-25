@@ -49,6 +49,7 @@ export async function clearDatabase(db, config)
     AssignmentDatabase.clearDatabase(db);
     ReviewDatabase.clearDatabase(db);
     VacationDatabase.clearDatabase(db);
+    db.clearErrors();
 
     return db;
 }

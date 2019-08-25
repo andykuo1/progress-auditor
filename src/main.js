@@ -85,17 +85,18 @@ export const Library = {
 };
 
 import { loadConfig } from './stages/loader/ConfigLoader.js';
-import { setupDatabase, clearDatabase } from './stages/setup/DatabaseSetup.js';
+import { setupDatabase } from './stages/setup/DatabaseSetup.js';
 import { loadParsers } from './stages/loader/ParserLoader.js';
 import { loadAssigners } from './stages/loader/AssignerLoader.js';
 
 // NOTE: Any new schemes should be imported here AND added to prepareScheme().
 import * as PiazzaScheme from './lib/piazza/PiazzaScheme.js';
 
-// import chalk from 'chalk';
 import * as Menu from './menu/Menu.js';
+import * as ErrorReviewer from './menu/ErrorReviewer.js';
 // import * as DatabaseViewer from './menu/DatabaseViewer.js';
-// import * as ReviewMaker from './menu/ReviewMaker.js';
+
+const path = require('path');
 
 // TODO: Config properties that only require filePath should accept strings as well.
 // TODO: If files like vacations.csv or reviews.csv does not exist, it should not try to process them.
@@ -142,46 +143,53 @@ export async function run()
      */
     await runProcessors(db, config);
 
-    // TEST
-    // await ReviewMaker.run(db, config);
-
     // Review resolution loop
-    while (db._errors.length > 0)
-    {
-        Menu.println(`Found ${db._errors.length} errors. :(`);
-        const answer = await Menu.askYesNo("Do you want to review them now?");
-        if (answer)
-        {
-            // Review each error...
-            for(const error of db._errors)
-            {
-
-            }
-            
-            Menu.printError(db._errors);
-
-            // Restart the database...
-            await clearDatabase(db, config);
-
-            // Add the review to the database...
-            // db, reviewID, reviewDate, comment, type, params
-            // ReviewDatabase.addReview(db, MathHelper.uuid(), new Date(Date.now()), "Reviewed from program.", type, params);
-
-            // Re-run the process again for new errors...
-            await runProcessors(db, config);
-        }
-        else
-        {
-            Menu.println("Skipping errors...");
-            break;
-        }
-    }
+    const reviews = await ErrorReviewer.run(db, config, runProcessors);
 
     /**
      * Outputting - Where all data is outputted into relevant
      * files. If any errors had occured, it will exit-early and
      * output any gathered debug information.
      */
+    if (reviews.length > 0)
+    {
+        if (await Menu.askYesNo("Do you want to save the new reviews?"))
+        {
+            const reviewTableHeader = [
+                'Review ID',
+                'Date',
+                'Comment',
+                'Type',
+                'Param[0]',
+                'Param[1]',
+                'Param[2]',
+                'Param[3]',
+                '...'
+            ];
+            const reviewTable = [reviewTableHeader];
+            for(const review of reviews)
+            {
+                const reviewEntry = [];
+                // ID
+                reviewEntry.push(review[0]);
+                // Date
+                reviewEntry.push(review[1]);
+                // Comment
+                reviewEntry.push(review[2]);
+                // Type
+                reviewEntry.push(review[3]);
+                // Params
+                reviewEntry.push(...review[4]);
+                reviewTable.push(reviewEntry);
+            }
+            await FileUtil.writeTableToCSV(path.resolve(config.outputPath, `reviews-${db.currentDate.toISOString()}.csv`), reviewTable);
+        }
+        else
+        {
+            Menu.println("Dumping reviews...");
+        }
+    }
+
     await runOutputs(db, config);
 
     /**

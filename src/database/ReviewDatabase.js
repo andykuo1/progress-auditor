@@ -47,7 +47,7 @@ export function addReview(db, reviewID, reviewDate, comment, type, params)
 
     if (reviewMapping.has(reviewID))
     {
-        db.throwError(REVIEW_KEY, 'Found duplicate ids for reviews', reviewID);
+        db.throwError(REVIEW_KEY, `Found duplicate id for review '${reviewID}'.`);
         return null;
     }
     else

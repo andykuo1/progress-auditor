@@ -42,7 +42,7 @@ async function parse(db, filepath, opts={ threshold: 2 })
         }
         catch(e)
         {
-            db.throwError(UserDatabase.USER_KEY, 'Unable to parse user.', e);
+            db.throwError('PARSE', 'Unable to parse users - ' + e);
         }
     });
 

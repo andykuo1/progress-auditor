@@ -3,6 +3,8 @@ import * as SubmissionDatabase from '../../../database/SubmissionDatabase.js';
 import * as AssignmentDatabase from '../../../database/AssignmentDatabase.js';
 import * as DateUtil from '../../../util/DateUtil.js';
 
+const ERROR_TAG = 'POSTPROCESS';
+
 const SUBMISSION_TYPE_UNKNOWN = 'unknown';
 const SUBMISSION_TYPE_SOURCE = 'source';
 const SUBMISSION_TYPE_MINOR_EDIT = 'minor';
@@ -104,18 +106,40 @@ export async function resolve(db)
                 }
                 else
                 {
-                    db.throwError('[UNASSIGNED_SUBMISSION]\t\t', 'Found submission for unassigned assignment - cannot evaluate submission.',
-                        '\nUser:', userID, UserDatabase.getUserByID(db, userID),
-                        '\nAssignment:', assignmentID, 'for', userID, '=>\n', submissions,
-                        '\nSubmitted Assignments:', Object.keys(submittedAssignments));
+                    for(const submission of submissions)
+                    {
+                        db.throwError(ERROR_TAG, `Found unassigned assignment '${assignmentID}' with submission '${submission.id}' from user '${userID}'.`, {
+                            id: [userID, assignmentID],
+                            options: [
+                                `If ill-formatted, we could not automatically deduce the appropriate assignment. Please verify the submitted content and header formats. Try submitting a 'change_assignment' review once you figure out its proper assignment.`,
+                                `It could be a non-assignment submission. Try submitting a 'ignore_submission' review.`
+                            ],
+                            more: [
+                                JSON.stringify(submission, null, 4)
+                            ]
+                        });
+                    }
                 }
             }
         }
         else
         {
             const submissions = SubmissionDatabase.getAssignedSubmissionsByOwnerKey(db, ownerKey);
-            db.throwError('[MISSING_USER]\t\t\t\t', "Cannot find user with owner key '" + ownerKey + "'.",
-                "\nSubmissions by mismatched owner key:", submissions);
+            let submissionCount = 0;
+            for(const assignmentID of Object.keys(submissions))
+            {
+                submissionCount += submissions[assignmentID].length;
+            }
+            db.throwError(ERROR_TAG, `Found ${submissionCount} unowned submissions - cannot find user for owner key '${ownerKey}'.`, {
+                id: [ownerKey],
+                options: [
+                    `There are submissions without a valid user associated with it. Perhaps someone is using a different owner key? Try submitting a 'add_owner' review once you've found who these submissions belong to.`,
+                    `The owner key may be ill-formatted. Instead of fixing the mispelling, try submitting a 'add_owner' review to associate it back to the user.`
+                ],
+                more: [
+                    JSON.stringify(submissions, null, 4)
+                ]
+            });
         }
     }
 }

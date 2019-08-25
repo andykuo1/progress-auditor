@@ -192,7 +192,7 @@ async function parse(db, filepath, opts={})
         }
         catch(e)
         {
-            db.throwError(SubmissionDatabase.SUBMISSION_KEY, 'Unable to parse submission.', e);
+            db.throwError('PARSE', 'Unable to parse submissions - ' + e);
         }
     });
 

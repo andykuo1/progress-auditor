@@ -40,7 +40,7 @@ async function parse(db, filepath, opts={})
         }
         catch(e)
         {
-            db.throwError(ReviewDatabase.REVIEW_KEY, 'Unable to parse review.', e);
+            db.throwError('PARSE', 'Unable to parse reviews - ' + e);
         }
     });
 

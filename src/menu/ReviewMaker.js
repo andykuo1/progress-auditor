@@ -1,6 +1,5 @@
 import * as Menu from './Menu.js';
 import * as ReviewRegistry from '../stages/ReviewRegistry.js';
-import * as Review from '../database/Review.js';
 import * as MathHelper from '../util/MathHelper.js';
 
 const inquirer = require('inquirer');
@@ -8,9 +7,8 @@ const chalk = require('chalk');
 
 /**
  * This will run the steps to make a review and save it to file.
- * @param {Object} opts Any additional options.
  */
-export async function run(db, config, opts = {})
+export async function run(db, config, skipFirstCheck = true)
 {
     console.log(chalk.gray("Starting Review Maker..."));
     console.log("Welcome to Review Maker");
@@ -20,32 +18,46 @@ export async function run(db, config, opts = {})
     while(!result)
     {
         let answer;
-        answer = await inquirer.prompt([
-            {
-                message: "Would you like to make a new review?",
-                name: "value",
-                type: "confirm",
-            }
-        ]);
+        if (!skipFirstCheck)
+        {
+            answer = await inquirer.prompt([
+                {
+                    message: "Would you like to make a new review?",
+                    name: "value",
+                    type: "confirm",
+                }
+            ]);
+        }
+        else
+        {
+            skipFirstCheck = false;
+            answer = { value: true };
+        }
 
-        if (!answer.value) return;
+        if (!answer.value) break;
 
         result = await makeReview(db, config);
 
         if (result)
         {
-            const reviewer = ReviewRegistry.getReviewerByType(result.type);
+            const ID = 0;
+            const DATE = 1;
+            const COMMENT = 2;
+            const TYPE = 3;
+            const PARAMS = 4;
+
+            const reviewer = ReviewRegistry.getReviewerByType(result[TYPE]);
             const paramTypes = reviewer.REVIEW_PARAM_TYPES;
             const desc = reviewer.REVIEW_DESC;
     
-            console.log(chalk.cyan('>'), 'Review', chalk.green(`${result.type} ( ${paramTypes.join(', ')} )`, chalk.gray(`- ${desc}`)));
-            console.log(chalk.cyan('>'), 'Comment', chalk.cyan(`${result.comment}`));
-            console.log(chalk.cyan('>'), 'Date', chalk.cyan(`${result.date}`));
-            console.log(chalk.cyan('>'), 'ID', chalk.cyan(`${result.id}`));
+            console.log(chalk.cyan('>'), 'Review', chalk.green(`${result[TYPE]} ( ${paramTypes.join(', ')} )`, chalk.gray(`- ${desc}`)));
+            console.log(chalk.cyan('>'), 'Comment', chalk.cyan(`${result[COMMENT]}`));
+            console.log(chalk.cyan('>'), 'Date', chalk.cyan(`${result[DATE]}`));
+            console.log(chalk.cyan('>'), 'ID', chalk.cyan(`${result[ID]}`));
             console.log(chalk.cyan('>'), 'Parameters');
-            for(let i = 0; i < result.params.length; ++i)
+            for(let i = 0; i < result[PARAMS].length; ++i)
             {
-                console.log(chalk.cyan('>'), `- ${paramTypes[i]} = '${chalk.cyan(result.params[i])}'`);
+                console.log(chalk.cyan('>'), `- ${paramTypes[i]} = '${chalk.cyan(result[PARAMS][i])}'`);
             }
 
             answer = await inquirer.prompt([
@@ -59,12 +71,18 @@ export async function run(db, config, opts = {})
         }
         else
         {
-            console.log(chalk.red('Failed. Trying again...'));
+            console.log(chalk.red('...trying again...'));
         }
     }
 
-    console.log("Hope to see you soon!");
+    if (result)
+    {
+        console.log("Good review! Hope to see you soon!");
+    }
+    
     console.log(chalk.gray("...Stopping Review Maker"));
+
+    return result;
 }
 
 async function makeReview(db, config)
@@ -104,7 +122,7 @@ async function makeReview(db, config)
     // (Optionally) Resolve id...
     // TODO: Not yet implemented.
 
-    return Review.createReview(id, date, comment, type, params);
+    return [id, date, comment, type, params];
 }
 
 async function chooseReviewType(db, config)
@@ -134,6 +152,13 @@ async function chooseReviewType(db, config)
                         short: "(custom type)"
                     }
                 );
+                result.push(
+                    {
+                        name: "...or go back?",
+                        value: "__cancel",
+                        short: "(go back)"
+                    }
+                );
                 return result;
             }
         }
@@ -155,6 +180,10 @@ async function chooseReviewType(db, config)
                 }
             }
         ]);
+    }
+    else if (answer.value === '__cancel')
+    {
+        return null;
     }
 
     return await confirmLoop(answer.value, async (reviewType) => {

@@ -10,14 +10,14 @@ export function createDatabase()
     return {
         _registry: {},
         _errors: new Map(),
-        throwError(message, opts = {})
+        throwError(tag, message, opts = {})
         {
             let id;
-            if ('id' in opts)
+            if (typeof opts === 'object' && 'id' in opts)
             {
                 if (Array.isArray(opts.id))
                 {
-                    id = stringHash(opts.join('.'));
+                    id = stringHash(opts.id.join('.'));
                 }
                 else if (typeof opts.id !== 'number')
                 {
@@ -42,26 +42,45 @@ export function createDatabase()
 
             const dst = {
                 id,
+                tag,
                 message,
-                options: []
+                options: [],
+                more: [],
+                toString() { return `${id} [${tag}] ${message}`; }
             };
-            
-            if ('options' in opts)
+
+            if (typeof opts === 'string')
             {
-                if (Array.isArray(opts.options))
+                dst.options.push(opts);
+            }
+            else if (typeof opts === 'object')
+            {
+                if ('options' in opts)
                 {
-                    for(const option of opts.options)
+                    if (Array.isArray(opts.options))
+                    {
+                        for(const option of opts.options)
+                        {
+                            dst.options.push(option);
+                        }
+                    }
+                    else
                     {
                         dst.options.push(option);
                     }
                 }
-                else
+
+                if ('more' in opts)
                 {
-                    dst.options.push(option);
+                    dst.more = opts.more;
                 }
             }
 
-            this._errors.set(id, opts);
+            this._errors.set(id, dst);
+        },
+        getErrorByID(id)
+        {
+            return this._errors.get(id);
         },
         clearErrors()
         {

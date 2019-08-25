@@ -27,7 +27,7 @@ export function addUser(db, userID, ownerKey, userName, startDate, endDate, opts
 
     if (userMapping.has(userID))
     {
-        db.throwError('Found duplicate user with id \'' + userID + '\'.');
+        db.throwError(USER_KEY, `Found duplicate id for user '${userID}'.`);
         return null;
     }
     else
