@@ -1,6 +1,11 @@
 import * as SubmissionDatabase from '../../../database/SubmissionDatabase.js';
 
-export const REVIEW_ID = 'change_assignment';
+export const REVIEW_TYPE = 'change_assignment';
+export const REVIEW_DESC = 'Change assignment for submission.';
+export const REVIEW_PARAM_TYPES = [
+    'Submission ID',
+    'Assignment ID'
+];
 
 export async function review(db, reviewID, reviewType, reviewParams)
 {

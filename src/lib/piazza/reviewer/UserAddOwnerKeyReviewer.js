@@ -1,6 +1,11 @@
 import * as UserDatabase from '../../../database/UserDatabase.js';
 
-export const REVIEW_ID = 'add_owner_key';
+export const REVIEW_TYPE = 'add_owner_key';
+export const REVIEW_DESC = 'Add additional owner key for user';
+export const REVIEW_PARAM_TYPES = [
+    'User ID',
+    'Owner Key'
+];
 
 export async function review(db, reviewID, reviewType, reviewParams)
 {

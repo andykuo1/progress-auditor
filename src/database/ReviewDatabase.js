@@ -68,6 +68,17 @@ export function getReviewByID(db, reviewID)
     return db[REVIEW_KEY].get(reviewID);
 }
 
+export function getReviewTypes(db)
+{
+    const reviewMapping = db[REVIEW_KEY];
+    const dst = new Set();
+    for(const review of reviewMapping.values())
+    {
+        dst.add(review.type);
+    }
+    return dst;
+}
+
 /**
  * Outputs all information related to reviews in this database.
  * @param {Database} db The current database.

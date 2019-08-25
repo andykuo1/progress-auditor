@@ -13,7 +13,8 @@ export default {
       preferBuiltins: true
     }),
     commonjs(),
-    terser()
+    // TODO: For production...
+    //terser()
   ],
   external: [
     "fs",

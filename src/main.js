@@ -29,28 +29,31 @@ const DATABASE_EXPORTS = {
 // pipeline
 import * as ConfigLoader from './stages/loader/ConfigLoader.js';
 import * as DatabaseSetup from './stages/setup/DatabaseSetup.js';
+
 import * as ParserLoader from './stages/loader/ParserLoader.js';
 import * as AssignerLoader from './stages/loader/AssignerLoader.js';
+
 import * as InputProcessor from './stages/processor/InputProcessor.js';
 import * as AssignmentProcessor from './stages/processor/AssignmentProcessor.js';
 import * as ReviewProcessor from './stages/processor/ReviewProcessor.js';
-import * as ResolveProcessor from './stages/processor/ResolveProcessor.js';
+import * as PostProcessor from './stages/processor/PostProcessor.js';
 import * as OutputProcessor from './stages/processor/OutputProcessor.js';
 
 const PIPELINE_EXPORTS = {
     ConfigLoader,
     DatabaseSetup,
+
     ParserLoader,
     AssignerLoader,
+
     InputProcessor,
     AssignmentProcessor,
     ReviewProcessor,
-    ResolveProcessor,
-    OutputProcessor
+    PostProcessor,
+    OutputProcessor,
 };
 
 // util
-import * as ConsoleHelper from './util/ConsoleHelper.js';
 import * as DateUtil from './util/DateUtil.js';
 import * as FieldParser from './util/FieldParser.js';
 import * as FileUtil from './util/FileUtil.js';
@@ -58,7 +61,6 @@ import * as MathHelper from './util/MathHelper.js';
 import * as ParseUtil from './util/ParseUtil.js';
 import TableBuilder from './util/TableBuilder.js';
 const UTIL_EXPORTS = {
-    ConsoleHelper,
     DateUtil,
     FieldParser,
     FileUtil,
@@ -87,14 +89,13 @@ import { setupDatabase, clearDatabase } from './stages/setup/DatabaseSetup.js';
 import { loadParsers } from './stages/loader/ParserLoader.js';
 import { loadAssigners } from './stages/loader/AssignerLoader.js';
 
-import { processInputs } from './stages/processor/InputProcessor.js';
-import { processAssignments } from './stages/processor/AssignmentProcessor.js';
-import { processReviews } from './stages/processor/ReviewProcessor.js';
-import { processDatabase } from './stages/processor/ResolveProcessor.js';
-import { processOutput } from './stages/processor/OutputProcessor.js';
+// NOTE: Any new schemes should be imported here AND added to prepareScheme().
+import * as PiazzaScheme from './lib/piazza/PiazzaScheme.js';
 
-import chalk from 'chalk';
+// import chalk from 'chalk';
 import * as Menu from './menu/Menu.js';
+// import * as DatabaseViewer from './menu/DatabaseViewer.js';
+// import * as ReviewMaker from './menu/ReviewMaker.js';
 
 // TODO: Config properties that only require filePath should accept strings as well.
 // TODO: If files like vacations.csv or reviews.csv does not exist, it should not try to process them.
@@ -116,6 +117,10 @@ export async function run()
     // Prepare database from config...
     const db = await prepareDatabase(config);
 
+    // Prepare registries from scheme...
+    // NOTE: Any new schemes should be added to prepareScheme().
+    await prepareScheme(db, config);
+
     /**
      * Loading - Where all data should be loaded from file. This
      * should be raw data as defined by the user. No modifications
@@ -136,6 +141,9 @@ export async function run()
      * the resolution. This is a frequent debug loop.
      */
     await runProcessors(db, config);
+
+    // TEST
+    // await ReviewMaker.run(db, config);
 
     // Review resolution loop
     while (db._errors.length > 0)
@@ -180,7 +188,6 @@ export async function run()
      * Cleanup - Where all resources are destroyed, just to make
      * sure nothing leaks.
      */
-    ConsoleHelper.quit();
     console.log("......Stopped.");
     console.log();
 
@@ -242,6 +249,20 @@ async function prepareDatabase(config)
     return db;
 }
 
+async function prepareScheme(db, config)
+{
+    const schemeName = config.scheme;
+    if (!schemeName) throw new Error('Missing \'scheme\' name from config.');
+    switch(schemeName)
+    {
+        case PiazzaScheme.SCHEME_NAME:
+            PiazzaScheme.setup(db, config);
+            break;
+        default:
+            throw new Error(`Unknown scheme by name '${schemeName}'.`);
+    }
+}
+
 async function runLoaders(db, config)
 {
     Menu.println("Loading parsers...");
@@ -274,9 +295,10 @@ async function runProcessors(db, config)
     Menu.println("...Processing...");
 
     Menu.println("Parsing databases...");
+
     try
     {
-        await processInputs(db, config);
+        await InputProcessor.processInputs(db, config);
     }
     catch(e)
     {
@@ -287,7 +309,7 @@ async function runProcessors(db, config)
     Menu.println("Assigning assignments...");
     try
     {
-        await processAssignments(db, config);
+        await AssignmentProcessor.processAssignments(db, config);
     }
     catch(e)
     {
@@ -299,7 +321,7 @@ async function runProcessors(db, config)
     console.log('......Looking over our work...');
     try
     {
-        await processReviews(db, config);
+        await ReviewProcessor.processReviews(db, config);
     }
     catch(e)
     {
@@ -311,7 +333,7 @@ async function runProcessors(db, config)
     console.log(`......Helping you fix a few things...`);
     try
     {
-        await processDatabase(db, config);
+        await PostProcessor.processDatabase(db, config);
     }
     catch(e)
     {
@@ -347,7 +369,7 @@ async function runOutputs(db, config)
             await DebugInfoOutput.output(db, config.outputPath, config);
         }
 
-        await processOutput(db, config);
+        await OutputProcessor.processOutput(db, config);
 
         console.log("...Success!");
     }

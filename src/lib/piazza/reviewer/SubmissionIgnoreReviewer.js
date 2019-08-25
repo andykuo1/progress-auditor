@@ -1,6 +1,10 @@
 import * as SubmissionDatabase from '../../../database/SubmissionDatabase.js';
 
-export const REVIEW_ID = 'ignore_submission';
+export const REVIEW_TYPE = 'ignore_submission';
+export const REVIEW_DESC = 'Ignore specific submission by id.';
+export const REVIEW_PARAM_TYPES = [
+    'Submission ID'
+];
 
 export async function review(db, reviewID, reviewType, reviewParams)
 {

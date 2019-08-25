@@ -1,3 +1,5 @@
+import { stringHash } from '../util/MathHelper.js';
+
 /**
  * Creates a database to hold all your data :)
  * 
@@ -6,29 +8,68 @@
 export function createDatabase()
 {
     return {
-        _errors: [],
         _registry: {},
-        throwError(...messages)
+        _errors: new Map(),
+        throwError(message, opts = {})
         {
-            this._errors.push(messages.map(e => {
-                switch(typeof e)
+            let id;
+            if ('id' in opts)
+            {
+                if (Array.isArray(opts.id))
                 {
-                    case 'string':
-                        return e;
-                    case 'object':
-                        return JSON.stringify(e, null, 4);
-                    default:
-                        return String(e);
+                    id = stringHash(opts.join('.'));
                 }
-            }).join(' '));
+                else if (typeof opts.id !== 'number')
+                {
+                    id = stringHash(JSON.stringify(opts.id));
+                }
+                else
+                {
+                    id = opts.id;
+                }
+            }
+            else
+            {
+                id = this._errors.size;
+            }
+            
+            // Find a valid error id.
+            let MAX_ITERATIONS = 1000;
+            while (MAX_ITERATIONS-- >= 0 && this._errors.has(id)) ++id;
+
+            // There's just too much.
+            if (MAX_ITERATIONS <= 0) throw new Error('Invalid error id - too many errors.');
+
+            const dst = {
+                id,
+                message,
+                options: []
+            };
+            
+            if ('options' in opts)
+            {
+                if (Array.isArray(opts.options))
+                {
+                    for(const option of opts.options)
+                    {
+                        dst.options.push(option);
+                    }
+                }
+                else
+                {
+                    dst.options.push(option);
+                }
+            }
+
+            this._errors.set(id, opts);
         },
         clearErrors()
         {
-            this._errors.length = 0;
+            this._errors.clear();
         },
         getErrors()
         {
-            return this._errors;
+            return Array.from(this._errors.values());
         }
     };
 }
