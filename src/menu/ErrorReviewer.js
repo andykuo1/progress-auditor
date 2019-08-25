@@ -35,7 +35,7 @@ export async function run(db, config, processCallback)
     let errors = db.getErrors();
     while (errors.length > 0)
     {
-        Menu.println(`Found ${errors.length} errors. :(`);
+        Menu.printlnError(`Found ${errors.length} errors. :(`);
         if (await Menu.askYesNo("Do you want to review them now?"))
         {
             // Review each error...
@@ -87,7 +87,7 @@ export async function run(db, config, processCallback)
         }
         else
         {
-            Menu.println("Skipping errors...");
+            Menu.println(`Skipping errors...${Math.random() > 0.6 ? chalk.gray(`...(I trust you)...`) : ''}`);
             errors.length = 0;
             break;
         }

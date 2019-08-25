@@ -27,7 +27,12 @@ export async function output(db, outputPath, config)
     }
     else
     {
-        output = "It's okay. We'll get through this.\n\n" + db.getErrors().join('\n');
+        let errors = [];
+        for(const error of db.getErrors())
+        {
+            errors.push(`${error.id}: [${error.tag}] ${error.message}\n=== SOLUTIONS: ===\n => ${error.options.join('\n => ')}\n=== MOREINFO: ===\n${error.more.join('\n')}\n`);
+        }
+        output = "It's okay. We'll get through this.\n\n" + errors.join('\n');
     }
     FileUtil.writeToFile(path.resolve(outputPath, 'errors.txt'), output);
 }
