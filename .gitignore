@@ -1,3 +1,6 @@
 /node_modules/
 /out/
 __TEST__
+progress-auditor-linux
+progress-auditor-macos
+progress-auditor-win.exe
