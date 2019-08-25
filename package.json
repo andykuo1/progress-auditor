@@ -8,7 +8,7 @@
     "start": "npm run build && node ./dist/src/bundle.js",
     "start-dist": "./dist/progress-auditor-macos",
     "build": "rollup --config ./rollup.config.js --file ./dist/src/bundle.js --format cjs",
-    "dist": "pkg . --out-path ./dist/",
+    "build-dist": "pkg . --out-path ./dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "pkg": {

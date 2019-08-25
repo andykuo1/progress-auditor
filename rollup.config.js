@@ -13,12 +13,23 @@ export default {
       preferBuiltins: true
     }),
     commonjs(),
-    // TODO: For production...
-    //terser()
+    terser()
   ],
   external: [
     "fs",
     "path",
-    "os"
+    "os",
+
+    // Used by libraries
+    "readline",
+    "stream",
+    "child_process",
+    "assert",
+    "tty",
+    "buffer",
+    "util",
+    "events",
+    "string_decoder",
+    "crypto"
   ]
 };
