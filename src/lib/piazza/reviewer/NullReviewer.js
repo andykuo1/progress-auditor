@@ -1,4 +1,4 @@
-export const REVIEW_TYPE = 'unknown';
+export const REVIEW_TYPE = 'null';
 export const REVIEW_DESC = 'Unknown review type.';
 export const REVIEW_PARAM_TYPES = [];
 
