@@ -1,6 +1,6 @@
 {
   "name": "progress-auditor",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A program that streamlines and tracks the grading and logistics of discussion-based turnin processes.",
   "main": "./src/main.js",
   "bin": "./dist/src/bundle.js",
@@ -9,6 +9,7 @@
     "start-dist": "./dist/progress-auditor-macos",
     "build": "rollup --config ./rollup.config.js --file ./dist/src/bundle.js --format cjs",
     "build-dist": "pkg . --out-path ./dist/",
+    "build-all": "npm run build && npm run build-dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "pkg": {

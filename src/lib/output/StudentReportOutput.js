@@ -78,11 +78,11 @@ function generateProgressReport(db, userID)
     const user = UserDatabase.getUserByID(db, userID);
     const dst = [];
 
-    dst.push('Name:', user.name);
-    dst.push('PID:', user.attributes.pid);
-    dst.push('Date:', db.currentDate.toDateString());
-    dst.push('Your weekly student report:');
+    dst.push('Name: ' + user.name);
+    dst.push('PID: ' + user.attributes.pid);
+    dst.push('Date: ' + db.currentDate.toDateString());
     dst.push('');
+    dst.push('Your weekly student report:');
     const assignments = AssignmentDatabase.getAssignmentsByUser(db, userID);
     const inReviewAssignments = [];
     const missingAssignments = [];
@@ -101,14 +101,15 @@ function generateProgressReport(db, userID)
             inReviewAssignments.push(assignment);
         }
         accruedSlips += assignment.attributes.slipDays;
-        dst.push(assignment.id, ' - ', stringifyStatus(assignment.attributes.status, assignment.attributes.slipDays))
+        dst.push(assignment.id + ' - ' + stringifyStatus(assignment.attributes.status, assignment.attributes.slipDays))
     }
     dst.push('');
     const schedule = user.schedule;
     const totalSlipDays = Schedule.calculateNumberOfSlipDays(schedule);
-    dst.push('Weeks Remaining:', schedule.weeks - (assignments.length - missingAssignments.length));
-    dst.push('Daily accruing slip days:', slipRate);
-    dst.push('Remaining slip days available:', totalSlipDays - accruedSlips);
+    // TODO: The issue with this is that assignments != schedule weeks. There can be more than 1 assigment in a week.
+    // dst.push('Weeks Remaining:' + (schedule.weeks - (assignments.length - missingAssignments.length)));
+    dst.push('Daily accruing slip days:' + slipRate);
+    dst.push('Remaining slip days available:' + (totalSlipDays - accruedSlips));
     dst.push('');
 
     if (missingAssignments.length > 0)
@@ -138,7 +139,7 @@ function generateProgressReport(db, userID)
 
     dst.push('');
 
-    return dst.join('\\n');
+    return "\"" + dst.join('\n') + "\"";
 }
 
 function generateNoticeReport(db, userID)
