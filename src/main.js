@@ -14,7 +14,9 @@ export async function main(args)
     {
         // Setup is starting...
         const config = await resolveConfig(DIRECTORY);
+        console.log(config);
         const db = await resolveDatabase(config);
+        console.log(db);
     
         // All setup is GUARANTEED to be done now. Reviews are now to be processed...
         // Any errors that dare to surface will be vanquished here. Or ignored...
