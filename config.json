@@ -9,6 +9,16 @@
             "assignmentName": "intro",
             "pattern": "intro",
             "opts": {}
+        },
+        {
+            "assignmentName": "week",
+            "pattern": "sunday",
+            "opts": {}
+        },
+        {
+            "assignmentName": "last",
+            "pattern": "last",
+            "opts": {}
         }
     ],
     "inputs": [

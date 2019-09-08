@@ -173,7 +173,7 @@ export async function processDatabase(db, config)
     const results = [];
     for(const processor of processors)
     {
-        // console.log(`.........Resolving with '${path.basename(resolverConfig.filePath)}'...`);
+        console.log(`.........Resolving with '${processor}'...`);
         results.push(processor.resolve(db));
     }
     return Promise.all(results);
