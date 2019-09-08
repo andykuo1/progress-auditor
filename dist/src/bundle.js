@@ -49822,7 +49822,7 @@ async function onSetup(db, config)
 async function onPreProcess(db, config)
 {
     await runProcessors(db, config, false);
-
+    
     // Review resolution loop
     const reviews = await run$1(db, config, runProcessors);
 

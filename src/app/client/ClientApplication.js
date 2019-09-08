@@ -29,7 +29,7 @@ export async function onSetup(db, config)
 export async function onPreProcess(db, config)
 {
     await runProcessors(db, config, false);
-
+    
     // Review resolution loop
     const reviews = await ErrorReviewer.run(db, config, runProcessors);
 

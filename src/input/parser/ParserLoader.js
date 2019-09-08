@@ -1,5 +1,7 @@
 import * as CohortParser from './CohortParser.js';
 import * as ContributionsParser from './ContributionsParser.js';
+import * as ReviewsParser from './ReviewsParser.js';
+import * as VacationsParser from './VacationsParser.js';
 
 export function loadParserByType(parserType)
 {
@@ -7,6 +9,8 @@ export function loadParserByType(parserType)
     {
         case 'cohort': return CohortParser;
         case 'contributions': return ContributionsParser;
+        case 'reviews': return ReviewsParser;
+        case 'vacations': return VacationsParser;
         default:
             throw new Error([
                 'Invalid input entry:',

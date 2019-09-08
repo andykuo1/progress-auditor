@@ -1,5 +1,9 @@
 {
+    "currentDate": "7/29/2019",
     "include": [],
+    "scheme": "piazza",
+    "inputPath": "./dist/__TEST__/in",
+    "outputPath": "./dist/__TEST__/out",
     "assignments": [
         {
             "assignmentName": "intro",
@@ -7,10 +11,17 @@
             "opts": {}
         }
     ],
-    "scheme": "piazza",
-    "inputPath": "./dist/__TEST__",
-    "outputPath": "./dist/__TEST__/out",
     "inputs": [
+        {
+            "inputName": "reviews.csv",
+            "parser": "review",
+            "opts": {}
+        },
+        {
+            "inputName": "vacations.csv",
+            "parser": "vacation",
+            "opts": {}
+        },
         {
             "inputName": "contributions.csv",
             "parser": "contributions",
