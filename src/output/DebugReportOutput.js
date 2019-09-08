@@ -1,13 +1,13 @@
-import * as UserDatabase from '../../database/UserDatabase.js';
-import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
-import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
-import * as ReviewDatabase from '../../database/ReviewDatabase.js';
-import * as VacationDatabase from '../../database/VacationDatabase.js';
-import * as FileUtil from '../../util/FileUtil.js';
+import * as UserDatabase from '../database/UserDatabase.js';
+import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
+import * as AssignmentDatabase from '../database/AssignmentDatabase.js';
+import * as ReviewDatabase from '../database/ReviewDatabase.js';
+import * as VacationDatabase from '../database/VacationDatabase.js';
+import * as FileUtil from '../util/FileUtil.js';
 
 const path = require('path');
 
-export async function output(db, outputPath, config)
+export async function output(db, config, outputPath, opts)
 {
     // Output all database logs...
     UserDatabase.outputLog(db, outputPath);

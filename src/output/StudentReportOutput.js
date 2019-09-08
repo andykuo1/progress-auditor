@@ -1,8 +1,8 @@
-import * as UserDatabase from '../../database/UserDatabase.js';
-import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
-import * as Schedule from '../../database/Schedule.js';
-import * as FileUtil from '../../util/FileUtil.js';
-import TableBuilder from '../../util/TableBuilder.js';
+import * as UserDatabase from '../database/UserDatabase.js';
+import * as AssignmentDatabase from '../database/AssignmentDatabase.js';
+import * as Schedule from '../database/Schedule.js';
+import * as FileUtil from '../util/FileUtil.js';
+import TableBuilder from '../util/TableBuilder.js';
 
 const path = require('path');
 
@@ -147,7 +147,7 @@ function generateNoticeReport(db, userID)
     return 'N/A';
 }
 
-export async function output(db, outputPath, config)
+export async function output(db, config, outputPath, opts)
 {
     const tableBuilder = new TableBuilder();
     tableBuilder.addColumn('User ID');
@@ -168,5 +168,5 @@ export async function output(db, outputPath, config)
     }
     
     const outputTable = tableBuilder.build();
-    FileUtil.writeTableToCSV(path.resolve(outputPath, 'reports.csv'), outputTable);
+    FileUtil.writeTableToCSV(outputPath, outputTable);
 }

@@ -1,11 +1,11 @@
-import * as UserDatabase from '../../database/UserDatabase.js';
-import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
-import * as FileUtil from '../../util/FileUtil.js';
-import TableBuilder from '../../util/TableBuilder.js';
+import * as UserDatabase from '../database/UserDatabase.js';
+import * as AssignmentDatabase from '../database/AssignmentDatabase.js';
+import * as FileUtil from '../util/FileUtil.js';
+import TableBuilder from '../util/TableBuilder.js';
 
 const path = require('path');
 
-export async function output(db, outputPath, config)
+export async function output(db, config, outputPath, opts)
 {
     // COMPLETE = 0x2713 (checkmark)
     const COMPLETE_TOKEN = '\u2713';
@@ -106,5 +106,5 @@ export async function output(db, outputPath, config)
     }
     
     const outputTable = tableBuilder.build();
-    FileUtil.writeTableToCSV(path.resolve(outputPath, 'slip-days.csv'), outputTable);
+    FileUtil.writeTableToCSV(outputPath, outputTable);
 }

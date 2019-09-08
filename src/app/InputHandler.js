@@ -4,6 +4,7 @@ import * as ContributionsParser from '../input/ContributionsParser.js';
 /** If unable to find entries, an empty array is returned. */
 export async function findInputEntries(config)
 {
+    console.log("...Finding input entries...");
     if (Array.isArray(config.inputs))
     {
         return config.inputs;
@@ -17,6 +18,7 @@ export async function findInputEntries(config)
 /** Guaranteed to load input entry. Will throw an error if failed. */
 export async function loadInputEntry(db, config, inputEntry)
 {
+    console.log("...Process input entry...");
     const filePath = inputEntry.filePath;
     const parserType = inputEntry.parser;
     const customParserPath = inputEntry.customParserPath;

@@ -154,7 +154,7 @@ async function generateOutput(db, config)
     {
         try
         {
-            OutputHandler.processOutputEntry(db, config, outputEntry);
+            await OutputHandler.processOutputEntry(db, config, outputEntry);
         }
         catch(e)
         {

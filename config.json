@@ -17,10 +17,11 @@
             }
         }
     ],
+    "outputPath": "./dist/__TEST__/out",
     "outputs": [
         {
-            "filePath": "./dist/__TEST__/slip-days.csv",
-            "format": "instructor-report"
+            "outputName": "slip-days.csv",
+            "format": "instructor"
         }
     ]
 }
