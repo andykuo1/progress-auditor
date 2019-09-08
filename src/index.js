@@ -26,35 +26,6 @@ const DATABASE_EXPORTS = {
     VacationDatabase
 };
 
-/*
-// pipeline
-import * as ConfigLoader from './stages/loader/ConfigLoader.js';
-import * as DatabaseSetup from './stages/setup/DatabaseSetup.js';
-
-import * as ParserLoader from './stages/loader/ParserLoader.js';
-import * as AssignerLoader from './stages/loader/AssignerLoader.js';
-
-import * as InputProcessor from './stages/processor/InputProcessor.js';
-import * as AssignmentProcessor from './stages/processor/AssignmentProcessor.js';
-import * as ReviewProcessor from './stages/processor/ReviewProcessor.js';
-import * as PostProcessor from './stages/processor/PostProcessor.js';
-import * as OutputProcessor from './stages/processor/OutputProcessor.js';
-
-const PIPELINE_EXPORTS = {
-    ConfigLoader,
-    DatabaseSetup,
-
-    ParserLoader,
-    AssignerLoader,
-
-    InputProcessor,
-    AssignmentProcessor,
-    ReviewProcessor,
-    PostProcessor,
-    OutputProcessor,
-};
-*/
-
 // util
 import * as DateUtil from './util/DateUtil.js';
 import * as FieldParser from './util/FieldParser.js';
@@ -72,7 +43,7 @@ const UTIL_EXPORTS = {
 };
 
 // lib
-import * as AssignmentGenerator from './lib/AssignmentGenerator.js';
+import * as AssignmentGenerator from './app/AssignmentGenerator.js';
 const LIB_EXPORTS = {
     AssignmentGenerator
 };

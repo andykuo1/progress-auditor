@@ -1,7 +1,7 @@
 import * as Menu from './menu/Menu.js';
 import * as ErrorReviewer from './menu/ErrorReviewer.js';
 
-import * as PiazzaScheme from '../../lib/piazza/PiazzaScheme.js';
+import * as PiazzaScheme from '../piazza/PiazzaScheme.js';
 
 import * as DatabaseHandler from '../main/DatabaseHandler.js';
 import * as OutputHandler from '../main/OutputHandler.js';
