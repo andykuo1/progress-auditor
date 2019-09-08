@@ -2989,6 +2989,14 @@ async function processOutputEntry(db, config, outputEntry)
     await Format.output(db, config, filePath, opts);
 }
 
+async function outputDebugLog(db, config)
+{
+    if (config.debug)
+    {
+        await output$2(db, config, config.outputPath);
+    }
+}
+
 /**
  * Guarantees a config will be returned. It will throw an error if unable to.
  * @param {String} directory The root project directory.
@@ -49981,7 +49989,8 @@ async function onOutput(db, config)
 async function onError(db, config, error)
 {
     printlnError(error);
-    // process.exit(1);
+
+    await outputDebugLog(db, config);
 }
 
 async function onStop(db, config)

@@ -4,6 +4,7 @@ import * as ErrorReviewer from './menu/ErrorReviewer.js';
 import * as PiazzaScheme from '../../lib/piazza/PiazzaScheme.js';
 
 import * as DatabaseHandler from '../main/DatabaseHandler.js';
+import * as OutputHandler from '../main/OutputHandler.js';
 
 const path = require('path');
 
@@ -91,7 +92,8 @@ export async function onOutput(db, config)
 export async function onError(db, config, error)
 {
     Menu.printlnError(error);
-    // process.exit(1);
+
+    await OutputHandler.outputDebugLog(db, config);
 }
 
 export async function onStop(db, config)
@@ -195,33 +197,3 @@ export async function processOutput(db, config)
     ]);
 }
 
-async function runOutputs(db, config)
-{
-    console.log("...Outputting...");
-    if (db.getErrors().length > 0)
-    {
-        console.log("......Oh no! We found some errors...");
-        console.log("......Finding debug info for you...");
-        await DebugInfoOutput.output(db, config.outputPath, config);
-
-        console.log("...Failed!");
-        console.log();
-
-        Menu.printMotivation();
-        console.log();
-    }
-    else
-    {
-        console.log("......Hooray! Everything is as expected...");
-
-        if (config.debug)
-        {
-            console.log("......Finding debug info for you...");
-            await DebugInfoOutput.output(db, config.outputPath, config);
-        }
-
-        await OutputProcessor.processOutput(db, config);
-
-        console.log("...Success!");
-    }
-}

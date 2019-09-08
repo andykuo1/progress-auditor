@@ -65,3 +65,11 @@ export async function processOutputEntry(db, config, outputEntry)
 
     await Format.output(db, config, filePath, opts);
 }
+
+export async function outputDebugLog(db, config)
+{
+    if (config.debug)
+    {
+        await DebugReportOutput.output(db, config, config.outputPath);
+    }
+}
