@@ -132,7 +132,7 @@ Currently there is no other way to build the project. Due to its rather small si
 ### Entry point
 The entry point for the code is in `src/bin.js` (if bundled, this will be referred to by `package.json` through the property `bin`).
 
-This script manages the interactive menu and handles starting the program. For the actual implementations, you should checkout `main.js`. It handles the imports/exports used and also the lifecycle of the program itself.
+This script manages the interactive menu and handles starting the program. For the actual implementations, you should checkout `main.js` and `index.js`. `index.js` handles the imports/exports used and `main.js` handles the lifecycle of the program itself.
 
 ### Conclusion
 If you have any more questions, please contact Professor Mia Minnes or Andrew Kuo.
