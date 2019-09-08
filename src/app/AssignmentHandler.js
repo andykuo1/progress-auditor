@@ -1,7 +1,7 @@
-import * as AssignmentLoader from '../assignment/AssignmentLoader.js';
+import * as AssignmentLoader from '../input/assignment/AssignmentLoader.js';
 import * as ErrorHandler from '../app/ErrorHandler.js';
 
-import * as AssignerRegistry from '../assignment/AssignerRegistry.js';
+import * as AssignerRegistry from '../input/assignment/AssignerRegistry.js';
 
 const fs = require('fs');
 const path = require('path');

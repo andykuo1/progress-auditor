@@ -1,7 +1,7 @@
-import * as UserDatabase from '../database/UserDatabase.js';
-import * as FileUtil from '../util/FileUtil.js';
-import * as ParseUtil from '../util/ParseUtil.js';
-import * as FieldParser from '../util/FieldParser.js';
+import * as UserDatabase from '../../database/UserDatabase.js';
+import * as FileUtil from '../../util/FileUtil.js';
+import * as ParseUtil from '../../util/ParseUtil.js';
+import * as FieldParser from '../../util/FieldParser.js';
 
 /**
  * Create UserDatabase based on input file.

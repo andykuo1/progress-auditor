@@ -1,8 +1,8 @@
-import * as SubmissionDatabase from '../database/SubmissionDatabase.js';
-import * as FileUtil from '../util/FileUtil.js';
-import * as MathHelper from '../util/MathHelper.js';
-import * as ParseUtil from '../util/ParseUtil.js';
-import * as FieldParser from '../util/FieldParser.js';
+import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
+import * as FileUtil from '../../util/FileUtil.js';
+import * as MathHelper from '../../util/MathHelper.js';
+import * as ParseUtil from '../../util/ParseUtil.js';
+import * as FieldParser from '../../util/FieldParser.js';
 
 function evaluatePostAssignment(headerContent, bodyContent)
 {
