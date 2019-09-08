@@ -1,15 +1,6 @@
-import { main } from './main.js';
+import { run } from './main.js';
 
-main(process.argv).then(result => {
-    if (result)
-    {
-        console.log("Success!");
-    }
-    else
-    {
-        console.log("Failure!");
-    }
-});
+run();
 
 /**
  * This program will generate reports based on the supplied database
