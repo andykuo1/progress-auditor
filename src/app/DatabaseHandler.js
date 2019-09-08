@@ -1,31 +1,38 @@
 import * as ClientHandler from './ClientHandler.js';
+import * as InputHandler from './InputHandler.js';
+
+import * as DatabaseSetup from '../database/DatabaseSetup.js';
 
 // Database setup
 
 /** Guaranteed to succeed. */
-export function createDatabase(config)
+export async function createDatabase(config)
 {
     console.log("...Creating database...");
+
+    return await DatabaseSetup.setupDatabase(config);
 }
 
-/** If unable to find entries, an empty array is returned. */
-export async function findInputEntries(config)
+export async function loadDatabaseFromInputs(db, config)
 {
-    console.log("...Finding input entries...");
-    if (Array.isArray(config.inputs))
+    console.log("...Load database from inputs...");
+    const inputEntries = await InputHandler.findInputEntries(config);
+    for(const inputEntry of inputEntries)
     {
-        return config.inputs;
+        try
+        {
+            await InputHandler.loadInputEntry(db, config, inputEntry);
+        }
+        catch(e)
+        {
+            // TODO: What to output if input file is missing?
+            // TODO: What to output if input file cannot be parsed?
+            // TODO: What to output if custom parser file is missing?
+            // TODO: What to output if custom parser file is invalid?
+            // TODO: What to output if parser type is missing?
+            console.error('Failed to load input entry.', e);
+        }
     }
-    else
-    {
-        return [];
-    }
-}
-
-/** Guaranteed to load input entry. Will throw an error if failed. */
-export async function loadInputEntry(db, config, inputEntry)
-{
-    console.log("...Loading input entry...");
 }
 
 export async function verifyDatabaseWithClient(db, config)

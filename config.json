@@ -1,8 +1,26 @@
 {
+    "include": [],
+    "assignments": {
+        "intro": { "filePath": "./dist/__TEST__/intro.js" }
+    },
     "inputs": [
-        "WHAT"
+        {
+            "filePath": "./dist/__TEST__/contributions.csv",
+            "parser": "contributions",
+            "opts": {}
+        },
+        {
+            "filePath": "./dist/__TEST__/cohort.csv",
+            "parser": "cohort",
+            "opts": {
+                "threshold": 3
+            }
+        }
     ],
     "outputs": [
-
+        {
+            "filePath": "./dist/__TEST__/slip-days.csv",
+            "format": "instructor-report"
+        }
     ]
 }

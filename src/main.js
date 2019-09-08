@@ -90,21 +90,10 @@ async function resolveDatabase(config)
     console.log("Resolving database...");
 
     // Creates an empty database (with no structure at all)...
-    const db = DatabaseHandler.createDatabase(config);
+    const db = await DatabaseHandler.createDatabase(config);
 
     // Try to load all database entries from config...
-    const inputEntries = await DatabaseHandler.findInputEntries(config);
-    for(const inputEntry of inputEntries)
-    {
-        try
-        {
-            await DatabaseHandler.loadInputEntry(db, config, inputEntry);
-        }
-        catch(e)
-        {
-            console.error('Failed to load input entry.', e);
-        }
-    }
+    await DatabaseHandler.loadDatabaseFromInputs(db, config);
 
     // Check with the user if it is okay to continue, based on some data stats...
     if (!await DatabaseHandler.verifyDatabaseWithClient(db, config))
