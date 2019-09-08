@@ -1,5 +1,44 @@
-import * as CohortParser from '../input/CohortParser.js';
-import * as ContributionsParser from '../input/ContributionsParser.js';
+import * as ParserLoader from '../input/ParserLoader.js';
+import * as ErrorHandler from '../app/ErrorHandler.js';
+
+const fs = require('fs');
+const path = require('path');
+
+function validateInputEntry(config, inputEntry)
+{
+    const ERROR = ErrorHandler.createErrorBuffer();
+
+    const inputPath = config.inputPath || '.';
+    const inputName = inputEntry.inputName;
+    const inputFilePath = path.resolve(inputPath, inputName);
+    const parserType = inputEntry.parser;
+    const customParserPath = inputEntry.customParserPath;
+
+    if (!inputName)
+    {
+        ERROR.add('Invalid input entry:', `Missing required property 'inputName'.`);
+    }
+
+    if (!fs.existsSync(inputFilePath))
+    {
+        ERROR.add(`Cannot find input file '${inputName}':`, `File does not exist: '${inputFilePath}'.`);
+    }
+
+    if (!parserType && !customParserPath)
+    {
+        ERROR.add('Invalid input entry:', `Missing one of property 'parser' or 'customParserType'.`);
+    }
+
+    if (customParserPath && !fs.existsSync(customParserPath))
+    {
+        ERROR.add(`Cannot find custom parser file '${path.basename(customParserPath)}':`, `File does not exist: '${customParserPath}'.`);
+    }
+
+    if (!ERROR.isEmpty())
+    {
+        ERROR.flush('Failed to validate input entry:');
+    }
+}
 
 /** If unable to find entries, an empty array is returned. */
 export async function findInputEntries(config)
@@ -7,7 +46,30 @@ export async function findInputEntries(config)
     console.log("...Finding input entries...");
     if (Array.isArray(config.inputs))
     {
-        return config.inputs;
+        const result = config.inputs;
+
+        // Validate input entries...
+        const ERROR = ErrorHandler.createErrorBuffer();
+        for(const inputEntry of result)
+        {
+            try
+            {
+                validateInputEntry(config, inputEntry);
+            }
+            catch(e)
+            {
+                ERROR.add(e);
+            }
+        }
+
+        if (!ERROR.isEmpty())
+        {
+            ERROR.flush('Failed to resolve input entries from config:');
+        }
+        else
+        {
+            return result;
+        }
     }
     else
     {
@@ -15,48 +77,46 @@ export async function findInputEntries(config)
     }
 }
 
-/** Guaranteed to load input entry. Will throw an error if failed. */
+/**
+ * Guaranteed to load input entry. Will throw an error if failed.
+ * Also assumes that inputEntry is valid.
+ */
 export async function loadInputEntry(db, config, inputEntry)
 {
     console.log("...Process input entry...");
-    const filePath = inputEntry.filePath;
+    const inputPath = config.inputPath || '.';
+    const inputName = inputEntry.inputName;
+    const filePath = path.resolve(inputPath, inputName);
     const parserType = inputEntry.parser;
     const customParserPath = inputEntry.customParserPath;
-    const opts = inputEntry.opts;
+    const opts = inputEntry.opts || {};
 
     let Parser;
 
-    // If customParserPath is defined, ignore parserType.
-    if (customParserPath)
+    const ERROR = ErrorHandler.createErrorBuffer();
+    try
     {
-        try
+        // customParserPath will override parserType if defined.
+        if (customParserPath)
         {
-            Parser = require(customParserPath);
-            if (typeof Parser.parse !== 'function')
-            {
-                throw new Error(`Invalid custom parser '${customParserPath}' - must export named function 'parse'.`);
-            }
+            Parser = ParserLoader.loadCustomParser(customParserPath);
         }
-        catch(e)
+        else
         {
-            throw new Error(`Cannot load custom parser from '${customParserPath}'.`, e);
+            Parser = ParserLoader.loadParserByType(parserType);
         }
     }
-    // No customParserPath, so use parserType.
-    else
+    catch(e)
     {
-        switch(parserType)
-        {
-            case 'cohort':
-                Parser = CohortParser;
-                break;
-            case 'contributions':
-                Parser = ContributionsParser;
-                break;
-            default:
-                throw new Error(`Cannot find valid parser of type '${parserType}'.`);
-        }
+        ERROR.add(e);
     }
 
-    await Parser.parse(db, config, filePath, opts);
+    if (!ERROR.isEmpty())
+    {
+        ERROR.flush(`Failed to resolve input entry from config:`);
+    }
+    else
+    {
+        await Parser.parse(db, config, filePath, opts);
+    }
 }

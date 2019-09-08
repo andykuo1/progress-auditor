@@ -3,21 +3,22 @@
     "assignments": {
         "intro": { "filePath": "./dist/__TEST__/intro.js" }
     },
+    "inputPath": "./dist/__TEST__",
+    "outputPath": "./dist/__TEST__/out",
     "inputs": [
         {
-            "filePath": "./dist/__TEST__/contributions.csv",
+            "inputName": "contributions.csv",
             "parser": "contributions",
             "opts": {}
         },
         {
-            "filePath": "./dist/__TEST__/cohort.csv",
+            "inputName": "cohort.csv",
             "parser": "cohort",
             "opts": {
                 "threshold": 3
             }
         }
     ],
-    "outputPath": "./dist/__TEST__/out",
     "outputs": [
         {
             "outputName": "slip-days.csv",
