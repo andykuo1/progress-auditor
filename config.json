@@ -3,6 +3,7 @@
     "assignments": {
         "intro": { "filePath": "./dist/__TEST__/intro.js" }
     },
+    "scheme": "piazza",
     "inputPath": "./dist/__TEST__",
     "outputPath": "./dist/__TEST__/out",
     "inputs": [

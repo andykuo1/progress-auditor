@@ -1,6 +1,10 @@
+// TODO: This should be it's own bundled file for plugins to use. But for now, it's a global.
+import './index.js';
+
 import * as ConfigHandler from './app/ConfigHandler.js';
 import * as DatabaseHandler from './app/DatabaseHandler.js';
 import * as OutputHandler from './app/OutputHandler.js';
+import * as ClientApplication from './client/ClientApplication.js';
 
 /** The root project directory */
 const DIRECTORY = '.';
@@ -10,26 +14,38 @@ const DIRECTORY = '.';
  */
 export async function main(args)
 {
+    await ClientApplication.onStart(args);
+    
     try
     {
         // Setup is starting...
         const config = await resolveConfig(DIRECTORY);
-        console.log(config);
         const db = await resolveDatabase(config);
-        console.log(db);
-    
+
+        await ClientApplication.onSetup(db, config);
+        await ClientApplication.onPreProcess(db, config);
+
         // All setup is GUARANTEED to be done now. Reviews are now to be processed...
         // Any errors that dare to surface will be vanquished here. Or ignored...
         await validateDatabase(db, config);
+
+        await ClientApplication.onPostProcess(db, config);
+        await ClientApplication.onPreOutput(db, config);
     
         // All validation is GUARANTEED to be done now. Outputs can now be generated...
         await generateOutput(db, config);
+
+        await ClientApplication.onPostOutput(db, config);
     }
     catch(e)
     {
+        await ClientApplication.onError(db, config, e);
+
         console.error('Program failed.', e);
         return false;
     }
+
+    await ClientApplication.onStop(db, config);
 
     return true;
 }
