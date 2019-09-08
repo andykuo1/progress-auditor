@@ -14,12 +14,12 @@
     "inputs": [
         {
             "inputName": "reviews.csv",
-            "parser": "review",
+            "parser": "reviews",
             "opts": {}
         },
         {
             "inputName": "vacations.csv",
-            "parser": "vacation",
+            "parser": "vacations",
             "opts": {}
         },
         {

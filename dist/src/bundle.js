@@ -1971,12 +1971,109 @@ var ContributionsParser = /*#__PURE__*/Object.freeze({
     parse: parse$1
 });
 
+/**
+ * Create ReviewDatabase based on input file.
+ * @param {Database} db The database to write to.
+ * @param {String} filepath The path to the file to parse.
+ * @param {Object} opts Any additional options.
+ */
+async function parse$2(db, config, filepath, opts={})
+{
+    setupDatabase$1(db);
+
+    let first = true;
+    await readCSVFileByRow(filepath, (row) => {
+        // Skip header...
+        if (first) { first = false; return; }
+
+        // 0. Review ID
+        // 1. Review Date
+        // 2. Comments
+        // 3. Review Type
+        // 4. Param[0]
+        // 5. Param[1]
+        // 6. Param[2]
+        // ...
+        try
+        {
+            const reviewID = row[0];
+            const reviewDate = parseDate(row[1]);
+            const comments = row[2];
+            const reviewType = row[3];
+            const params = [];
+            for(let i = 4; i < row.length; ++i)
+            {
+                if (row[i].length <= 0) break;
+                params.push(row[i]);
+            }
+
+            const review = addReview(db, reviewID, reviewDate, comments, reviewType, params);
+        }
+        catch(e)
+        {
+            db.throwError('PARSE', 'Unable to parse reviews - ' + e);
+        }
+    });
+
+    return db;
+}
+
+var ReviewsParser = /*#__PURE__*/Object.freeze({
+    parse: parse$2
+});
+
+/**
+ * Create VacationDatabase based on input file.
+ * @param {Database} db The database to write to.
+ * @param {String} filepath The path to the file to parse.
+ * @param {Object} opts Any additional options.
+ */
+async function parse$3(db, config, filepath, opts={})
+{
+    setupDatabase$4(db);
+
+    let first = true;
+    await readCSVFileByRow(filepath, (row) => {
+        // Skip header...
+        if (first) { first = false; return; }
+
+        // 0. Vacation ID
+        // 1. User ID
+        // 2. Start Date
+        // 3. End Date
+        // 4. Padding
+        // ...
+        try
+        {
+            const vacationID = row[0];
+            const ownerKey = parseEmail(row[1]);
+            const startDate = parseAmericanDate(row[2]);
+            const endDate = parseAmericanDate(row[3]);
+            const padding = row[4];
+
+            const vacation = addVacation(db, vacationID, ownerKey, startDate, endDate, padding);
+        }
+        catch(e)
+        {
+            db.throwError('PARSE', 'Unable to parse vacations - ' + e);
+        }
+    });
+
+    return db;
+}
+
+var VacationsParser = /*#__PURE__*/Object.freeze({
+    parse: parse$3
+});
+
 function loadParserByType(parserType)
 {
     switch(parserType)
     {
         case 'cohort': return CohortParser;
         case 'contributions': return ContributionsParser;
+        case 'reviews': return ReviewsParser;
+        case 'vacations': return VacationsParser;
         default:
             throw new Error([
                 'Invalid input entry:',

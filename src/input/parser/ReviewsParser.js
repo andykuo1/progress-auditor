@@ -8,7 +8,7 @@ import * as ParseUtil from '../../util/ParseUtil.js';
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-export async function parse(db, filepath, opts={})
+export async function parse(db, config, filepath, opts={})
 {
     ReviewDatabase.setupDatabase(db);
 
