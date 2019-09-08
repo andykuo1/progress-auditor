@@ -2,13 +2,17 @@ import * as Menu from '../menu/Menu.js';
 import * as ErrorReviewer from '../menu/ErrorReviewer.js';
 import * as PiazzaScheme from '../lib/piazza/PiazzaScheme.js';
 
-import * as AssignerLoader from '../assignment/AssignerLoader.js';
+import * as DatabaseHandler from '../app/DatabaseHandler.js';
+import * as AssignmentHandler from '../app/AssignmentHandler.js';
 
 const path = require('path');
 
 export async function onStart(args)
 {
     Menu.printTitle();
+    Menu.println();
+
+    Menu.println("Running from directory:", path.resolve('.'));
     Menu.println();
 }
 
@@ -17,13 +21,92 @@ export async function onSetup(db, config)
     // Prepare registries from scheme...
     // NOTE: Any new schemes should be added to prepareScheme().
     await prepareScheme(db, config);
-    // await AssignerLoader.loadAssigners(db, config);
+
+    Menu.println("Date:", db.currentDate.toDateString());
+    Menu.println();
 }
 
 export async function onPreProcess(db, config)
 {
-    Menu.println("Assigning assignments...");
-    await processAssignments(db, config);
+    await runProcessors(db, config, false);
+
+    // Review resolution loop
+    const reviews = await ErrorReviewer.run(db, config, runProcessors);
+
+    if (reviews.length > 0)
+    {
+        if (await Menu.askYesNo("Do you want to save the new reviews?"))
+        {
+            const reviewTableHeader = [
+                'Review ID',
+                'Date',
+                'Comment',
+                'Type',
+                'Param[0]',
+                'Param[1]',
+                'Param[2]',
+                'Param[3]',
+                '...'
+            ];
+            const reviewTable = [reviewTableHeader];
+            for(const review of reviews)
+            {
+                const reviewEntry = [];
+                // ID
+                reviewEntry.push(review[0]);
+                // Date
+                reviewEntry.push(review[1]);
+                // Comment
+                reviewEntry.push(review[2]);
+                // Type
+                reviewEntry.push(review[3]);
+                // Params
+                reviewEntry.push(...review[4]);
+                reviewTable.push(reviewEntry);
+            }
+            await FileUtil.writeTableToCSV(path.resolve(config.outputPath, `reviews-${db.currentDate.toISOString()}.csv`), reviewTable);
+        }
+        else
+        {
+            Menu.println("Dumping reviews...");
+        }
+    }
+
+    // await runOutputs(db, config);
+
+    console.log("......Stopped.");
+    console.log();
+}
+
+export async function onPostProcess(db, config)
+{
+
+}
+
+export async function onOutput(db, config)
+{
+
+}
+
+export async function onError(db, config, error)
+{
+    Menu.printlnError(error);
+    // process.exit(1);
+}
+
+export async function onStop(db, config)
+{
+
+}
+
+async function runProcessors(db, config, populate = true)
+{
+    if (populate)
+    {
+        Menu.println("...Processing...");
+        Menu.println("Parsing databases...");
+        await DatabaseHandler.populateDatabaseWithInputs(db, config);
+    }
 
     Menu.println("Evaluating reviews...");
     console.log('......Looking over our work...');
@@ -34,32 +117,6 @@ export async function onPreProcess(db, config)
     await processDatabase(db, config);
 
     Menu.println();
-}
-
-export async function onPostProcess(db, config)
-{
-
-}
-
-export async function onPreOutput(db, config)
-{
-
-}
-
-export async function onPostOutput(db, config)
-{
-
-}
-
-export async function onError(db, config, error)
-{
-    Menu.printlnError(error);
-    process.exit(1);
-}
-
-export async function onStop(db, config)
-{
-
 }
 
 // NOTE: Any new schemes should be imported here AND added to prepareScheme().
@@ -122,39 +179,6 @@ export async function processDatabase(db, config)
     return Promise.all(results);
 }
 
-import * as UserDatabase from '../database/UserDatabase.js';
-
-/**
- * Assumes assigners have already been loaded.
- * @param {Database} db The database to load data into.
- * @param {Object} config The config.
- */
-export async function processAssignments(db, config)
-{
-    const registry = db._registry;
-    if (!('assigners' in registry) || !Array.isArray(registry.assigners))
-    {
-        return Promise.resolve([]);
-    }
-
-    // Create assignments...
-    const assignmentResults = [];
-    for(const assignerEntry of registry.assigners)
-    {
-        const [assignment, filePath, name, opts] = assignerEntry;
-        console.log(`......Assigning '${path.basename(name)}' with '${path.basename(filePath)}'...`);
-
-        for(const userID of UserDatabase.getUsers(db))
-        {
-            const user = UserDatabase.getUserByID(db, userID);
-            const schedule = user.schedule;
-            assignmentResults.push(assignment.assign(db, name, userID, schedule, opts));
-        }
-    }
-
-    return Promise.all(assignmentResults);
-}
-
 import * as InstructorReportOutput from '../output/InstructorReportOutput.js';
 import * as StudentReportOutput from '../output/StudentReportOutput.js';
 
@@ -169,4 +193,35 @@ export async function processOutput(db, config)
         InstructorReportOutput.output(db, config.outputPath, opts),
         StudentReportOutput.output(db, config.outputPath, opts),
     ]);
+}
+
+async function runOutputs(db, config)
+{
+    console.log("...Outputting...");
+    if (db.getErrors().length > 0)
+    {
+        console.log("......Oh no! We found some errors...");
+        console.log("......Finding debug info for you...");
+        await DebugInfoOutput.output(db, config.outputPath, config);
+
+        console.log("...Failed!");
+        console.log();
+
+        Menu.printMotivation();
+        console.log();
+    }
+    else
+    {
+        console.log("......Hooray! Everything is as expected...");
+
+        if (config.debug)
+        {
+            console.log("......Finding debug info for you...");
+            await DebugInfoOutput.output(db, config.outputPath, config);
+        }
+
+        await OutputProcessor.processOutput(db, config);
+
+        console.log("...Success!");
+    }
 }

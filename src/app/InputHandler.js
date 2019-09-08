@@ -1,6 +1,8 @@
 import * as ParserLoader from '../input/ParserLoader.js';
 import * as ErrorHandler from '../app/ErrorHandler.js';
 
+import * as ParserRegistry from '../input/ParserRegistry.js';
+
 const fs = require('fs');
 const path = require('path');
 
@@ -12,7 +14,7 @@ function validateInputEntry(config, inputEntry)
     const inputName = inputEntry.inputName;
     const inputFilePath = path.resolve(inputPath, inputName);
     const parserType = inputEntry.parser;
-    const customParserPath = inputEntry.customParserPath;
+    const customPath = inputEntry.customPath;
 
     if (!inputName)
     {
@@ -24,14 +26,14 @@ function validateInputEntry(config, inputEntry)
         ERROR.add(`Cannot find input file '${inputName}':`, `File does not exist: '${inputFilePath}'.`);
     }
 
-    if (!parserType && !customParserPath)
+    if (!parserType && !customPath)
     {
-        ERROR.add('Invalid input entry:', `Missing one of property 'parser' or 'customParserType'.`);
+        ERROR.add('Invalid input entry:', `Missing one of property 'parser' or 'customPath'.`);
     }
 
-    if (customParserPath && !fs.existsSync(customParserPath))
+    if (customPath && !fs.existsSync(customPath))
     {
-        ERROR.add(`Cannot find custom parser file '${path.basename(customParserPath)}':`, `File does not exist: '${customParserPath}'.`);
+        ERROR.add(`Cannot find custom parser file '${path.basename(customPath)}':`, `File does not exist: '${customPath}'.`);
     }
 
     if (!ERROR.isEmpty())
@@ -88,7 +90,7 @@ export async function loadInputEntry(db, config, inputEntry)
     const inputName = inputEntry.inputName;
     const filePath = path.resolve(inputPath, inputName);
     const parserType = inputEntry.parser;
-    const customParserPath = inputEntry.customParserPath;
+    const customPath = inputEntry.customPath;
     const opts = inputEntry.opts || {};
 
     let Parser;
@@ -96,10 +98,10 @@ export async function loadInputEntry(db, config, inputEntry)
     const ERROR = ErrorHandler.createErrorBuffer();
     try
     {
-        // customParserPath will override parserType if defined.
-        if (customParserPath)
+        // customPath will override parserType if defined.
+        if (customPath)
         {
-            Parser = ParserLoader.loadCustomParser(customParserPath);
+            Parser = ParserLoader.loadCustomParser(customPath);
         }
         else
         {
@@ -117,6 +119,6 @@ export async function loadInputEntry(db, config, inputEntry)
     }
     else
     {
-        await Parser.parse(db, config, filePath, opts);
+        ParserRegistry.registerParser(Parser, filePath, customPath || parserType, opts);
     }
 }

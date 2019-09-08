@@ -1,8 +1,12 @@
 {
     "include": [],
-    "assignments": {
-        "intro": { "filePath": "./dist/__TEST__/intro.js" }
-    },
+    "assignments": [
+        {
+            "assignmentName": "intro",
+            "pattern": "intro",
+            "opts": {}
+        }
+    ],
     "scheme": "piazza",
     "inputPath": "./dist/__TEST__",
     "outputPath": "./dist/__TEST__/out",

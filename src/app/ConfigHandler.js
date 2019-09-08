@@ -20,6 +20,9 @@ export async function loadDefaultConfig(directory)
 {
     console.log("...Load default config...");
     return {
+        scheme: 'piazza',
+        inputPath: '.',
+        outputPath: './out/',
         inputs: [],
         outputs: [],
     };
