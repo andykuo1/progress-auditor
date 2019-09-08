@@ -1,6 +1,6 @@
-import * as ConfigHandler from './ConfigHandler.js';
-import * as DatabaseHandler from './DatabaseHandler.js';
-import * as OutputHandler from './OutputHandler.js';
+import * as ConfigHandler from './app/ConfigHandler.js';
+import * as DatabaseHandler from './app/DatabaseHandler.js';
+import * as OutputHandler from './app/OutputHandler.js';
 
 /** The root project directory */
 const DIRECTORY = '.';
