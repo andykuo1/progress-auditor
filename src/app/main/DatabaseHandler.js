@@ -1,12 +1,12 @@
-import * as ClientHandler from './ClientHandler.js';
-import * as InputHandler from './InputHandler.js';
-import * as AssignmentHandler from './AssignmentHandler.js';
+import * as ClientHandler from '../ClientHandler.js';
+import * as InputHandler from '../InputHandler.js';
+import * as AssignmentHandler from '../AssignmentHandler.js';
 
-import * as DatabaseSetup from '../database/DatabaseSetup.js';
+import * as DatabaseSetup from '../../database/DatabaseSetup.js';
 
-import * as ParserRegistry from '../input/ParserRegistry.js';
-import * as AssignerRegistry from '../assignment/AssignerRegistry.js';
-import * as UserDatabase from '../database/UserDatabase.js';
+import * as ParserRegistry from '../../input/ParserRegistry.js';
+import * as AssignerRegistry from '../../assignment/AssignerRegistry.js';
+import * as UserDatabase from '../../database/UserDatabase.js';
 
 // Database setup
 

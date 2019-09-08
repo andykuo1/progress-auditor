@@ -1,9 +1,9 @@
-import * as Menu from '../menu/Menu.js';
-import * as ErrorReviewer from '../menu/ErrorReviewer.js';
-import * as PiazzaScheme from '../lib/piazza/PiazzaScheme.js';
+import * as Menu from './menu/Menu.js';
+import * as ErrorReviewer from './menu/ErrorReviewer.js';
 
-import * as DatabaseHandler from '../app/DatabaseHandler.js';
-import * as AssignmentHandler from '../app/AssignmentHandler.js';
+import * as PiazzaScheme from '../../lib/piazza/PiazzaScheme.js';
+
+import * as DatabaseHandler from '../main/DatabaseHandler.js';
 
 const path = require('path');
 
@@ -134,8 +134,8 @@ export async function prepareScheme(db, config)
     }
 }
 
-import * as ReviewRegistry from '../review/ReviewRegistry.js';
-import * as ReviewDatabase from '../database/ReviewDatabase.js';
+import * as ReviewRegistry from '../../review/ReviewRegistry.js';
+import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 
 /**
  * Assumes reviewers are already loaded.
@@ -159,7 +159,7 @@ export async function processReviews(db, config)
     return Promise.all(reviewResults);
 }
 
-import * as ProcessorPipeline from '../review/ProcessorPipeline.js';
+import * as ProcessorPipeline from '../../review/ProcessorPipeline.js';
 
 /**
  * Assumes processors have already been registered.
@@ -179,8 +179,8 @@ export async function processDatabase(db, config)
     return Promise.all(results);
 }
 
-import * as InstructorReportOutput from '../output/InstructorReportOutput.js';
-import * as StudentReportOutput from '../output/StudentReportOutput.js';
+import * as InstructorReportOutput from '../../output/InstructorReportOutput.js';
+import * as StudentReportOutput from '../../output/StudentReportOutput.js';
 
 export async function processOutput(db, config)
 {

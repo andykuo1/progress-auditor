@@ -1,8 +1,8 @@
 // TODO: This should be it's own bundled file for plugins to use. But for now, it's a global.
 import './index.js';
 
-import * as MainApplication from './MainApplication.js';
-import * as ClientApplication from './client/ClientApplication.js';
+import * as MainApplication from './app/main/MainApplication.js';
+import * as ClientApplication from './app/client/ClientApplication.js';
 
 /** The root project directory */
 const DIRECTORY = '.';

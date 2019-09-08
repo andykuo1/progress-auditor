@@ -1,6 +1,6 @@
-import * as InstructorReportOutput from '../output/InstructorReportOutput.js';
-import * as StudentReportOutput from '../output/StudentReportOutput.js';
-import * as DebugReportOutput from '../output/DebugReportOutput.js';
+import * as InstructorReportOutput from '../../output/InstructorReportOutput.js';
+import * as StudentReportOutput from '../../output/StudentReportOutput.js';
+import * as DebugReportOutput from '../../output/DebugReportOutput.js';
 
 const path = require('path');
 

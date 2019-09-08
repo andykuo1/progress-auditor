@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import figlet from 'figlet';
 import inquirer from 'inquirer';
-import { version } from '../../package.json';
+import { version } from '../../../../package.json';
 
 import * as ProgressOtter from './ProgressOtter.js';
 

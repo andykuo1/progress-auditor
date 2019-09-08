@@ -1,5 +1,5 @@
-import { clearDatabase } from '../database/DatabaseSetup.js';
-import * as ReviewDatabase from '../database/ReviewDatabase.js';
+import { clearDatabase } from '../../../database/DatabaseSetup.js';
+import * as ReviewDatabase from '../../../database/ReviewDatabase.js';
 import * as Menu from './Menu.js';
 import * as ReviewMaker from './ReviewMaker.js';
 
