@@ -21,7 +21,7 @@ export function getDaysBetween(fromDate, toDate)
  * @param {Number} offset The number of days to offset from the date before calculations.
  * @returns {Date} The calculated Sunday date.
  */
-export function getPastSunday(date, offset=0)
+export function getPastSunday(date, offset = 0)
 {
     const result = new Date(date.getTime());
     result.setUTCDate(result.getUTCDate() - result.getUTCDay() + offset);
@@ -34,7 +34,7 @@ export function getPastSunday(date, offset=0)
  * @param {Number} offset The number of days to offset from the date before calculations.
  * @returns {Date} The calculated Sunday date.
  */
-export function getNextSunday(date, offset=0)
+export function getNextSunday(date, offset = 0)
 {
     const result = new Date(date.getTime());
     result.setUTCDate(result.getUTCDate() - result.getUTCDay() + 7 + offset);
@@ -60,7 +60,7 @@ export function getNextEffectiveSunday(date, effectiveThreshold = 0)
     }
 }
 
-export function offsetDate(date, offset=0)
+export function offsetDate(date, offset = 0)
 {
     const result = new Date(date.getTime());
     if (offset) result.setUTCDate(result.getUTCDate() + offset);

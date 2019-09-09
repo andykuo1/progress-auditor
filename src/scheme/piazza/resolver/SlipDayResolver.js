@@ -55,9 +55,6 @@ export async function resolve(db, config)
         const maxSlips = schedule.weeks * 3;
         const assignments = AssignmentDatabase.getAssignmentsByUser(db, userID);
 
-        const updateSlips = (status, slips) => {
-        };
-
         for(const assignmentID of assignments)
         {
             const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);

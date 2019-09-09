@@ -142,6 +142,7 @@ async function chooseReviewType(db, config)
                     // Skip the default null reviewer...
                     if (reviewer.REVIEW_TYPE === 'null') continue;
                     
+                    // Show review type to select...
                     result.push({
                         name: `${reviewer.REVIEW_TYPE} ( ${reviewer.REVIEW_PARAM_TYPES.join(', ')} ) - ${reviewer.REVIEW_DESC}`,
                         value: reviewer.REVIEW_TYPE,
