@@ -1,6 +1,6 @@
 import * as VacationDatabase from '../../database/VacationDatabase.js';
 import * as FileUtil from '../../util/FileUtil.js';
-import * as ParseUtil from '../../util/ParseUtil.js';
+import * as DateUtil from '../../util/DateUtil.js';
 import * as FieldParser from '../../util/FieldParser.js';
 
 /**
@@ -28,8 +28,8 @@ export async function parse(db, config, filepath, opts={})
         {
             const vacationID = row[0];
             const ownerKey = FieldParser.parseEmail(row[1]);
-            const startDate = ParseUtil.parseAmericanDate(row[2]);
-            const endDate = ParseUtil.parseAmericanDate(row[3]);
+            const startDate = DateUtil.parse(row[2]);
+            const endDate = DateUtil.parse(row[3]);
             const padding = row[4];
 
             const vacation = VacationDatabase.addVacation(db, vacationID, ownerKey, startDate, endDate, padding);

@@ -1,7 +1,7 @@
 import * as UserDatabase from '../../../database/UserDatabase.js';
 import * as AssignmentDatabase from '../../../database/AssignmentDatabase.js';
 import * as SubmissionDatabase from '../../../database/SubmissionDatabase.js';
-import * as ParseUtil from '../../../util/ParseUtil.js';
+import * as DateUtil from '../../../util/DateUtil.js';
 import { stringHash } from '../../../util/MathHelper.js';
 
 const ERROR_TAG = 'REVIEW';
@@ -33,7 +33,7 @@ export async function review(db, config, reviewID, reviewType, reviewParams)
     const assignmentID = reviewParams[1];
     const submissionID = ownerKey + '#proxy_' + stringHash(`${reviewID}:${ownerKey}.${assignmentID}`);
     const submissionDate = reviewParams.length >= 2
-        ? ParseUtil.parseAmericanDate(reviewParams[2])
+        ? DateUtil.parse(reviewParams[2])
         : new Date(AssignmentDatabase.getAssignmentByID(db, userID, assignmentID).dueDate.getTime() - 1);
     const submissionAttributes = reviewParams.length >= 3
         ? JSON.parse(reviewParams[3])
