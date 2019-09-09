@@ -10,15 +10,16 @@ const path = require('path');
 export async function output(db, config, outputPath, opts)
 {
     // Output all database logs...
-    try { UserDatabase.outputLog(db, outputPath); }
+    const outputFunction = FileUtil.writeToFile;
+    try { UserDatabase.outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.', e); }
-    try { SubmissionDatabase.outputLog(db, outputPath); }
+    try { SubmissionDatabase.outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.', e); }
-    try { AssignmentDatabase.outputLog(db, outputPath); }
+    try { AssignmentDatabase.outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.', e); }
-    try { ReviewDatabase.outputLog(db, outputPath); }
+    try { ReviewDatabase.outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.', e); }
-    try { VacationDatabase.outputLog(db, outputPath); }
+    try { VacationDatabase.outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.', e); }
 
     // Output computed config file...

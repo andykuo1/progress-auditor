@@ -50,6 +50,10 @@
         {
             "outputName": "slip-days.csv",
             "format": "instructor"
+        },
+        {
+            "outputName": "debug",
+            "format": "debug"
         }
     ]
 }

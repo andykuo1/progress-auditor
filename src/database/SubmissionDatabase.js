@@ -213,7 +213,7 @@ export function removeSubmissionByID(db, submissionID)
     changeSubmissionAssignment(db, submission);
 }
 
-export function outputLog(db, outputDir = '.')
+export function outputLog(db, outputFunction, outputDir = '.')
 {
     const submissionOwnerMapping = db[SUBMISSION_KEY][SUBMISSION_OWNER_KEY];
     const submissionListMapping = db[SUBMISSION_KEY][SUBMISSION_LIST_KEY];
@@ -232,5 +232,5 @@ export function outputLog(db, outputDir = '.')
     
     const header = `${'# '.repeat(20)}\n# Submissions\n# Size: ${submissionListMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
+    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }

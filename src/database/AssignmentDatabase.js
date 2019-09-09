@@ -87,7 +87,7 @@ export function getAssignmentsByUser(db, userID)
  * @param {Database} db The current database.
  * @param {String} outputDir The output directory that will contain the output log.
  */
-export function outputLog(db, outputDir = '.')
+export function outputLog(db, outputFunction, outputDir = '.')
 {
     const assignmentMapping = db[ASSIGNMENT_KEY];
     const result = {};
@@ -98,5 +98,5 @@ export function outputLog(db, outputDir = '.')
     
     const header = `${'# '.repeat(20)}\n# Assignments\n# Size: ${assignmentMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
+    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }

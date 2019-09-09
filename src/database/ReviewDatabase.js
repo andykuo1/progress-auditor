@@ -84,7 +84,7 @@ export function getReviewTypes(db)
  * @param {Database} db The current database.
  * @param {String} outputDir The output directory that will contain the output log.
  */
-export function outputLog(db, outputDir = '.')
+export function outputLog(db, outputFunction, outputDir = '.')
 {
     const reviewMapping = db[REVIEW_KEY];
     const result = {};
@@ -95,5 +95,5 @@ export function outputLog(db, outputDir = '.')
     
     const header = `${'# '.repeat(20)}\n# Reviews\n# Size: ${reviewMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
+    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }

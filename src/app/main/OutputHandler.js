@@ -58,6 +58,7 @@ export async function processOutputEntry(db, config, outputEntry)
                 break;
             case 'debug':
                 Format = DebugReportOutput;
+                break;
             default:
                 throw new Error(`Cannot find valid output of type '${formatType}'.`);
         }

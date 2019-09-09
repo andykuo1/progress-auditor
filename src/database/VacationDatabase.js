@@ -124,7 +124,7 @@ export function getVacationsByAttribute(db, attributeName, attributeValue)
     return result;
 }
 
-export function outputLog(db, outputDir = '.')
+export function outputLog(db, outputFunction, outputDir = '.')
 {
     const vacationMapping = db[VACATION_KEY];
     const result = {};
@@ -135,5 +135,5 @@ export function outputLog(db, outputDir = '.')
 
     const header = `${'# '.repeat(20)}\n# Vacations\n# Size: ${vacationMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
+    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }

@@ -113,7 +113,7 @@ export function getOwnerKeysForUserID(db, userID)
     else return [result];
 }
 
-export function outputLog(db, outputDir = '.')
+export function outputLog(db, outputFunction, outputDir = '.')
 {
     const userMapping = db[USER_KEY];
     const result = {};
@@ -124,5 +124,5 @@ export function outputLog(db, outputDir = '.')
 
     const header = `${'# '.repeat(20)}\n# Users\n# Size: ${userMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
+    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }

@@ -120,7 +120,7 @@ function getAssignmentsByUser(db, userID)
  * @param {Database} db The current database.
  * @param {String} outputDir The output directory that will contain the output log.
  */
-function outputLog(db, outputDir = '.')
+function outputLog(db, outputFunction, outputDir = '.')
 {
     const assignmentMapping = db[ASSIGNMENT_KEY];
     const result = {};
@@ -131,7 +131,7 @@ function outputLog(db, outputDir = '.')
     
     const header = `${'# '.repeat(20)}\n# Assignments\n# Size: ${assignmentMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG), log);
+    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }
 
 var AssignmentDatabase = /*#__PURE__*/Object.freeze({
@@ -373,7 +373,7 @@ function getReviewTypes(db)
  * @param {Database} db The current database.
  * @param {String} outputDir The output directory that will contain the output log.
  */
-function outputLog$1(db, outputDir = '.')
+function outputLog$1(db, outputFunction, outputDir = '.')
 {
     const reviewMapping = db[REVIEW_KEY];
     const result = {};
@@ -384,7 +384,7 @@ function outputLog$1(db, outputDir = '.')
     
     const header = `${'# '.repeat(20)}\n# Reviews\n# Size: ${reviewMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG$1), log);
+    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG$1), log);
 }
 
 var ReviewDatabase = /*#__PURE__*/Object.freeze({
@@ -773,7 +773,7 @@ function removeSubmissionByID(db, submissionID)
     changeSubmissionAssignment(db, submission);
 }
 
-function outputLog$2(db, outputDir = '.')
+function outputLog$2(db, outputFunction, outputDir = '.')
 {
     const submissionOwnerMapping = db[SUBMISSION_KEY][SUBMISSION_OWNER_KEY];
     const submissionListMapping = db[SUBMISSION_KEY][SUBMISSION_LIST_KEY];
@@ -792,7 +792,7 @@ function outputLog$2(db, outputDir = '.')
     
     const header = `${'# '.repeat(20)}\n# Submissions\n# Size: ${submissionListMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG$2), log);
+    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG$2), log);
 }
 
 var SubmissionDatabase = /*#__PURE__*/Object.freeze({
@@ -954,7 +954,7 @@ function getOwnerKeysForUserID(db, userID)
     else return [result];
 }
 
-function outputLog$3(db, outputDir = '.')
+function outputLog$3(db, outputFunction, outputDir = '.')
 {
     const userMapping = db[USER_KEY];
     const result = {};
@@ -965,7 +965,7 @@ function outputLog$3(db, outputDir = '.')
 
     const header = `${'# '.repeat(20)}\n# Users\n# Size: ${userMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG$3), log);
+    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG$3), log);
 }
 
 var UserDatabase = /*#__PURE__*/Object.freeze({
@@ -1157,7 +1157,7 @@ function getVacationsByAttribute(db, attributeName, attributeValue)
     return result;
 }
 
-function outputLog$4(db, outputDir = '.')
+function outputLog$4(db, outputFunction, outputDir = '.')
 {
     const vacationMapping = db[VACATION_KEY];
     const result = {};
@@ -1168,7 +1168,7 @@ function outputLog$4(db, outputDir = '.')
 
     const header = `${'# '.repeat(20)}\n# Vacations\n# Size: ${vacationMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    require('fs').writeFileSync(require('path').resolve(outputDir, OUTPUT_LOG$4), log);
+    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG$4), log);
 }
 
 var VacationDatabase = /*#__PURE__*/Object.freeze({
@@ -49362,7 +49362,7 @@ async function findDatabaseErrors(db, config)
     const result = db.getErrors();
     if (!result || result.length <= 0)
     {
-        println("No errors! Hooray!");
+        println("== No errors! Hooray! ==");
         return null;
     }
     else
@@ -49727,15 +49727,16 @@ const path$6 = require('path');
 async function output$2(db, config, outputPath, opts)
 {
     // Output all database logs...
-    try { outputLog$3(db, outputPath); }
+    const outputFunction = writeToFile;
+    try { outputLog$3(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.', e); }
-    try { outputLog$2(db, outputPath); }
+    try { outputLog$2(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.', e); }
-    try { outputLog(db, outputPath); }
+    try { outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.', e); }
-    try { outputLog$1(db, outputPath); }
+    try { outputLog$1(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.', e); }
-    try { outputLog$4(db, outputPath); }
+    try { outputLog$4(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.', e); }
 
     // Output computed config file...
@@ -49819,6 +49820,7 @@ async function processOutputEntry(db, config, outputEntry)
                 break;
             case 'debug':
                 Format = DebugReportOutput;
+                break;
             default:
                 throw new Error(`Cannot find valid output of type '${formatType}'.`);
         }
