@@ -49669,7 +49669,10 @@ async function outputDebugLog(db, config)
 {
     if (await askWhetherToSaveDebugInfo())
     {
-        await output$2(db, config, config.outputPath);
+        const outputPath = config.outputPath;
+        const outputAutoDate = config.outputAutoDate || false;
+        const filePath = outputPath + (outputAutoDate ? '/' + stringify(db.currentDate) : '');
+        await output$2(db, config, filePath);
     }
     else
     {

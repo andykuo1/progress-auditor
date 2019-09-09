@@ -75,7 +75,10 @@ export async function outputDebugLog(db, config)
 {
     if (await ClientHandler.askWhetherToSaveDebugInfo())
     {
-        await DebugReportOutput.output(db, config, config.outputPath);
+        const outputPath = config.outputPath;
+        const outputAutoDate = config.outputAutoDate || false;
+        const filePath = outputPath + (outputAutoDate ? '/' + DateUtil.stringify(db.currentDate) : '');
+        await DebugReportOutput.output(db, config, filePath);
     }
     else
     {
