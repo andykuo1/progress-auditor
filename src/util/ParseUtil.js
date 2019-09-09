@@ -26,7 +26,7 @@ export function parseDate(value)
 export function parseAmericanDate(value)
 {
     // ex. 6/18/2019
-    const result = new Date(1000);
+    const result = new Date(-1);
 
     const dateArray = value.split('/');
     const year = Number(dateArray[2]);
