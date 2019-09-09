@@ -49671,7 +49671,7 @@ async function resolve$2(db)
                         db.throwError(ERROR_TAG$7, `Found unassigned assignment '${assignmentID}' with submission '${submission.id}' from user '${userID}'.`, {
                             id: [userID, assignmentID],
                             options: [
-                                `If ill-formatted, we could not automatically deduce the appropriate assignment. Please verify the submitted content and header formats. Try submitting a 'change_assignment' review once you figure out its proper assignment.`,
+                                `The submission header could be ill-formatted. We could not deduce its appropriate assignment automatically. Please verify the submitted content and header formats. Try submitting a 'change_assignment' review once you figure out its proper assignment.`,
                                 `It could be a non-assignment submission. Try submitting a 'ignore_submission' review.`
                             ],
                             more: [

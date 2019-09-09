@@ -1,4 +1,4 @@
-import * as ReviewRegistry from '../../review/ReviewRegistry.js';
+import * as ReviewRegistry from '../../input/review/ReviewRegistry.js';
 import * as NullReviewer from './reviewer/NullReviewer.js';
 import * as SubmissionChangeAssignmentReviewer from './reviewer/SubmissionChangeAssignmentReviewer.js';
 import * as SubmissionIgnoreOwnerReviewer from './reviewer/SubmissionIgnoreOwnerReviewer.js';
@@ -7,7 +7,7 @@ import * as SubmissionAddReviewer from './reviewer/SubmissionAddReviewer.js';
 import * as UserAddOwnerKeyReviewer from './reviewer/UserAddOwnerKeyReviewer.js';
 import * as AssignmentChangeStatusReviewer from './reviewer/AssignmentChangeStatusReviewer.js';
 
-import * as ResolverRegistry from '../../review/ResolverRegistry.js';
+import * as ResolverRegistry from '../../input/review/ResolverRegistry.js';
 import * as AssignSubmissionByPostIDResolver from './resolver/AssignSubmissionByPostIDResolver.js';
 import * as AssignSubmissionByIntroResolver from './resolver/AssignSubmissionByIntroResolver.js';
 import * as AssignSubmissionResolver from './resolver/AssignSubmissionResolver.js';

@@ -1,5 +1,5 @@
 import * as Menu from './Menu.js';
-import * as ReviewRegistry from '../../../review/ReviewRegistry.js';
+import * as ReviewRegistry from '../../../input/review/ReviewRegistry.js';
 import * as MathHelper from '../../../util/MathHelper.js';
 
 const inquirer = require('inquirer');

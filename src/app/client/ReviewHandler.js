@@ -1,8 +1,8 @@
-import * as ReviewRegistry from '../../review/ReviewRegistry.js';
+import * as ReviewRegistry from '../../input/review/ReviewRegistry.js';
 import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 import * as FileUtil from '../../util/FileUtil.js';
 
-import * as ResolverRegistry from '../../review/ResolverRegistry.js';
+import * as ResolverRegistry from '../../input/review/ResolverRegistry.js';
 
 export async function reviewDatabase(db, config)
 {
