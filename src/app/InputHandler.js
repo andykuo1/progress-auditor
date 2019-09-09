@@ -1,6 +1,4 @@
 import * as ParserLoader from '../input/parser/ParserLoader.js';
-import * as ErrorHandler from '../app/ErrorHandler.js';
-
 import * as ParserRegistry from '../input/parser/ParserRegistry.js';
 
 const fs = require('fs');
@@ -8,7 +6,7 @@ const path = require('path');
 
 function validateInputEntry(config, inputEntry)
 {
-    const ERROR = ErrorHandler.createErrorBuffer();
+    const errors = [];
 
     const inputPath = config.inputPath || '.';
     const inputName = inputEntry.inputName;
@@ -18,27 +16,52 @@ function validateInputEntry(config, inputEntry)
 
     if (!inputName)
     {
-        ERROR.add('Invalid input entry:', `Missing required property 'inputName'.`);
+        errors.push([
+            'Invalid input entry:',
+            '=>',
+            `Missing required property 'inputName'.`,
+            '<='
+        ]);
     }
 
     if (!fs.existsSync(inputFilePath))
     {
-        ERROR.add(`Cannot find input file '${inputName}':`, `File does not exist: '${inputFilePath}'.`);
+        errors.push([
+            `Cannot find input file '${inputName}':`,
+            '=>',
+            `File does not exist: '${inputFilePath}'.`,
+            '<='
+        ]);
     }
 
     if (!parserType && !customPath)
     {
-        ERROR.add('Invalid input entry:', `Missing one of property 'parser' or 'customPath'.`);
+        errors.push([
+            'Invalid input entry:',
+            '=>',
+            `Missing one of property 'parser' or 'customPath'.`,
+            '<='
+        ]);
     }
 
     if (customPath && !fs.existsSync(customPath))
     {
-        ERROR.add(`Cannot find custom parser file '${path.basename(customPath)}':`, `File does not exist: '${customPath}'.`);
+        errors.push([
+            `Cannot find custom parser file '${path.basename(customPath)}':`,
+            '=>',
+            `File does not exist: '${customPath}'.`,
+            '<='
+        ]);
     }
 
-    if (!ERROR.isEmpty())
+    if (errors.length > 0)
     {
-        ERROR.flush('Failed to validate input entry:');
+        throw new Error([
+            'Failed to validate input entry:',
+            '=>',
+            errors,
+            '<='
+        ]);
     }
 }
 
@@ -51,7 +74,7 @@ export async function findInputEntries(config)
         const result = config.inputs;
 
         // Validate input entries...
-        const ERROR = ErrorHandler.createErrorBuffer();
+        const errors = [];
         for(const inputEntry of result)
         {
             try
@@ -60,13 +83,18 @@ export async function findInputEntries(config)
             }
             catch(e)
             {
-                ERROR.add(e);
+                errors.push(e);
             }
         }
 
-        if (!ERROR.isEmpty())
+        if (errors.length > 0)
         {
-            ERROR.flush('Failed to resolve input entries from config:');
+            throw new Error([
+                'Failed to resolve input entries from config:',
+                '=>',
+                errors,
+                '<='
+            ]);
         }
         else
         {
@@ -94,8 +122,6 @@ export async function loadInputEntry(db, config, inputEntry)
     const opts = inputEntry.opts || {};
 
     let Parser;
-
-    const ERROR = ErrorHandler.createErrorBuffer();
     try
     {
         // customPath will override parserType if defined.
@@ -110,15 +136,13 @@ export async function loadInputEntry(db, config, inputEntry)
     }
     catch(e)
     {
-        ERROR.add(e);
+        throw new Error([
+            `Failed to resolve input entry from config:`,
+            '=>',
+            e,
+            '<='
+        ]);
     }
 
-    if (!ERROR.isEmpty())
-    {
-        ERROR.flush(`Failed to resolve input entry from config:`);
-    }
-    else
-    {
-        ParserRegistry.registerParser(Parser, filePath, customPath || parserType, opts);
-    }
+    ParserRegistry.registerParser(Parser, filePath, customPath || parserType, opts);
 }

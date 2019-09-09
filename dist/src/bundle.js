@@ -47815,32 +47815,6 @@ function loadCustomParser(filePath)
     }
 }
 
-function createErrorBuffer()
-{
-    return {
-        errors: [],
-        add(header, ...content)
-        {
-            if (content.length > 0)
-            {
-                this.errors.push([header, '=>', ...content, '<=']);
-            }
-            else
-            {
-                this.errors.push(header);
-            }
-        },
-        isEmpty()
-        {
-            return this.errors.length <= 0;
-        },
-        flush(header)
-        {
-            throw new Error([header, '=>', this.errors, '<=']);
-        }
-    };
-}
-
 const PARSERS = new Set();
 
 function registerParser(parser, inputFilePath, parserType, opts)
@@ -47858,7 +47832,7 @@ const path$2 = require('path');
 
 function validateInputEntry(config, inputEntry)
 {
-    const ERROR = createErrorBuffer();
+    const errors = [];
 
     const inputPath = config.inputPath || '.';
     const inputName = inputEntry.inputName;
@@ -47868,27 +47842,52 @@ function validateInputEntry(config, inputEntry)
 
     if (!inputName)
     {
-        ERROR.add('Invalid input entry:', `Missing required property 'inputName'.`);
+        errors.push([
+            'Invalid input entry:',
+            '=>',
+            `Missing required property 'inputName'.`,
+            '<='
+        ]);
     }
 
     if (!fs$2.existsSync(inputFilePath))
     {
-        ERROR.add(`Cannot find input file '${inputName}':`, `File does not exist: '${inputFilePath}'.`);
+        errors.push([
+            `Cannot find input file '${inputName}':`,
+            '=>',
+            `File does not exist: '${inputFilePath}'.`,
+            '<='
+        ]);
     }
 
     if (!parserType && !customPath)
     {
-        ERROR.add('Invalid input entry:', `Missing one of property 'parser' or 'customPath'.`);
+        errors.push([
+            'Invalid input entry:',
+            '=>',
+            `Missing one of property 'parser' or 'customPath'.`,
+            '<='
+        ]);
     }
 
     if (customPath && !fs$2.existsSync(customPath))
     {
-        ERROR.add(`Cannot find custom parser file '${path$2.basename(customPath)}':`, `File does not exist: '${customPath}'.`);
+        errors.push([
+            `Cannot find custom parser file '${path$2.basename(customPath)}':`,
+            '=>',
+            `File does not exist: '${customPath}'.`,
+            '<='
+        ]);
     }
 
-    if (!ERROR.isEmpty())
+    if (errors.length > 0)
     {
-        ERROR.flush('Failed to validate input entry:');
+        throw new Error([
+            'Failed to validate input entry:',
+            '=>',
+            errors,
+            '<='
+        ]);
     }
 }
 
@@ -47901,7 +47900,7 @@ async function findInputEntries(config)
         const result = config.inputs;
 
         // Validate input entries...
-        const ERROR = createErrorBuffer();
+        const errors = [];
         for(const inputEntry of result)
         {
             try
@@ -47910,13 +47909,18 @@ async function findInputEntries(config)
             }
             catch(e)
             {
-                ERROR.add(e);
+                errors.push(e);
             }
         }
 
-        if (!ERROR.isEmpty())
+        if (errors.length > 0)
         {
-            ERROR.flush('Failed to resolve input entries from config:');
+            throw new Error([
+                'Failed to resolve input entries from config:',
+                '=>',
+                errors,
+                '<='
+            ]);
         }
         else
         {
@@ -47944,8 +47948,6 @@ async function loadInputEntry(db, config, inputEntry)
     const opts = inputEntry.opts || {};
 
     let Parser;
-
-    const ERROR = createErrorBuffer();
     try
     {
         // customPath will override parserType if defined.
@@ -47960,17 +47962,15 @@ async function loadInputEntry(db, config, inputEntry)
     }
     catch(e)
     {
-        ERROR.add(e);
+        throw new Error([
+            `Failed to resolve input entry from config:`,
+            '=>',
+            e,
+            '<='
+        ]);
     }
 
-    if (!ERROR.isEmpty())
-    {
-        ERROR.flush(`Failed to resolve input entry from config:`);
-    }
-    else
-    {
-        registerParser(Parser, filePath, customPath || parserType, opts);
-    }
+    registerParser(Parser, filePath, customPath || parserType, opts);
 }
 
 async function assign$1(db, name, userID, userSchedule, opts={})
@@ -48062,7 +48062,7 @@ const path$3 = require('path');
 
 function validateAssignmentEntry(config, assignmentEntry)
 {
-    const ERROR = createErrorBuffer();
+    const errors = [];
 
     const assignmentName = assignmentEntry.assignmentName;
     const patternType = assignmentEntry.pattern;
@@ -48070,22 +48070,42 @@ function validateAssignmentEntry(config, assignmentEntry)
 
     if (!assignmentName)
     {
-        ERROR.add('Invalid assignment entry:', `Missing required property 'assignmentName'.`);
+        errors.push([
+            'Invalid assignment entry:',
+            '=>',
+            `Missing required property 'assignmentName'.`,
+            '<='
+        ]);
     }
 
     if (!patternType && !customPath)
     {
-        ERROR.add('Invalid assignment entry:', `Missing one of property 'pattern' or 'customPath'.`);
+        errors.push([
+            'Invalid assignment entry:',
+            '=>',
+            `Missing one of property 'pattern' or 'customPath'.`,
+            '<='
+        ]);
     }
 
     if (customPath && !fs$3.existsSync(customPath))
     {
-        ERROR.add(`Cannot find custom assignment file '${path$3.basename(customPath)}':`, `File does not exist: '${customPath}'.`);
+        errors.push([
+            `Cannot find custom assignment file '${path$3.basename(customPath)}':`,
+            '=>',
+            `File does not exist: '${customPath}'.`,
+            '<='
+        ]);
     }
 
-    if (!ERROR.isEmpty())
+    if (errors.length > 0)
     {
-        ERROR.flush('Failed to validate assignment entry:');
+        throw new Error([
+            'Failed to validate assignment entry:',
+            '=>',
+            errors,
+            '<='
+        ]);
     }
 }
 
@@ -48098,7 +48118,7 @@ async function findAssignmentEntries(config)
         const result = config.assignments;
 
         // Validate assignment entries...
-        const ERROR = createErrorBuffer();
+        const errors = [];
         for(const assignmentEntry of result)
         {
             try
@@ -48107,13 +48127,18 @@ async function findAssignmentEntries(config)
             }
             catch(e)
             {
-                ERROR.add(e);
+                errors.push(e);
             }
         }
 
-        if (!ERROR.isEmpty())
+        if (errors.length > 0)
         {
-            ERROR.flush('Failed to resolve assignment entries from config:');
+            throw new Error([
+                'Failed to resolve assignment entries from config:',
+                '=>',
+                errors,
+                '<='
+            ]);
         }
         else
         {
@@ -48140,7 +48165,6 @@ async function loadAssignmentEntry(db, config, assignmentEntry)
 
     let Assignment;
 
-    const ERROR = createErrorBuffer();
     try
     {
         // customPath will override patternType if defined.
@@ -48155,17 +48179,15 @@ async function loadAssignmentEntry(db, config, assignmentEntry)
     }
     catch(e)
     {
-        ERROR.add(e);
+        throw new Error([
+            `Failed to resolve assignment entry from config:`,
+            '=>',
+            e,
+            '<='
+        ]);
     }
 
-    if (!ERROR.isEmpty())
-    {
-        ERROR.flush(`Failed to resolve assignment entry from config:`);
-    }
-    else
-    {
-        registerAssigner(assignmentName, Assignment, customPath || patternType, opts);
-    }
+    registerAssigner(assignmentName, Assignment, customPath || patternType, opts);
 }
 
 // TODO: this is still hard-coded...
@@ -48302,6 +48324,7 @@ async function verifyDatabaseWithClient(db, config)
 async function findDatabaseErrors(db, config)
 {
     console.log("...Finding database errors...");
+    return db.getErrors();
 }
 
 async function shouldContinueResolvingErrorsWithClient(db, config, errors)
@@ -48317,6 +48340,7 @@ async function resolveDatabaseErrors(db, config, errors)
 async function verifyErrorsWithClient(db, config, errors)
 {
     if (!errors || errors.length <= 0) return true;
+    
 }
 
 async function outputErrorLog(db, config, errors)
@@ -48783,7 +48807,7 @@ async function validateDatabase(db, config)
 
     // Apply reviews...
     let errors;
-    while(errors = await findDatabaseErrors())
+    while(errors = await findDatabaseErrors(db))
     {
         // Check whether the client wants to continue resolving errors... cause there could be a lot.
         if (await shouldContinueResolvingErrorsWithClient())

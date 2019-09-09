@@ -95,6 +95,7 @@ export async function verifyDatabaseWithClient(db, config)
 export async function findDatabaseErrors(db, config)
 {
     console.log("...Finding database errors...");
+    return db.getErrors();
 }
 
 export async function shouldContinueResolvingErrorsWithClient(db, config, errors)
@@ -110,6 +111,7 @@ export async function resolveDatabaseErrors(db, config, errors)
 export async function verifyErrorsWithClient(db, config, errors)
 {
     if (!errors || errors.length <= 0) return true;
+    
 }
 
 export async function outputErrorLog(db, config, errors)

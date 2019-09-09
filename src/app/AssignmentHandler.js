@@ -1,6 +1,4 @@
 import * as AssignmentLoader from '../input/assignment/AssignmentLoader.js';
-import * as ErrorHandler from '../app/ErrorHandler.js';
-
 import * as AssignerRegistry from '../input/assignment/AssignerRegistry.js';
 
 const fs = require('fs');
@@ -8,7 +6,7 @@ const path = require('path');
 
 function validateAssignmentEntry(config, assignmentEntry)
 {
-    const ERROR = ErrorHandler.createErrorBuffer();
+    const errors = [];
 
     const assignmentName = assignmentEntry.assignmentName;
     const patternType = assignmentEntry.pattern;
@@ -16,22 +14,42 @@ function validateAssignmentEntry(config, assignmentEntry)
 
     if (!assignmentName)
     {
-        ERROR.add('Invalid assignment entry:', `Missing required property 'assignmentName'.`);
+        errors.push([
+            'Invalid assignment entry:',
+            '=>',
+            `Missing required property 'assignmentName'.`,
+            '<='
+        ]);
     }
 
     if (!patternType && !customPath)
     {
-        ERROR.add('Invalid assignment entry:', `Missing one of property 'pattern' or 'customPath'.`);
+        errors.push([
+            'Invalid assignment entry:',
+            '=>',
+            `Missing one of property 'pattern' or 'customPath'.`,
+            '<='
+        ]);
     }
 
     if (customPath && !fs.existsSync(customPath))
     {
-        ERROR.add(`Cannot find custom assignment file '${path.basename(customPath)}':`, `File does not exist: '${customPath}'.`);
+        errors.push([
+            `Cannot find custom assignment file '${path.basename(customPath)}':`,
+            '=>',
+            `File does not exist: '${customPath}'.`,
+            '<='
+        ]);
     }
 
-    if (!ERROR.isEmpty())
+    if (errors.length > 0)
     {
-        ERROR.flush('Failed to validate assignment entry:');
+        throw new Error([
+            'Failed to validate assignment entry:',
+            '=>',
+            errors,
+            '<='
+        ]);
     }
 }
 
@@ -44,7 +62,7 @@ export async function findAssignmentEntries(config)
         const result = config.assignments;
 
         // Validate assignment entries...
-        const ERROR = ErrorHandler.createErrorBuffer();
+        const errors = [];
         for(const assignmentEntry of result)
         {
             try
@@ -53,13 +71,18 @@ export async function findAssignmentEntries(config)
             }
             catch(e)
             {
-                ERROR.add(e);
+                errors.push(e);
             }
         }
 
-        if (!ERROR.isEmpty())
+        if (errors.length > 0)
         {
-            ERROR.flush('Failed to resolve assignment entries from config:');
+            throw new Error([
+                'Failed to resolve assignment entries from config:',
+                '=>',
+                errors,
+                '<='
+            ]);
         }
         else
         {
@@ -86,7 +109,6 @@ export async function loadAssignmentEntry(db, config, assignmentEntry)
 
     let Assignment;
 
-    const ERROR = ErrorHandler.createErrorBuffer();
     try
     {
         // customPath will override patternType if defined.
@@ -101,15 +123,13 @@ export async function loadAssignmentEntry(db, config, assignmentEntry)
     }
     catch(e)
     {
-        ERROR.add(e);
+        throw new Error([
+            `Failed to resolve assignment entry from config:`,
+            '=>',
+            e,
+            '<='
+        ]);
     }
 
-    if (!ERROR.isEmpty())
-    {
-        ERROR.flush(`Failed to resolve assignment entry from config:`);
-    }
-    else
-    {
-        AssignerRegistry.registerAssigner(assignmentName, Assignment, customPath || patternType, opts);
-    }
+    AssignerRegistry.registerAssigner(assignmentName, Assignment, customPath || patternType, opts);
 }
