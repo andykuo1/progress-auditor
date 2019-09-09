@@ -48,11 +48,16 @@ const LIB_EXPORTS = {
     AssignmentGenerator
 };
 
-export const Library = {
+// Named export
+export const ProgressAuditor = {
     ...DATABASE_EXPORTS,
     // ...PIPELINE_EXPORTS,
     ...UTIL_EXPORTS,
     ...LIB_EXPORTS
 };
 
-global.Library = Library;
+// Default export
+export default ProgressAuditor;
+
+// Global export
+global.ProgressAuditor = ProgressAuditor;
