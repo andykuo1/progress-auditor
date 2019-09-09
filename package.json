@@ -22,7 +22,6 @@
     "chalk": "^2.4.2",
     "figlet": "^1.2.3",
     "inquirer": "^6.5.1",
-    "ora": "^3.4.0",
     "papaparse": "^5.0.0"
   },
   "devDependencies": {
