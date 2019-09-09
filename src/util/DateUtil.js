@@ -97,7 +97,7 @@ export function parse(dateString)
     
     const result = new Date();
     result.setUTCFullYear(year);
-    result.setUTCMonth(month);
+    result.setUTCMonth(month - 1);
     result.setUTCDate(day);
     result.setUTCHours(hour);
     result.setUTCMinutes(minute);
@@ -108,7 +108,7 @@ export function parse(dateString)
 export function stringify(date)
 {
     const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
+    const month = date.getUTCMonth() + 1;
     const day = date.getUTCDate();
     const hour = date.getUTCHours();
     const minute = date.getUTCMinutes();

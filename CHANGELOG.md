@@ -6,6 +6,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2019-09-09
+### Added
+- Output can now auto-append dates
+- Inputs and outputs can have custom defined scripts
+- Default implementations for assignment patterns
+- Default implementations for input formats
+
+### Changed
+- Revamped API system (again with less clutter)
+- Selection lists have END dividers
+- Debug output now always confirms with user before saving
+- Allow input file paths to not exist and be ignored instead
+- Added ProgressOtter to the battlefront
+- Moved more info to before the error review
+- Added submission date change review type
+
+### Fixed
+- Duplicate reviews should not crash
+- Flipped review signature documentation
+- Reworded "Ill-formatted" to make more sense
+
+### Removed
+- Null review type from the review selection list
+
 ## [0.2.0] - 2019-08-25
 ### Added
 - CLI Error handling

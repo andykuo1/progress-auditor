@@ -1,6 +1,7 @@
 import * as ReviewRegistry from '../../input/review/ReviewRegistry.js';
 import * as NullReviewer from './reviewer/NullReviewer.js';
 import * as SubmissionChangeAssignmentReviewer from './reviewer/SubmissionChangeAssignmentReviewer.js';
+import * as SubmissionChangeDateReviewer from './reviewer/SubmissionChangeDateReviewer.js';
 import * as SubmissionIgnoreOwnerReviewer from './reviewer/SubmissionIgnoreOwnerReviewer.js';
 import * as SubmissionIgnoreReviewer from './reviewer/SubmissionIgnoreReviewer.js';
 import * as SubmissionAddReviewer from './reviewer/SubmissionAddReviewer.js';
@@ -20,6 +21,7 @@ export const REVIEWERS = [
     NullReviewer,
     UserAddOwnerKeyReviewer,
     SubmissionChangeAssignmentReviewer,
+    SubmissionChangeDateReviewer,
     SubmissionIgnoreOwnerReviewer,
     SubmissionIgnoreReviewer,
     SubmissionAddReviewer,

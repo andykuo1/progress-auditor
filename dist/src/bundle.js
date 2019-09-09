@@ -497,7 +497,7 @@ function parse(dateString)
     
     const result = new Date();
     result.setUTCFullYear(year);
-    result.setUTCMonth(month);
+    result.setUTCMonth(month - 1);
     result.setUTCDate(day);
     result.setUTCHours(hour);
     result.setUTCMinutes(minute);
@@ -508,7 +508,7 @@ function parse(dateString)
 function stringify(date)
 {
     const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
+    const month = date.getUTCMonth() + 1;
     const day = date.getUTCDate();
     const hour = date.getUTCHours();
     const minute = date.getUTCMinutes();
@@ -47640,21 +47640,35 @@ var SubmissionChangeAssignmentReviewer = /*#__PURE__*/Object.freeze({
 
 const ERROR_TAG$2 = 'REVIEW';
 
-const REVIEW_TYPE$2 = 'ignore_owner';
-const REVIEW_DESC$2 = 'Ignore submissions by owner.';
+const REVIEW_TYPE$2 = 'change_submission_date';
+const REVIEW_DESC$2 = 'Change date for submission.';
 const REVIEW_PARAM_TYPES$2 = [
-    'Owner Key'
+    'Submission ID',
+    'Submission Date'
 ];
 
 async function review$2(db, config, reviewID, reviewType, reviewParams)
 {
     if (reviewType !== REVIEW_TYPE$2) db.throwError(ERROR_TAG$2, `Mismatched review type - '${REVIEW_TYPE$2}' reviewer cannot process review type '${reviewType}'.`);
-    if (reviewParams.length < 1) db.throwError(ERROR_TAG$2, `Missing review params - expected 1 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+    if (reviewParams.length < 2) db.throwError(ERROR_TAG$2, `Missing review params - expected 2 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
 
-    clearSubmissionsByOwner(db, reviewParams[0]);
+    const submission = getSubmissionByID(db, reviewParams[0]);
+    if (!submission)
+    {
+        db.throwError(ERROR_TAG$2, `Invalid review param - unable to find submission for id '${reviewParams[0]}'.`, {
+            id: [reviewID, reviewType],
+            options: [
+                'The submission for that id is missing from the database.',
+                'Or it\'s the wrong id.'
+            ]
+        });
+        return;
+    }
+
+    submission.date = parseDate(reviewParams[1]);
 }
 
-var SubmissionIgnoreOwnerReviewer = /*#__PURE__*/Object.freeze({
+var SubmissionChangeDateReviewer = /*#__PURE__*/Object.freeze({
     REVIEW_TYPE: REVIEW_TYPE$2,
     REVIEW_DESC: REVIEW_DESC$2,
     REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$2,
@@ -47663,10 +47677,10 @@ var SubmissionIgnoreOwnerReviewer = /*#__PURE__*/Object.freeze({
 
 const ERROR_TAG$3 = 'REVIEW';
 
-const REVIEW_TYPE$3 = 'ignore_submission';
-const REVIEW_DESC$3 = 'Ignore specific submission by id.';
+const REVIEW_TYPE$3 = 'ignore_owner';
+const REVIEW_DESC$3 = 'Ignore submissions by owner.';
 const REVIEW_PARAM_TYPES$3 = [
-    'Submission ID'
+    'Owner Key'
 ];
 
 async function review$3(db, config, reviewID, reviewType, reviewParams)
@@ -47674,10 +47688,33 @@ async function review$3(db, config, reviewID, reviewType, reviewParams)
     if (reviewType !== REVIEW_TYPE$3) db.throwError(ERROR_TAG$3, `Mismatched review type - '${REVIEW_TYPE$3}' reviewer cannot process review type '${reviewType}'.`);
     if (reviewParams.length < 1) db.throwError(ERROR_TAG$3, `Missing review params - expected 1 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
 
+    clearSubmissionsByOwner(db, reviewParams[0]);
+}
+
+var SubmissionIgnoreOwnerReviewer = /*#__PURE__*/Object.freeze({
+    REVIEW_TYPE: REVIEW_TYPE$3,
+    REVIEW_DESC: REVIEW_DESC$3,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$3,
+    review: review$3
+});
+
+const ERROR_TAG$4 = 'REVIEW';
+
+const REVIEW_TYPE$4 = 'ignore_submission';
+const REVIEW_DESC$4 = 'Ignore specific submission by id.';
+const REVIEW_PARAM_TYPES$4 = [
+    'Submission ID'
+];
+
+async function review$4(db, config, reviewID, reviewType, reviewParams)
+{
+    if (reviewType !== REVIEW_TYPE$4) db.throwError(ERROR_TAG$4, `Mismatched review type - '${REVIEW_TYPE$4}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 1) db.throwError(ERROR_TAG$4, `Missing review params - expected 1 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+
     const targetSubmission = getSubmissionByID(db, reviewParams[0]);
     if (!targetSubmission)
     {
-        db.throwError(ERROR_TAG$3, `Invalid review param - Cannot find submission for id '${reviewParams[0]}'.`, {
+        db.throwError(ERROR_TAG$4, `Invalid review param - Cannot find submission for id '${reviewParams[0]}'.`, {
             id: [reviewID, reviewType],
             options: [
                 `Submission with this id has probably already been removed.`,
@@ -47705,33 +47742,33 @@ async function review$3(db, config, reviewID, reviewType, reviewParams)
 }
 
 var SubmissionIgnoreReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE$3,
-    REVIEW_DESC: REVIEW_DESC$3,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$3,
-    review: review$3
+    REVIEW_TYPE: REVIEW_TYPE$4,
+    REVIEW_DESC: REVIEW_DESC$4,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$4,
+    review: review$4
 });
 
-const ERROR_TAG$4 = 'REVIEW';
+const ERROR_TAG$5 = 'REVIEW';
 
-const REVIEW_TYPE$4 = 'add_submission';
-const REVIEW_DESC$4 = 'Add submission (with assignment) for owner.';
-const REVIEW_PARAM_TYPES$4 = [
+const REVIEW_TYPE$5 = 'add_submission';
+const REVIEW_DESC$5 = 'Add submission (with assignment) for owner.';
+const REVIEW_PARAM_TYPES$5 = [
     'Owner Key',
     'Assignment ID',
     'Submission Date (Optional)',
     'Submission Attributes (Optional)',
 ];
 
-async function review$4(db, config, reviewID, reviewType, reviewParams)
+async function review$5(db, config, reviewID, reviewType, reviewParams)
 {
-    if (reviewType !== REVIEW_TYPE$4) db.throwError(ERROR_TAG$4, `Mismatched review type - '${REVIEW_TYPE$4}' reviewer cannot process review type '${reviewType}'.`);
-    if (reviewParams.length < 2) db.throwError(ERROR_TAG$4, `Missing review params - expected 2 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+    if (reviewType !== REVIEW_TYPE$5) db.throwError(ERROR_TAG$5, `Mismatched review type - '${REVIEW_TYPE$5}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 2) db.throwError(ERROR_TAG$5, `Missing review params - expected 2 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
 
     const ownerKey = reviewParams[0];
     const userID = getUserByOwnerKey(db, ownerKey);
     if (!userID)
     {
-        db.throwError(ERROR_TAG$4, `Cannot find user for owner key ${ownerKey}`, {
+        db.throwError(ERROR_TAG$5, `Cannot find user for owner key ${ownerKey}`, {
             id: [reviewID, reviewType],
             options: [`Add missing owner key '${ownerKey}' to a user.`]
         });
@@ -47745,34 +47782,41 @@ async function review$4(db, config, reviewID, reviewType, reviewParams)
     const submissionAttributes = reviewParams.length >= 3
         ? JSON.parse(reviewParams[3])
         : {};
+    
+    if (getSubmissionByID(db, submissionID))
+    {
+        console.log("...Ignoring dupliate reviewed submission...");
+        return;
+    }
+
     addSubmission(db, submissionID, ownerKey, assignmentID, submissionDate, submissionAttributes);
 }
 
 var SubmissionAddReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE$4,
-    REVIEW_DESC: REVIEW_DESC$4,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$4,
-    review: review$4
+    REVIEW_TYPE: REVIEW_TYPE$5,
+    REVIEW_DESC: REVIEW_DESC$5,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$5,
+    review: review$5
 });
 
-const ERROR_TAG$5 = 'REVIEW';
+const ERROR_TAG$6 = 'REVIEW';
 
-const REVIEW_TYPE$5 = 'add_owner_key';
-const REVIEW_DESC$5 = 'Add additional owner key for user';
-const REVIEW_PARAM_TYPES$5 = [
+const REVIEW_TYPE$6 = 'add_owner_key';
+const REVIEW_DESC$6 = 'Add additional owner key for user';
+const REVIEW_PARAM_TYPES$6 = [
     'User ID',
     'Owner Key'
 ];
 
-async function review$5(db, config, reviewID, reviewType, reviewParams)
+async function review$6(db, config, reviewID, reviewType, reviewParams)
 {
-    if (reviewType !== REVIEW_TYPE$5) db.throwError(ERROR_TAG$5, `Mismatched review type - '${REVIEW_TYPE$5}' reviewer cannot process review type '${reviewType}'.`);
-    if (reviewParams.length < 2) db.throwError(ERROR_TAG$5, `Missing review params - expected 2 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+    if (reviewType !== REVIEW_TYPE$6) db.throwError(ERROR_TAG$6, `Mismatched review type - '${REVIEW_TYPE$6}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 2) db.throwError(ERROR_TAG$6, `Missing review params - expected 2 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
 
     const user = getUserByID(db, reviewParams[0]);
     if (!user)
     {
-        db.throwError(ERROR_TAG$5, `Invalid review param - Cannot find user for id '${reviewParams[0]}'.`, {
+        db.throwError(ERROR_TAG$6, `Invalid review param - Cannot find user for id '${reviewParams[0]}'.`, {
             id: [reviewID, reviewType],
             options: [
                 `User with this id has probably already been removed.`,
@@ -47785,7 +47829,7 @@ async function review$5(db, config, reviewID, reviewType, reviewParams)
     const ownerKey = reviewParams[1];
     if (user.ownerKey.includes(ownerKey))
     {
-        db.throwError(ERROR_TAG$5, `Invalid review param - Duplicate owner key '${ownerKey}' for user.`, {
+        db.throwError(ERROR_TAG$6, `Invalid review param - Duplicate owner key '${ownerKey}' for user.`, {
             id: [reviewID, reviewType],
             options: [`The user already has this owner key.`]
         });
@@ -47803,48 +47847,48 @@ async function review$5(db, config, reviewID, reviewType, reviewParams)
 }
 
 var UserAddOwnerKeyReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE$5,
-    REVIEW_DESC: REVIEW_DESC$5,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$5,
-    review: review$5
+    REVIEW_TYPE: REVIEW_TYPE$6,
+    REVIEW_DESC: REVIEW_DESC$6,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$6,
+    review: review$6
 });
 
-const ERROR_TAG$6 = 'REVIEW';
+const ERROR_TAG$7 = 'REVIEW';
 
-const REVIEW_TYPE$6 = 'change_assignment_status';
-const REVIEW_DESC$6 = 'Changes the assignment status and slips for an owner.';
-const REVIEW_PARAM_TYPES$6 = [
+const REVIEW_TYPE$7 = 'change_assignment_status';
+const REVIEW_DESC$7 = 'Changes the assignment status and slips for an owner.';
+const REVIEW_PARAM_TYPES$7 = [
     'Owner Key',
     'Assignment ID',
     'Status (Y/N/_)',
     'Slip days (Optional)',
 ];
 
-async function review$6(db, config, reviewID, reviewType, reviewParams)
+async function review$7(db, config, reviewID, reviewType, reviewParams)
 {
-    if (reviewType !== REVIEW_TYPE$6) db.throwError(ERROR_TAG$6, `Mismatched review type - '${REVIEW_TYPE$6}' reviewer cannot process review type '${reviewType}'.`);
-    if (reviewParams.length < 3) db.throwError(ERROR_TAG$6, `Missing review params - expected 3 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+    if (reviewType !== REVIEW_TYPE$7) db.throwError(ERROR_TAG$7, `Mismatched review type - '${REVIEW_TYPE$7}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 3) db.throwError(ERROR_TAG$7, `Missing review params - expected 3 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
 
     const ownerKey = reviewParams[0];
     const userID = getUserByOwnerKey(db, ownerKey);
-    if (!userID) db.throwError(ERROR_TAG$6, `Cannot find user for owner key ${ownerKey}`, { id: [reviewID, reviewType], options: [`Add missing owner key '${ownerKey}' to a user.`] });
+    if (!userID) db.throwError(ERROR_TAG$7, `Cannot find user for owner key ${ownerKey}`, { id: [reviewID, reviewType], options: [`Add missing owner key '${ownerKey}' to a user.`] });
 
     const assignmentID = reviewParams[1];
     const status = reviewParams[2];
 
     const slipDays = reviewParams.length > 3 ? Number(reviewParams[3]) : 0;
     const assignment = getAssignmentByID(db, userID, assignmentID);
-    if (!assignment) db.throwError(ERROR_TAG$6, `Cannot find assignment for id ${assignmentID}`, { id: [reviewID, reviewType], options: [`User may not be assigned this assignment.`, `Assignment id may not exist.`] });
+    if (!assignment) db.throwError(ERROR_TAG$7, `Cannot find assignment for id ${assignmentID}`, { id: [reviewID, reviewType], options: [`User may not be assigned this assignment.`, `Assignment id may not exist.`] });
 
     assignment.attributes.status = status;
     assignment.attributes.slipDays = slipDays;
 }
 
 var AssignmentChangeStatusReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE$6,
-    REVIEW_DESC: REVIEW_DESC$6,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$6,
-    review: review$6
+    REVIEW_TYPE: REVIEW_TYPE$7,
+    REVIEW_DESC: REVIEW_DESC$7,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$7,
+    review: review$7
 });
 
 const RESOLVERS = new Set();
@@ -47935,7 +47979,7 @@ var AssignSubmissionByIntroResolver = /*#__PURE__*/Object.freeze({
     resolve: resolve$1
 });
 
-const ERROR_TAG$7 = 'POSTPROCESS';
+const ERROR_TAG$8 = 'POSTPROCESS';
 
 const SUBMISSION_TYPE_UNKNOWN = 'unknown';
 const SUBMISSION_TYPE_SOURCE = 'source';
@@ -48040,7 +48084,7 @@ async function resolve$2(db, config)
                 {
                     for(const submission of submissions)
                     {
-                        db.throwError(ERROR_TAG$7, `Found unassigned assignment '${assignmentID}' with submission '${submission.id}' from user '${userID}'.`, {
+                        db.throwError(ERROR_TAG$8, `Found unassigned assignment '${assignmentID}' with submission '${submission.id}' from user '${userID}'.`, {
                             id: [userID, assignmentID],
                             options: [
                                 `The submission header could be ill-formatted. We could not deduce its appropriate assignment automatically. Please verify the submitted content and header formats. Try submitting a 'change_assignment' review once you figure out its proper assignment.`,
@@ -48062,7 +48106,7 @@ async function resolve$2(db, config)
             {
                 submissionCount += submissions[assignmentID].length;
             }
-            db.throwError(ERROR_TAG$7, `Found ${submissionCount} unowned submissions - cannot find user for owner key '${ownerKey}'.`, {
+            db.throwError(ERROR_TAG$8, `Found ${submissionCount} unowned submissions - cannot find user for owner key '${ownerKey}'.`, {
                 id: [ownerKey],
                 options: [
                     `There are submissions without a valid user associated with it. Perhaps someone is using a different owner key? Try submitting a 'add_owner' review once you've found who these submissions belong to.`,
@@ -48231,6 +48275,7 @@ const REVIEWERS$1 = [
     NullReviewer,
     UserAddOwnerKeyReviewer,
     SubmissionChangeAssignmentReviewer,
+    SubmissionChangeDateReviewer,
     SubmissionIgnoreOwnerReviewer,
     SubmissionIgnoreReviewer,
     SubmissionAddReviewer,
