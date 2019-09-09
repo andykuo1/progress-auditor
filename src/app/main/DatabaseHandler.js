@@ -20,6 +20,12 @@ export async function createDatabase(config)
     return await DatabaseSetup.setupDatabase(config);
 }
 
+/**
+ * This prepares the database will all STATIC data that WILL NOT change over
+ * the program's lifecycle. This includes custom scripts, input entries, etc.
+ * This does NOT include the input DATA. Refer to populateDatabaseWithInputs()
+ * for that.
+ */
 export async function prepareDatabaseForInputs(db, config)
 {
     console.log("...Load database from inputs...");
@@ -59,6 +65,7 @@ export async function prepareDatabaseForInputs(db, config)
     }
 }
 
+/** This is used, alongside fixDatabaseWithReviews(), in both the input and validation stage. */
 export async function populateDatabaseWithInputs(db, config)
 {
     const fs = require('fs');
@@ -97,6 +104,7 @@ export async function populateDatabaseWithInputs(db, config)
     }
 }
 
+/** This is used, alongside populateDatabaseWithInputs(), in both the input and validation stage. */
 export async function fixDatabaseWithReviews(db, config)
 {
     console.log('...Reviewing our work...');
