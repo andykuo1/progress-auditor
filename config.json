@@ -1,5 +1,4 @@
 {
-    "debug": true,
     "currentDate": "7/29/2019",
     "include": [],
     "scheme": "piazza",
@@ -51,10 +50,6 @@
         {
             "outputName": "slip-days.csv",
             "format": "instructor"
-        },
-        {
-            "outputName": "debug",
-            "format": "debug"
         }
     ]
 }

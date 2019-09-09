@@ -1,6 +1,5 @@
 import * as Menu from './menu/Menu.js';
-
-import * as OutputHandler from '../main/OutputHandler.js';
+import * as DateUtil from '../../util/DateUtil.js';
 
 const path = require('path');
 
@@ -22,7 +21,7 @@ export async function onSetup(db, config)
      * in the processing stage.
      */
 
-    Menu.println("Date:", db.currentDate.toDateString());
+    Menu.println("Date:", DateUtil.stringify(db.currentDate));
     Menu.println();
 }
 
@@ -57,9 +56,7 @@ export async function onOutput(db, config)
 
 export async function onError(db, config, error)
 {
-    Menu.printlnError(error);
-
-    await OutputHandler.outputDebugLog(db, config);
+    Menu.printlnError(error, config.debug || false);
 }
 
 export async function onStop(db, config)

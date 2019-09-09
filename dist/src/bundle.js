@@ -469,14 +469,14 @@ function offsetDate(date, offset = 0)
 
 function parse(dateString)
 {
-    const monthIndex = 0;
-    const dayIndex = dateString.indexOf('-', monthIndex);
-    const yearIndex = dateString.indexOf('-', dayIndex + 1);
-    let hourIndex = dateString.indexOf('-', yearIndex + 1);
+    const yearIndex = 0;
+    const monthIndex = dateString.indexOf('-', yearIndex);
+    const dayIndex = dateString.indexOf('-', monthIndex + 1);
+    let hourIndex = dateString.indexOf('-', dayIndex + 1);
     let minuteIndex = dateString.indexOf(':', hourIndex + 1);
     let secondIndex = dateString.indexOf(':', minuteIndex + 1);
 
-    let month, day, year, hour, minute, second;
+    let year, month, day, hour, minute, second;
 
     if (dayIndex < 0 || monthIndex < 0 || yearIndex < 0)
     {
@@ -491,9 +491,9 @@ function parse(dateString)
         second = 0;
     }
 
-    month = Number(dateString.substring(monthIndex, dayIndex));
-    day = Number(dateString.substring(dayIndex + 1, yearIndex));
-    year = Number(dateString.substring(yearIndex + 1, hourIndex));
+    year = Number(dateString.substring(yearIndex, monthIndex));
+    month = Number(dateString.substring(monthIndex + 1, dayIndex));
+    day = Number(dateString.substring(dayIndex + 1, hourIndex));
     
     const result = new Date();
     result.setUTCFullYear(year);
@@ -513,9 +513,9 @@ function stringify(date)
     const hour = date.getUTCHours();
     const minute = date.getUTCMinutes();
     const second = date.getUTCSeconds();
-    return String(month).padStart(2, '0') + '-'
+    return String(year).padStart(4, '0') + '-'
+        + String(month).padStart(2, '0') + '-'
         + String(day).padStart(2, '0') + '-'
-        + String(year).padStart(4, '0') + '-'
         + String(hour).padStart(2, '0') + ':'
         + String(minute).padStart(2, '0') + ':'
         + String(second).padStart(2, '0');
@@ -47358,10 +47358,15 @@ function printTitle()
     printDivider();
 }
 
-function printlnError(errorMessage)
+function printlnError(errorMessage, stackTrace = ( errorMessage instanceof Error))
 {
-    printError(errorMessage, 0);
+    printError(errorMessage);
     println();
+    
+    if (stackTrace)
+    {
+        console.trace(errorMessage);
+    }
 }
 
 function printError(errorMessage, depth = 0)
@@ -47433,9 +47438,20 @@ async function askWhetherToReviewErrors(db, config, errors)
     const result = await askYesNo("Do you want to review them now?");
     if (!result)
     {
-        println(`Skipping errors...${Math.random() > 0.6 ? chalk$2.gray(`...(I trust you)...`) : ''}`);
+        println(`Skipping errors...${Math.random() > 0.6 ? chalk$2.gray(`(I trust you)...`) : ''}`);
     }
     return result;
+}
+
+async function askWhetherToSaveDebugInfo()
+{
+    // Let the client decide whether to save debug info (which can contain user info)...
+    return await askYesNo(`Are you sure you want to save debug info? It will contain user information.`);
+}
+
+async function showSkippingDebugLog()
+{
+    println('...Skipping debug logs...');
 }
 
 /** If unable to load config file, null is returned. */
@@ -48919,7 +48935,7 @@ async function findAssignmentEntries(config)
  */
 async function loadAssignmentEntry(db, config, assignmentEntry)
 {
-    console.log("...Process assignment entry...");
+    console.log(`...Process assignment entry '${assignmentEntry.assignmentName}'...`);
     const assignmentName = assignmentEntry.assignmentName;
     const patternType = assignmentEntry.pattern;
     const customPath = assignmentEntry.customPath;
@@ -49112,415 +49128,6 @@ async function verifyDatabaseWithClient(db, config)
 {
     console.log("...Verifying database with client...");
     return await askWhetherDatabaseIsValidToUse();
-}
-
-const inquirer = require('inquirer');
-const chalk$3 = require('chalk');
-
-/**
- * This will run the steps to make a review and save it to file.
- */
-async function run(db, config, skipFirstCheck = true)
-{
-    console.log(chalk$3.gray("Starting Review Maker..."));
-    console.log("Welcome to Review Maker");
-
-    let result = null;
-    
-    while(!result)
-    {
-        let answer;
-        if (!skipFirstCheck)
-        {
-            answer = await inquirer.prompt([
-                {
-                    message: "Would you like to make a new review?",
-                    name: "value",
-                    type: "confirm",
-                }
-            ]);
-        }
-        else
-        {
-            skipFirstCheck = false;
-            answer = { value: true };
-        }
-
-        if (!answer.value) break;
-
-        result = await makeReview(db, config);
-
-        if (result)
-        {
-            const ID = 0;
-            const DATE = 1;
-            const COMMENT = 2;
-            const TYPE = 3;
-            const PARAMS = 4;
-
-            const reviewer = getReviewerByType(result[TYPE]);
-            const paramTypes = reviewer.REVIEW_PARAM_TYPES;
-            const desc = reviewer.REVIEW_DESC;
-    
-            console.log(chalk$3.cyan('>'), 'Review', chalk$3.green(`${result[TYPE]} ( ${paramTypes.join(', ')} )`, chalk$3.gray(`- ${desc}`)));
-            console.log(chalk$3.cyan('>'), 'Comment', chalk$3.cyan(`${result[COMMENT]}`));
-            console.log(chalk$3.cyan('>'), 'Date', chalk$3.cyan(`${result[DATE]}`));
-            console.log(chalk$3.cyan('>'), 'ID', chalk$3.cyan(`${result[ID]}`));
-            console.log(chalk$3.cyan('>'), 'Parameters');
-            for(let i = 0; i < result[PARAMS].length; ++i)
-            {
-                console.log(chalk$3.cyan('>'), `- ${paramTypes[i]} = '${chalk$3.cyan(result[PARAMS][i])}'`);
-            }
-
-            answer = await inquirer.prompt([
-                {
-                    message: 'Is this correct?',
-                    name: 'value',
-                    type: 'confirm'
-                }
-            ]);
-            if (!answer.value) result = null;
-        }
-        else
-        {
-            console.log(chalk$3.red('...trying again...'));
-        }
-    }
-
-    if (result)
-    {
-        console.log("Good review! Hope to see you soon!");
-    }
-    
-    console.log(chalk$3.gray("...Stopping Review Maker"));
-
-    return result;
-}
-
-async function makeReview(db, config)
-{
-    let id = stringHash(uuid());
-    let date = new Date(Date.now());
-    let comment = '';
-    let type;
-    let params;
-
-    // Resolve type...
-    type = await chooseReviewType();
-    if (!type) return null;
-
-    // Resolve params...
-    params = await chooseReviewParameters(db, config, type);
-    if (!params) return null;
-
-    // (Optionally) Resolve comment...
-    if ((await inquirer.prompt([
-        {
-            message: 'Do you want to add a comment?',
-            name: 'value',
-            type: 'confirm'
-        }
-    ])).value)
-    {
-        comment = (await inquirer.prompt([
-            {
-                message: 'What is the comment? (By default, it is blank.)',
-                name: 'value',
-                type: 'input',
-            }
-        ])).value;
-    }
-
-    // (Optionally) Resolve id...
-    // TODO: Not yet implemented.
-
-    return [id, date, comment, type, params];
-}
-
-async function chooseReviewType(db, config)
-{
-    const reviewers = getReviewers();
-    let answer;
-
-    answer = await inquirer.prompt([
-        {
-            message: "What type of review do you want to make?",
-            name: "value",
-            type: "list",
-            choices: (session) => {
-                const result = [];
-                for(const reviewer of reviewers)
-                {
-                    // Skip the default null reviewer...
-                    if (reviewer.REVIEW_TYPE === 'null') continue;
-                    
-                    // Show review type to select...
-                    result.push({
-                        name: `${reviewer.REVIEW_TYPE} ( ${reviewer.REVIEW_PARAM_TYPES.join(', ')} ) - ${reviewer.REVIEW_DESC}`,
-                        value: reviewer.REVIEW_TYPE,
-                        short: reviewer.REVIEW_TYPE
-                    });
-                }
-                result.push(
-                    {
-                        name: "...or a custom type?",
-                        value: "__custom",
-                        short: "(custom type)"
-                    }
-                );
-                result.push(
-                    {
-                        name: "...or go back?",
-                        value: "__cancel",
-                        short: "(go back)"
-                    }
-                );
-                result.push(new inquirer.Separator("=-=- END -" + "=-".repeat(35)));
-                return result;
-            }
-        }
-    ]);
-
-    if (answer.value === '__custom')
-    {
-        answer = await inquirer.prompt([
-            {
-                message: "What is the custom review type?",
-                name: "value",
-                type: "input",
-                validate: (input) => {
-                    if (input.length === 0) return "Cannot be empty.";
-                    if (input.trim().length < input.length) return "Cannot have leading or trailing whitespace.";
-                    if (/^\S*$/.test(input)) return "Cannot have whitespaces.";
-                    if (reviewTypes.has(input)) return "Review type already exists.";
-                    return true;
-                }
-            }
-        ]);
-    }
-    else if (answer.value === '__cancel')
-    {
-        return null;
-    }
-
-    return await confirmLoop(answer.value, async (reviewType) => {
-        const reviewer = getReviewerByType(reviewType);
-        const paramTypes = reviewer.REVIEW_PARAM_TYPES;
-        const desc = reviewer.REVIEW_DESC;
-
-        console.log(chalk$3.cyan('>'), chalk$3.green(`${reviewType} ( ${paramTypes.join(', ')} )`, chalk$3.gray(`- ${desc}`)));
-        const answer = await inquirer.prompt([
-            {
-                name: 'value',
-                message: `Is this correct?`,
-                type: 'confirm'
-            }
-        ]);
-
-        return answer.value;
-    }, async () => await chooseReviewType());
-}
-
-async function chooseReviewParameter(db, config, paramType)
-{
-    let answer;
-
-    answer = await inquirer.prompt([
-        {
-            message: `What is the value for '${paramType}'?`,
-            name: 'value',
-            type: 'input',
-        }
-    ]);
-
-    return answer.value;
-}
-
-async function chooseReviewParameters(db, config, reviewType)
-{
-    const result = [];
-    const reviewer = getReviewerByType(reviewType);
-    const paramTypes = reviewer.REVIEW_PARAM_TYPES;
-    for(const paramType of paramTypes)
-    {
-        const paramValue = await chooseReviewParameter(db, config, paramType);
-        if (paramValue !== null)
-        {
-            result.push(paramValue);
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return result;
-}
-
-async function confirmLoop(value, confirmCallback, loopCallback)
-{
-    const result = await confirmCallback(value);
-    if (result)
-    {
-        return value;
-    }
-    else
-    {
-        return await loopCallback();
-    }
-}
-
-const chalk$4 = require('chalk');
-const inquirer$1 = require('inquirer');
-
-async function askClientToPickError(errors)
-{
-    const dst = [];
-    for(const error of errors)
-    {
-        dst.push({
-            name: `${chalk$4.gray(error.id + ': ')} ${error.message}`,
-            value: error.id,
-            short: error.id + ': ' + error.message,
-        });
-    }
-    dst.push(new inquirer$1.Separator("=-=- END -" + "=-".repeat(35)));
-
-    const answer = await inquirer$1.prompt([
-        {
-            message: 'Which error do you want to review?',
-            name: 'value',
-            type: 'list',
-            choices: dst,
-            pageSize: 20
-        }
-    ]);
-    return answer.value;
-}
-
-async function showErrorInfo(error)
-{
-    const errorMessage = `${chalk$4.gray(error.id + ':')} ${error.message}`;
-    printError(errorMessage);
-    const errorSolutions = `${chalk$4.green(`${chalk$4.bold(`= Solutions: ${'='.repeat(67)}`)}\n => ${error.options.join('\n => ')}\n${chalk$4.bold('='.repeat(80))}`)}`;
-    println(errorSolutions);
-
-    if (await askYesNo("Show more info?"))
-    {
-        const errorInfo = `${chalk$4.yellow(`${chalk$4.bold(`= More Info: ${'='.repeat(67)}`)}\n | ${error.more.join('\n')}\n${'='.repeat(80)}`)}`;
-        println(errorInfo);
-    }
-}
-
-async function askClientToReviewError(db, errorID)
-{
-    const error = db.getErrorByID(errorID);
-    await showErrorInfo(error);
-    return await askYesNo("Continue to review?");
-}
-
-async function doReviewSession(db, config)
-{
-    return await run(db, config, true);
-}
-
-/** If unable to find errors, an empty array is returned. */
-async function findDatabaseErrors(db, config)
-{
-    console.log("...Finding database errors...");
-    const result = db.getErrors();
-    if (!result || result.length <= 0)
-    {
-        println("== No errors! Hooray! ==");
-        return null;
-    }
-    else
-    {
-        return result;
-    }
-}
-
-async function shouldContinueResolvingErrorsWithClient(db, config, errors)
-{
-    console.log("...Should resolve database errors?");
-    return askWhetherToReviewErrors(db, config, errors);
-}
-
-async function resolveDatabaseErrors(db, config, errors)
-{
-    console.log("...Resolving database errors...");
-
-    const errorID = await askClientToPickError(errors);
-
-    if (await askClientToReviewError(db, errorID))
-    {
-        return await doReviewSession(db, config);
-    }
-
-    return null;
-}
-
-async function clearDatabase$6(db, config)
-{
-    console.log("...Clearing database...");
-    clearDatabase$5(db);
-}
-
-async function verifyErrorsWithClient(db, config, errors)
-{
-    if (!errors || errors.length <= 0) return true;
-    
-    return await askWhetherToIgnoreErrors(db, config, errors);
-}
-
-async function shouldSaveNewReviewsForClient(db, config, reviews)
-{
-    if (!reviews || reviews.length <= 0) return false;
-
-    const result = await askWhetherToSaveNewReviews(db, config, reviews);
-    if (!result) println("Dumping reviews...");
-    return result;
-}
-
-async function outputNewReviewsToFile(db, config, reviews)
-{
-    const path = require('path');
-    
-    const reviewTableHeader = [
-        'Review ID',
-        'Date',
-        'Comment',
-        'Type',
-        'Param[0]',
-        'Param[1]',
-        'Param[2]',
-        'Param[3]',
-        '...'
-    ];
-    const reviewTable = [reviewTableHeader];
-    for(const review of reviews)
-    {
-        const reviewEntry = [];
-        // ID
-        reviewEntry.push(review[0]);
-        // Date
-        reviewEntry.push(review[1]);
-        // Comment
-        reviewEntry.push(review[2]);
-        // Type
-        reviewEntry.push(review[3]);
-        // Params
-        reviewEntry.push(...review[4]);
-        reviewTable.push(reviewEntry);
-    }
-
-    const outputFilePath = path.resolve(config.outputPath, `reviews-${db.currentDate.toISOString()}.csv`);
-    await writeTableToCSV(outputFilePath, reviewTable);
-}
-
-async function outputErrorLog(db, config, errors)
-{
-    console.log("...Outputting database errors...");
 }
 
 const path$4 = require('path');
@@ -49901,10 +49508,425 @@ async function processOutputEntry(db, config, outputEntry)
 
 async function outputDebugLog(db, config)
 {
-    if (config.debug)
+    if (await askWhetherToSaveDebugInfo())
     {
         await output$2(db, config, config.outputPath);
     }
+    else
+    {
+        showSkippingDebugLog();
+    }
+}
+
+const inquirer = require('inquirer');
+const chalk$3 = require('chalk');
+
+/**
+ * This will run the steps to make a review and save it to file.
+ */
+async function run(db, config, skipFirstCheck = true)
+{
+    console.log(chalk$3.gray("Starting Review Maker..."));
+    console.log("Welcome to Review Maker");
+
+    let result = null;
+    
+    while(!result)
+    {
+        let answer;
+        if (!skipFirstCheck)
+        {
+            answer = await inquirer.prompt([
+                {
+                    message: "Would you like to make a new review?",
+                    name: "value",
+                    type: "confirm",
+                }
+            ]);
+        }
+        else
+        {
+            skipFirstCheck = false;
+            answer = { value: true };
+        }
+
+        if (!answer.value) break;
+
+        result = await makeReview(db, config);
+
+        if (result)
+        {
+            const ID = 0;
+            const DATE = 1;
+            const COMMENT = 2;
+            const TYPE = 3;
+            const PARAMS = 4;
+
+            const reviewer = getReviewerByType(result[TYPE]);
+            const paramTypes = reviewer.REVIEW_PARAM_TYPES;
+            const desc = reviewer.REVIEW_DESC;
+    
+            console.log(chalk$3.cyan('>'), 'Review', chalk$3.green(`${result[TYPE]} ( ${paramTypes.join(', ')} )`, chalk$3.gray(`- ${desc}`)));
+            console.log(chalk$3.cyan('>'), 'Comment', chalk$3.cyan(`${result[COMMENT]}`));
+            console.log(chalk$3.cyan('>'), 'Date', chalk$3.cyan(`${result[DATE]}`));
+            console.log(chalk$3.cyan('>'), 'ID', chalk$3.cyan(`${result[ID]}`));
+            console.log(chalk$3.cyan('>'), 'Parameters');
+            for(let i = 0; i < result[PARAMS].length; ++i)
+            {
+                console.log(chalk$3.cyan('>'), `- ${paramTypes[i]} = '${chalk$3.cyan(result[PARAMS][i])}'`);
+            }
+
+            answer = await inquirer.prompt([
+                {
+                    message: 'Is this correct?',
+                    name: 'value',
+                    type: 'confirm'
+                }
+            ]);
+            if (!answer.value) result = null;
+        }
+        else
+        {
+            console.log(chalk$3.red('...trying again...'));
+        }
+    }
+
+    if (result)
+    {
+        console.log("Good review! Hope to see you soon!");
+    }
+    
+    console.log(chalk$3.gray("...Stopping Review Maker"));
+
+    return result;
+}
+
+async function makeReview(db, config)
+{
+    let id = stringHash(uuid());
+    let date = new Date(Date.now());
+    let comment = '';
+    let type;
+    let params;
+
+    // Resolve type...
+    type = await chooseReviewType();
+    if (!type) return null;
+
+    // Resolve params...
+    params = await chooseReviewParameters(db, config, type);
+    if (!params) return null;
+
+    // (Optionally) Resolve comment...
+    if ((await inquirer.prompt([
+        {
+            message: 'Do you want to add a comment?',
+            name: 'value',
+            type: 'confirm'
+        }
+    ])).value)
+    {
+        comment = (await inquirer.prompt([
+            {
+                message: 'What is the comment? (By default, it is blank.)',
+                name: 'value',
+                type: 'input',
+            }
+        ])).value;
+    }
+
+    // (Optionally) Resolve id...
+    // TODO: Not yet implemented.
+
+    return [id, date, comment, type, params];
+}
+
+async function chooseReviewType(db, config)
+{
+    const reviewers = getReviewers();
+    let answer;
+
+    answer = await inquirer.prompt([
+        {
+            message: "What type of review do you want to make?",
+            name: "value",
+            type: "list",
+            choices: (session) => {
+                const result = [];
+                for(const reviewer of reviewers)
+                {
+                    // Skip the default null reviewer...
+                    if (reviewer.REVIEW_TYPE === 'null') continue;
+                    
+                    // Show review type to select...
+                    result.push({
+                        name: `${reviewer.REVIEW_TYPE} ( ${reviewer.REVIEW_PARAM_TYPES.join(', ')} ) - ${reviewer.REVIEW_DESC}`,
+                        value: reviewer.REVIEW_TYPE,
+                        short: reviewer.REVIEW_TYPE
+                    });
+                }
+                result.push(
+                    {
+                        name: "...or a custom type?",
+                        value: "__custom",
+                        short: "(custom type)"
+                    }
+                );
+                result.push(
+                    {
+                        name: "...or go back?",
+                        value: "__cancel",
+                        short: "(go back)"
+                    }
+                );
+                result.push(new inquirer.Separator("=-=- END -" + "=-".repeat(35)));
+                return result;
+            }
+        }
+    ]);
+
+    if (answer.value === '__custom')
+    {
+        answer = await inquirer.prompt([
+            {
+                message: "What is the custom review type?",
+                name: "value",
+                type: "input",
+                validate: (input) => {
+                    if (input.length === 0) return "Cannot be empty.";
+                    if (input.trim().length < input.length) return "Cannot have leading or trailing whitespace.";
+                    if (/^\S*$/.test(input)) return "Cannot have whitespaces.";
+                    if (reviewTypes.has(input)) return "Review type already exists.";
+                    return true;
+                }
+            }
+        ]);
+    }
+    else if (answer.value === '__cancel')
+    {
+        return null;
+    }
+
+    return await confirmLoop(answer.value, async (reviewType) => {
+        const reviewer = getReviewerByType(reviewType);
+        const paramTypes = reviewer.REVIEW_PARAM_TYPES;
+        const desc = reviewer.REVIEW_DESC;
+
+        console.log(chalk$3.cyan('>'), chalk$3.green(`${reviewType} ( ${paramTypes.join(', ')} )`, chalk$3.gray(`- ${desc}`)));
+        const answer = await inquirer.prompt([
+            {
+                name: 'value',
+                message: `Is this correct?`,
+                type: 'confirm'
+            }
+        ]);
+
+        return answer.value;
+    }, async () => await chooseReviewType());
+}
+
+async function chooseReviewParameter(db, config, paramType)
+{
+    let answer;
+
+    answer = await inquirer.prompt([
+        {
+            message: `What is the value for '${paramType}'?`,
+            name: 'value',
+            type: 'input',
+        }
+    ]);
+
+    return answer.value;
+}
+
+async function chooseReviewParameters(db, config, reviewType)
+{
+    const result = [];
+    const reviewer = getReviewerByType(reviewType);
+    const paramTypes = reviewer.REVIEW_PARAM_TYPES;
+    for(const paramType of paramTypes)
+    {
+        const paramValue = await chooseReviewParameter(db, config, paramType);
+        if (paramValue !== null)
+        {
+            result.push(paramValue);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return result;
+}
+
+async function confirmLoop(value, confirmCallback, loopCallback)
+{
+    const result = await confirmCallback(value);
+    if (result)
+    {
+        return value;
+    }
+    else
+    {
+        return await loopCallback();
+    }
+}
+
+const chalk$4 = require('chalk');
+const inquirer$1 = require('inquirer');
+
+async function askClientToPickError(errors)
+{
+    const dst = [];
+    for(const error of errors)
+    {
+        dst.push({
+            name: `${chalk$4.gray(error.id + ': ')} ${error.message}`,
+            value: error.id,
+            short: error.id + ': ' + error.message,
+        });
+    }
+    dst.push(new inquirer$1.Separator("=-=- END -" + "=-".repeat(35)));
+
+    const answer = await inquirer$1.prompt([
+        {
+            message: 'Which error do you want to review?',
+            name: 'value',
+            type: 'list',
+            choices: dst,
+            pageSize: 20
+        }
+    ]);
+    return answer.value;
+}
+
+async function showErrorInfo(error)
+{
+    const errorMessage = `${chalk$4.gray(error.id + ':')} ${error.message}`;
+    printError(errorMessage);
+    const errorSolutions = `${chalk$4.green(`${chalk$4.bold(`= Solutions: ${'='.repeat(67)}`)}\n => ${error.options.join('\n => ')}\n${chalk$4.bold('='.repeat(80))}`)}`;
+    println(errorSolutions);
+
+    if (await askYesNo("Show more info?"))
+    {
+        const errorInfo = `${chalk$4.yellow(`${chalk$4.bold(`= More Info: ${'='.repeat(67)}`)}\n | ${error.more.join('\n')}\n${'='.repeat(80)}`)}`;
+        println(errorInfo);
+    }
+}
+
+async function askClientToReviewError(db, errorID)
+{
+    const error = db.getErrorByID(errorID);
+    await showErrorInfo(error);
+    return await askYesNo("Continue to review?");
+}
+
+async function doReviewSession(db, config)
+{
+    return await run(db, config, true);
+}
+
+/** If unable to find errors, an empty array is returned. */
+async function findDatabaseErrors(db, config)
+{
+    console.log("...Finding database errors...");
+    const result = db.getErrors();
+    if (!result || result.length <= 0)
+    {
+        println("== No errors! Hooray! ==");
+        return null;
+    }
+    else
+    {
+        return result;
+    }
+}
+
+async function shouldContinueResolvingErrorsWithClient(db, config, errors)
+{
+    return askWhetherToReviewErrors(db, config, errors);
+}
+
+async function resolveDatabaseErrors(db, config, errors)
+{
+    console.log("...Resolving database errors...");
+
+    const errorID = await askClientToPickError(errors);
+
+    if (await askClientToReviewError(db, errorID))
+    {
+        return await doReviewSession(db, config);
+    }
+
+    return null;
+}
+
+async function clearDatabase$6(db, config)
+{
+    console.log("...Clearing database...");
+    clearDatabase$5(db);
+}
+
+async function verifyErrorsWithClient(db, config, errors)
+{
+    if (!errors || errors.length <= 0) return true;
+    
+    return await askWhetherToIgnoreErrors(db, config, errors);
+}
+
+async function shouldSaveNewReviewsForClient(db, config, reviews)
+{
+    if (!reviews || reviews.length <= 0) return false;
+
+    const result = await askWhetherToSaveNewReviews(db, config, reviews);
+    if (!result) println("Dumping reviews...");
+    return result;
+}
+
+async function outputNewReviewsToFile(db, config, reviews)
+{
+    const path = require('path');
+    
+    const reviewTableHeader = [
+        'Review ID',
+        'Date',
+        'Comment',
+        'Type',
+        'Param[0]',
+        'Param[1]',
+        'Param[2]',
+        'Param[3]',
+        '...'
+    ];
+    const reviewTable = [reviewTableHeader];
+    for(const review of reviews)
+    {
+        const reviewEntry = [];
+        // ID
+        reviewEntry.push(review[0]);
+        // Date
+        reviewEntry.push(review[1]);
+        // Comment
+        reviewEntry.push(review[2]);
+        // Type
+        reviewEntry.push(review[3]);
+        // Params
+        reviewEntry.push(...review[4]);
+        reviewTable.push(reviewEntry);
+    }
+
+    const outputFilePath = path.resolve(config.outputPath, `reviews-${db.currentDate.toISOString()}.csv`);
+    await writeTableToCSV(outputFilePath, reviewTable);
+}
+
+async function outputErrorLog(db, config, errors)
+{
+    console.log("...Outputting database errors...");
+    
+    // This will also output the error log...
+    await outputDebugLog(db, config);
 }
 
 /**
@@ -50034,10 +50056,10 @@ async function validateDatabase(db, config)
     // Whether to ignore errors or continue as normal...
     if (!await verifyErrorsWithClient(db, config, errors))
     {
-        await outputErrorLog();
+        await outputErrorLog(db, config);
         
         // IT'S AN ERROR! RUN AWAY!!!
-        throw new Error('Could not validate database. Stopping program...');
+        throw new Error('Cannot resolve errors. Stopping program...');
     }
 
     // Whether to save any newly created reviews...
@@ -50093,7 +50115,7 @@ async function onSetup(db, config)
      * in the processing stage.
      */
 
-    println("Date:", db.currentDate.toDateString());
+    println("Date:", stringify(db.currentDate));
     println();
 }
 
@@ -50128,9 +50150,7 @@ async function onOutput(db, config)
 
 async function onError(db, config, error)
 {
-    printlnError(error);
-
-    await outputDebugLog(db, config);
+    printlnError(error, config.debug || false);
 }
 
 async function onStop(db, config)
@@ -50173,13 +50193,10 @@ async function main$2(args)
     catch(e)
     {
         await onError(db, config, e);
-
-        console.error('Program failed.', e);
         return false;
     }
 
     await onStop();
-
     return true;
 }
 

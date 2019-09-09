@@ -7,6 +7,7 @@ import * as ProgressOtter from './ProgressOtter.js';
 
 export const TITLE = "Progress Auditor";
 export const DIVIDER_LENGTH = TITLE.length * 5;
+const SHOW_STACK_TRACE = true;
 
 export function println(...messages)
 {
@@ -45,10 +46,15 @@ export function printTitle()
     printDivider();
 }
 
-export function printlnError(errorMessage)
+export function printlnError(errorMessage, stackTrace = (SHOW_STACK_TRACE && errorMessage instanceof Error))
 {
-    printError(errorMessage, 0);
+    printError(errorMessage);
     println();
+    
+    if (stackTrace)
+    {
+        console.trace(errorMessage);
+    }
 }
 
 export function printError(errorMessage, depth = 0)

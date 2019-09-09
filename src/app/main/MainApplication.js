@@ -136,7 +136,7 @@ export async function validateDatabase(db, config)
         await DatabaseSolver.outputErrorLog(db, config, errors);
         
         // IT'S AN ERROR! RUN AWAY!!!
-        throw new Error('Could not validate database. Stopping program...');
+        throw new Error('Cannot resolve errors. Stopping program...');
     }
 
     // Whether to save any newly created reviews...

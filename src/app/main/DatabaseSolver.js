@@ -1,5 +1,6 @@
 import * as DatabaseSetup from '../../database/DatabaseSetup.js';
 import * as ClientHandler from '../client/ClientHandler.js';
+import * as OutputHandler from '../main/OutputHandler.js';
 import * as FileUtil from '../../util/FileUtil.js';
 
 import * as ErrorReviewer from './ErrorReviewer.js';
@@ -23,7 +24,6 @@ export async function findDatabaseErrors(db, config)
 
 export async function shouldContinueResolvingErrorsWithClient(db, config, errors)
 {
-    console.log("...Should resolve database errors?");
     return ClientHandler.askWhetherToReviewErrors(db, config, errors);
 }
 
@@ -102,4 +102,7 @@ export async function outputNewReviewsToFile(db, config, reviews)
 export async function outputErrorLog(db, config, errors)
 {
     console.log("...Outputting database errors...");
+    
+    // This will also output the error log...
+    await OutputHandler.outputDebugLog(db, config);
 }

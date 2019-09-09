@@ -37,12 +37,9 @@ export async function main(args)
     catch(e)
     {
         await ClientApplication.onError(db, config, e);
-
-        console.error('Program failed.', e);
         return false;
     }
 
     await ClientApplication.onStop(db, config);
-
     return true;
 }

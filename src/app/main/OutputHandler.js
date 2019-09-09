@@ -3,6 +3,8 @@ import * as StudentReportOutput from '../../output/StudentReportOutput.js';
 import * as DebugReportOutput from '../../output/DebugReportOutput.js';
 import * as DateUtil from '../../util/DateUtil.js';
 
+import * as ClientHandler from '../client/ClientHandler.js';
+
 const path = require('path');
 
 export function findOutputEntries(config)
@@ -71,8 +73,12 @@ export async function processOutputEntry(db, config, outputEntry)
 
 export async function outputDebugLog(db, config)
 {
-    if (config.debug)
+    if (await ClientHandler.askWhetherToSaveDebugInfo())
     {
         await DebugReportOutput.output(db, config, config.outputPath);
+    }
+    else
+    {
+        ClientHandler.showSkippingDebugLog();
     }
 }

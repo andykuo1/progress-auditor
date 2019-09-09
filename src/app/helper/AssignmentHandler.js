@@ -101,7 +101,7 @@ export async function findAssignmentEntries(config)
  */
 export async function loadAssignmentEntry(db, config, assignmentEntry)
 {
-    console.log("...Process assignment entry...");
+    console.log(`...Process assignment entry '${assignmentEntry.assignmentName}'...`);
     const assignmentName = assignmentEntry.assignmentName;
     const patternType = assignmentEntry.pattern;
     const customPath = assignmentEntry.customPath;

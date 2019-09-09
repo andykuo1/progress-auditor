@@ -32,7 +32,18 @@ export async function askWhetherToReviewErrors(db, config, errors)
     const result = await Menu.askYesNo("Do you want to review them now?");
     if (!result)
     {
-        Menu.println(`Skipping errors...${Math.random() > 0.6 ? chalk.gray(`...(I trust you)...`) : ''}`);
+        Menu.println(`Skipping errors...${Math.random() > 0.6 ? chalk.gray(`(I trust you)...`) : ''}`);
     }
     return result;
+}
+
+export async function askWhetherToSaveDebugInfo()
+{
+    // Let the client decide whether to save debug info (which can contain user info)...
+    return await Menu.askYesNo(`Do you want to save debug info? It will contain user information.`);
+}
+
+export async function showSkippingDebugLog()
+{
+    Menu.println('...Skipping debug logs...');
 }
