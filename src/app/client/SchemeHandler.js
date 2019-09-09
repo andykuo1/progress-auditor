@@ -1,4 +1,4 @@
-import * as PiazzaScheme from '../piazza/PiazzaScheme.js';
+import * as PiazzaScheme from '../../scheme/piazza/PiazzaScheme.js';
 
 export async function prepareScheme(db, config)
 {
