@@ -1,5 +1,5 @@
 import * as DatabaseSetup from '../../database/DatabaseSetup.js';
-import * as ClientHandler from '../ClientHandler.js';
+import * as ClientHandler from '../client/ClientHandler.js';
 import * as FileUtil from '../../util/FileUtil.js';
 
 import * as ErrorReviewer from './ErrorReviewer.js';

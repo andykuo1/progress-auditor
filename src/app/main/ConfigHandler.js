@@ -1,6 +1,6 @@
 import * as ConfigLoader from '../../config/ConfigLoader.js';
 
-import * as ClientHandler from '../ClientHandler.js';
+import * as ClientHandler from '../client/ClientHandler.js';
 
 /** If unable to load config file, null is returned. */
 export async function loadConfigFile(filepath)

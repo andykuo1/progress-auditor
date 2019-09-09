@@ -1,5 +1,5 @@
-import * as AssignmentLoader from '../input/assignment/AssignmentLoader.js';
-import * as AssignerRegistry from '../input/assignment/AssignerRegistry.js';
+import * as AssignmentLoader from '../../input/assignment/AssignmentLoader.js';
+import * as AssignerRegistry from '../../input/assignment/AssignerRegistry.js';
 
 const fs = require('fs');
 const path = require('path');

@@ -1,4 +1,4 @@
-import * as AssignmentGenerator from '../../app/AssignmentGenerator.js';
+import * as AssignmentGenerator from './util/AssignmentGenerator.js';
 
 export async function assign(db, name, userID, userSchedule, opts={})
 {

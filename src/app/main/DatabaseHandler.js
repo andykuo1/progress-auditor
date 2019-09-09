@@ -1,6 +1,6 @@
-import * as ClientHandler from '../ClientHandler.js';
-import * as InputHandler from '../InputHandler.js';
-import * as AssignmentHandler from '../AssignmentHandler.js';
+import * as ClientHandler from '../client/ClientHandler.js';
+import * as InputHandler from '../helper/InputHandler.js';
+import * as AssignmentHandler from '../helper/AssignmentHandler.js';
 
 import * as DatabaseSetup from '../../database/DatabaseSetup.js';
 

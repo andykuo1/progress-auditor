@@ -43,7 +43,7 @@ const UTIL_EXPORTS = {
 };
 
 // lib
-import * as AssignmentGenerator from './app/AssignmentGenerator.js';
+import * as AssignmentGenerator from './input/assignment/util/AssignmentGenerator.js';
 const LIB_EXPORTS = {
     AssignmentGenerator
 };

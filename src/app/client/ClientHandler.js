@@ -1,4 +1,4 @@
-import * as Menu from './client/menu/Menu.js';
+import * as Menu from './menu/Menu.js';
 
 export async function askForConfigFilePath(directory)
 {

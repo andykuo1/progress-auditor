@@ -1,5 +1,5 @@
-import * as ParserLoader from '../input/parser/ParserLoader.js';
-import * as ParserRegistry from '../input/parser/ParserRegistry.js';
+import * as ParserLoader from '../../input/parser/ParserLoader.js';
+import * as ParserRegistry from '../../input/parser/ParserRegistry.js';
 
 const fs = require('fs');
 const path = require('path');
