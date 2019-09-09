@@ -1,6 +1,6 @@
 import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 import * as FileUtil from '../../util/FileUtil.js';
-import * as ParseUtil from '../../util/ParseUtil.js';
+import * as DateUtil from '../../util/DateUtil.js';
 
 /**
  * Create ReviewDatabase based on input file.
@@ -28,7 +28,15 @@ export async function parse(db, config, filepath, opts={})
         try
         {
             const reviewID = row[0];
-            const reviewDate = ParseUtil.parseDate(row[1]);
+            let reviewDate;
+            try
+            {
+                reviewDate = DateUtil.parse(row[1]);
+            }
+            catch(e)
+            {
+                reviewDate = new Date(Date.now());
+            }
             const comments = row[2];
             const reviewType = row[3];
             const params = [];

@@ -142,7 +142,8 @@ export async function validateDatabase(db, config)
     // Whether to save any newly created reviews...
     if (await DatabaseSolver.shouldSaveNewReviewsForClient(db, config, reviews))
     {
-        await DatabaseSolver.outputNewReviewsToFile(db, config, reviews);
+        // This is null because we want to output all of it...
+        await DatabaseSolver.outputNewReviewsToFile(db, config, null);
     }
 
     // All is well.

@@ -1,7 +1,7 @@
 import * as UserDatabase from '../../database/UserDatabase.js';
 import * as FileUtil from '../../util/FileUtil.js';
-import * as ParseUtil from '../../util/ParseUtil.js';
 import * as FieldParser from '../../util/FieldParser.js';
+import * as DateUtil from '../../util/DateUtil.js';
 
 /**
  * Create UserDatabase based on input file.
@@ -40,8 +40,8 @@ export async function parse(db, config, filepath, opts={ threshold: 2 })
             const ownerKey = FieldParser.parseEmail(row[6], row[1]);
             const userName = FieldParser.parseName(`${row[3]} ${row[2]}`);
             const pid = row[5].trim().toUpperCase();
-            const startDate = ParseUtil.parseAmericanDate(row[11]);
-            const endDate = ParseUtil.parseAmericanDate(row[12]);
+            const startDate = DateUtil.parseAmericanDate(row[11]);
+            const endDate = DateUtil.parseAmericanDate(row[12]);
             const user = UserDatabase.addUser(db, userID, ownerKey, userName, startDate, endDate, opts, { pid });
         }
         catch(e)

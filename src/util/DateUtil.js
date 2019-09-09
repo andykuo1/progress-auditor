@@ -67,6 +67,52 @@ export function offsetDate(date, offset = 0)
     return result;
 }
 
+/** This should is the NON-OFFICIAL way to parse dates. */
+export function parseAmericanDate(dateString, offset = 0)
+{
+    // Allow for both:
+    // MM/DD/YYYY
+    // MM-DD-YYYY
+    const monthIndex = 0;
+    let dayIndex, yearIndex;
+    dayIndex = dateString.indexOf('/', monthIndex);
+    if (dayIndex < 0)
+    {
+        dayIndex = dateString.indexOf('-', monthIndex);
+        yearIndex = dateString.indexOf('-', dayIndex + 1);
+    }
+    else
+    {
+        yearIndex = dateString.indexOf('/', dayIndex + 1);
+    }
+
+    let year, month, day, hour, minute, second;
+
+    if (dayIndex < 0 || monthIndex < 0 || yearIndex < 0)
+    {
+        throw new Error('Invalid date format - Expected MM/DD/YYYY');
+    }
+    
+    year = Number(dateString.substring(yearIndex + 1));
+    month = Number(dateString.substring(monthIndex, dayIndex));
+    day = Number(dateString.substring(dayIndex + 1, yearIndex));
+    hour = 0;
+    minute = 0;
+    second = 0;
+
+    if (year === NaN || month === NaN || day === NaN || hour === NaN || minute === NaN || second === NaN)
+    {
+        throw new Error('Invalid date format - Expected MM/DD/YYYY');
+    }
+
+    const result = new Date(offset);
+    result.setUTCFullYear(year);
+    result.setUTCMonth(month - 1);
+    result.setUTCDate(day);
+
+    return result;
+}
+
 /** This should be the OFFICIAL way to parse dates. */
 export function parse(dateString)
 {
@@ -77,10 +123,15 @@ export function parse(dateString)
     // Allow for both:
     // YYYY-MM-DD HH:MM:SS
     // YYYY-MM-DD-HH:MM:SS
-    let hourIndex = dateString.indexOf('-', dayIndex + 1);
-    if (hourIndex < 0) hourIndex = dateString.indexOf(' ', dayIndex + 1);
-    let minuteIndex = dateString.indexOf(':', hourIndex + 1);
-    let secondIndex = dateString.indexOf(':', minuteIndex + 1);
+    
+    let hourIndex, minuteIndex, secondIndex;
+    hourIndex = dateString.indexOf('-', dayIndex + 1);
+    if (hourIndex < 0)
+    {
+        hourIndex = dateString.indexOf(' ', dayIndex + 1);
+    }
+    minuteIndex = dateString.indexOf(':', hourIndex + 1);
+    secondIndex = dateString.indexOf(':', minuteIndex + 1);
 
     let year, month, day, hour, minute, second;
 
@@ -100,6 +151,11 @@ export function parse(dateString)
     year = Number(dateString.substring(yearIndex, monthIndex));
     month = Number(dateString.substring(monthIndex + 1, dayIndex));
     day = Number(dateString.substring(dayIndex + 1, hourIndex));
+
+    if (year === NaN || month === NaN || day === NaN || hour === NaN || minute === NaN || second === NaN)
+    {
+        throw new Error('Invalid date format - Expected YYYY-MM-DD-HH:MM:SS');
+    }
     
     const result = new Date(0);
     result.setUTCFullYear(year);

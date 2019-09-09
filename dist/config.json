@@ -5,7 +5,7 @@
     "inputPath": "./__TEST__/in",
     "outputPath": "./__TEST__/out",
     "outputAutoDate": true,
-    "debug": false,
+    "debug": true,
     "assignments": [
         {
             "assignmentName": "intro",
@@ -48,6 +48,10 @@
         }
     ],
     "outputs": [
+        {
+            "outputName": "debug",
+            "format": "debug"
+        },
         {
             "outputName": "slip-days.csv",
             "format": "instructor"
