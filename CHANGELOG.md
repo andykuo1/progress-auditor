@@ -6,7 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.0] - 2019-09-09
+## [0.3.1] - 2019-09-09
+### Fixed
+- Executable executes at (seemingly) random directory
+- Executable crashes for exporting PDF
+
+## [0.3.0] - 2019-09-08
 ### Added
 - Output can now auto-append dates
 - Inputs and outputs can have custom defined scripts
