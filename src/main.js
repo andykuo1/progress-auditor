@@ -4,15 +4,20 @@ import './index.js';
 import * as MainApplication from './app/main/MainApplication.js';
 import * as ClientApplication from './app/client/ClientApplication.js';
 
+const path = require('path');
+
 /** The root project directory */
-const DIRECTORY = require('path').resolve(process.execPath, '..');
+const DIRECTORY = path.resolve(process.execPath, '..');
 
 /**
  * The entry point to the program.
  */
 export async function main(args)
 {
-    await ClientApplication.onStart(args);
+    /** The root project directory */
+    const DIRECTORY = args.length >= 2 ? path.resolve(args[2]) : path.resolve(process.execPath, '..');
+
+    await ClientApplication.onStart(DIRECTORY, args);
     
     let config;
     let db;

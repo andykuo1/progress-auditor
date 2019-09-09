@@ -26,7 +26,7 @@ export async function processOutputEntry(db, config, outputEntry)
     const outputPath = config.outputPath;
     const outputName = outputEntry.outputName;
     const outputAutoDate = config.outputAutoDate || false;
-    const filePath = path.resolve(outputPath + (outputAutoDate ? '/' + DateUtil.stringify(db.currentDate) : ''), outputName);
+    const filePath = path.resolve(outputPath + (outputAutoDate ? '/' + DateUtil.stringify(db.currentDate, false) : ''), outputName);
     const formatType = outputEntry.format;
     const customFormatPath = outputEntry.customFormatPath;
     const opts = outputEntry.opts;

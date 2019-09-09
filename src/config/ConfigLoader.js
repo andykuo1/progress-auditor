@@ -27,6 +27,7 @@ export async function loadConfig(configPath)
     }
     catch(e)
     {
+        console.error(`...Cannot find config at '${configPath}'...`);
         return Promise.reject(e);
     }
 
@@ -141,7 +142,17 @@ function resolveConfigPathEntry(parentPath, value)
     {
         // TODO: Implement path macros.
         // const index = value.indexOf('$EXEC_PATH');
-        return path.resolve(parentPath, value);
+
+        // Don't resolve for absolute or home paths.
+        if (value.startsWith('/') || value.startsWith('~/'))
+        {
+            return path.resolve(value);
+        }
+        // Do resolve for relative paths.
+        else
+        {
+            return path.resolve(parentPath, value);
+        }
     }
     else
     {

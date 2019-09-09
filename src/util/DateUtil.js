@@ -73,7 +73,12 @@ export function parse(dateString)
     const yearIndex = 0;
     const monthIndex = dateString.indexOf('-', yearIndex);
     const dayIndex = dateString.indexOf('-', monthIndex + 1);
+
+    // Allow for both:
+    // YYYY-MM-DD HH:MM:SS
+    // YYYY-MM-DD-HH:MM:SS
     let hourIndex = dateString.indexOf('-', dayIndex + 1);
+    if (hourIndex < 0) hourIndex = dateString.indexOf(' ', dayIndex + 1);
     let minuteIndex = dateString.indexOf(':', hourIndex + 1);
     let secondIndex = dateString.indexOf(':', minuteIndex + 1);
 
@@ -96,7 +101,7 @@ export function parse(dateString)
     month = Number(dateString.substring(monthIndex + 1, dayIndex));
     day = Number(dateString.substring(dayIndex + 1, hourIndex));
     
-    const result = new Date();
+    const result = new Date(0);
     result.setUTCFullYear(year);
     result.setUTCMonth(month - 1);
     result.setUTCDate(day);
@@ -107,7 +112,7 @@ export function parse(dateString)
 }
 
 /** This should be the OFFICIAL way to stringify dates. */
-export function stringify(date)
+export function stringify(date, withTime = true)
 {
     const year = date.getUTCFullYear();
     const month = date.getUTCMonth() + 1;
@@ -115,10 +120,14 @@ export function stringify(date)
     const hour = date.getUTCHours();
     const minute = date.getUTCMinutes();
     const second = date.getUTCSeconds();
-    return String(year).padStart(4, '0') + '-'
+    const result = String(year).padStart(4, '0') + '-'
         + String(month).padStart(2, '0') + '-'
-        + String(day).padStart(2, '0') + '-'
-        + String(hour).padStart(2, '0') + ':'
-        + String(minute).padStart(2, '0') + ':'
-        + String(second).padStart(2, '0');
+        + String(day).padStart(2, '0')
+        + (withTime
+            ? '-'
+            + String(hour).padStart(2, '0') + ':'
+            + String(minute).padStart(2, '0') + ':'
+            + String(second).padStart(2, '0')
+            : '');
+    return result;
 }

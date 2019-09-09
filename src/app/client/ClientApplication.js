@@ -1,14 +1,12 @@
 import * as Menu from './menu/Menu.js';
 import * as DateUtil from '../../util/DateUtil.js';
 
-const path = require('path');
-
-export async function onStart(args)
+export async function onStart(directory, args)
 {
     Menu.printTitle();
     Menu.println();
 
-    Menu.println("Running from directory:", path.resolve('.'));
+    Menu.println("Running from directory:", directory);
     Menu.println();
 }
 
