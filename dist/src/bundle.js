@@ -480,7 +480,7 @@ function parse(dateString)
 
     if (dayIndex < 0 || monthIndex < 0 || yearIndex < 0)
     {
-        throw new Error('Invalid date format.');
+        throw new Error('Invalid date format - Expected YYYY-MM-DD-HH:MM:SS');
     }
 
     if (hourIndex < 0 || minuteIndex < 0 || secondIndex < 0)
@@ -49093,7 +49093,7 @@ async function setupDatabase$5(config)
     let currentDate;
     if ('currentDate' in config)
     {
-        currentDate = parseAmericanDate(config.currentDate);
+        currentDate = parse(config.currentDate);
     }
     else
     {
@@ -49450,8 +49450,8 @@ function generateProgressReport(db, config, userID)
     const totalSlipDays = calculateNumberOfSlipDays(schedule);
     // TODO: The issue with this is that assignments != schedule weeks. There can be more than 1 assigment in a week.
     // dst.push('Weeks Remaining:' + (schedule.weeks - (assignments.length - missingAssignments.length)));
-    dst.push('Daily accruing slip days:' + slipRate);
-    dst.push('Remaining slip days available:' + (totalSlipDays - accruedSlips));
+    dst.push('Daily accruing slip days: ' + slipRate);
+    dst.push('Remaining slip days available: ' + (totalSlipDays - accruedSlips));
     dst.push('');
 
     if (missingAssignments.length > 0)

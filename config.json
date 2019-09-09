@@ -1,10 +1,11 @@
 {
-    "currentDate": "7/29/2019",
+    "currentDate": "2019-7-29",
     "include": [],
     "scheme": "piazza",
     "inputPath": "./dist/__TEST__/in",
     "outputPath": "./dist/__TEST__/out",
     "outputAutoDate": true,
+    "debug": false,
     "assignments": [
         {
             "assignmentName": "intro",

@@ -5,6 +5,7 @@ import * as AssignmentDatabase from './AssignmentDatabase.js';
 import * as ReviewDatabase from './ReviewDatabase.js';
 import * as VacationDatabase from './VacationDatabase.js';
 
+import * as DateUtil from '../util/DateUtil.js';
 import * as ParseUtil from '../util/ParseUtil.js';
 
 // TODO: this is still hard-coded...
@@ -16,7 +17,7 @@ export async function setupDatabase(config)
     let currentDate;
     if ('currentDate' in config)
     {
-        currentDate = ParseUtil.parseAmericanDate(config.currentDate);
+        currentDate = DateUtil.parse(config.currentDate);
     }
     else
     {

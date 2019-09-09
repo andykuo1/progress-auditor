@@ -80,7 +80,7 @@ export function parse(dateString)
 
     if (dayIndex < 0 || monthIndex < 0 || yearIndex < 0)
     {
-        throw new Error('Invalid date format.');
+        throw new Error('Invalid date format - Expected YYYY-MM-DD-HH:MM:SS');
     }
 
     if (hourIndex < 0 || minuteIndex < 0 || secondIndex < 0)
