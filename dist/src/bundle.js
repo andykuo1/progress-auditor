@@ -1291,7 +1291,7 @@ function writeTableToCSV(filepath, table)
     writeToFile(filepath, table.map(e => e.join(',')).join('\n'));
 }
 
-var FileUtil$1 = /*#__PURE__*/Object.freeze({
+var FileUtil = /*#__PURE__*/Object.freeze({
     readJSONFile: readJSONFile,
     readCSVFileByRow: readCSVFileByRow,
     readFileByLine: readFileByLine,
@@ -1466,7 +1466,7 @@ const DATABASE_EXPORTS = {
 const UTIL_EXPORTS = {
     DateUtil,
     FieldParser,
-    FileUtil: FileUtil$1,
+    FileUtil,
     MathHelper,
     ParseUtil,
     TableBuilder
@@ -1672,1461 +1672,6 @@ function mergeConfigs(src, dst)
         }
     }
     return dst;
-}
-
-async function askForConfigFilePath(directory)
-{
-    // TODO: Let the client specify another config file...
-    return null;
-}
-
-async function askWhetherDatabaseIsValidToUse(db, config)
-{
-    // TODO: Let the client verify the database stats...
-    return true;
-}
-
-/** If unable to load config file, null is returned. */
-async function loadConfigFile(filepath)
-{
-    console.log("...Load config...");
-    return await loadConfig(filepath);
-}
-
-/** If unable to request config file, null is returned. */
-async function requestConfigFile(directory)
-{
-    console.log("...Request config...");
-    return await askForConfigFilePath();
-}
-
-/** If unable to load default config file, null is returned. */
-async function loadDefaultConfig(directory)
-{
-    console.log("...Load default config...");
-    return {
-        scheme: 'piazza',
-        inputPath: '.',
-        outputPath: './out/',
-        inputs: [],
-        outputs: [],
-    };
-}
-
-/**
- * Create UserDatabase based on input file.
- * @param {Database} db The database to write to.
- * @param {Config} config The program config.
- * @param {String} filepath The path to the file to parse.
- * @param {Object} opts Any additional options.
- */
-async function parse(db, config, filepath, opts={ threshold: 2 })
-{
-    setupDatabase$3(db);
-
-    let first = true;
-    await readCSVFileByRow(filepath, (row) => {
-        // Skip header...
-        if (first) { first = false; return; }
-
-        // 0. Timestamp
-        // 1. Email Address (not sure what this is for)
-        // 2. Last name
-        // 3. First name
-        // 4. Display name
-        // 5. PID
-        // 6. Email
-        // ...
-        // 11. Start date of internship
-        // 12. Anticipated end date of internship
-        // ...
-        // 24. EASy approval date
-        // 25. Admin notes
-        // 28. Max slip days allowed (giving 4 instead of 3 per week to account for time zone)
-        // ...
-        try
-        {
-            const userID = parseEmail(row[6]);
-            const ownerKey = parseEmail(row[6], row[1]);
-            const userName = parseName(`${row[3]} ${row[2]}`);
-            const pid = row[5].trim().toUpperCase();
-            const startDate = parseAmericanDate(row[11]);
-            const endDate = parseAmericanDate(row[12]);
-            const user = addUser(db, userID, ownerKey, userName, startDate, endDate, opts, { pid });
-        }
-        catch(e)
-        {
-            db.throwError('PARSE', 'Unable to parse users - ' + e);
-        }
-    });
-
-    return db;
-}
-
-var CohortParser = /*#__PURE__*/Object.freeze({
-    parse: parse
-});
-
-function evaluatePostAssignment(headerContent, bodyContent)
-{
-    // Intro Assignment
-    {
-        if (/intro/i.test(headerContent))
-        {
-            return 'intro';
-        }
-    }
-    // Weekly Assignment
-    {
-        const pattern = /week ?([0-9]+)/i;
-        const result = pattern.exec(headerContent);
-        if (result && result.length > 0)
-        {
-            if (result[1] == '0')
-            {
-                return 'intro';
-            }
-            else
-            {
-                return 'week[' + Number.parseInt(result[1]) + ']';
-            }
-        }
-    }
-    // Last Assignment
-    {
-        if (/last/i.test(headerContent))
-        {
-            return 'last';
-        }
-    }
-    
-    return 'null';
-}
-
-/*
-How to resolve reports?
-
-If the formula succeeds for the user, then generate a report for the user.
-*/
-
-/*
-How to resolve vacations?
-
-Result:
-- Any submission already reviewed to be ON-HOLD due to vacation should be SHOWN each run.
-- All later due dates should shift (if able) by the vacation length.
-- Vacations can be indefinite.
-- There can be multiple vacations.
-
-Solution:
-That means that vacations must be taken into account when generating due dates for an assignment.
-And since assignments could always be due on a Sunday, per month basis, or any other restriction, it
-would be best to allow assignments to handle vacations when generating the shifted due dates, instead
-of altering post generation.
-This also means that if a due date is shifted due to vacations, it should be marked as such.
-
-Vacations should therefore ALWAYS have a start date and an end date (tentative). Even if indefinite, just put some large value.
-Assignments, when generating schedules, should know about user vacations.
-*/
-
-/*
-How to resolve assignments?
-
-We must know:
-- User vacations
-- Assignment deadlines
-- Assignment resolvers
-- Submission date
-- Submission content
-- Current time
-
-Result:
-- We must be able to find the user's most recent submission for this assignment.
-    - If the user does not have a submission for the assignment, then it should be in-complete.
-    - Otherwise, it should be as expected.
-- We must be able to check if the user's submission for the assignment is overdue.
-    - We must therefore know the assignment due date for the user.
-        - Due to vacations, this can factor into the user's deadline schedule.
-- We must be able to assign submissions to the assignment for each user.
-    - Since submission are just data, assignments must be able to determine itself by submission title and content.
-
-Solution:
-Assignment must have a schedule generator (that knows about vacations).
-
-Should the assignment be responsible for resolving submission assignment?
-- If assignments resolve it, submissions must save content for the assignment resolver.
-- If parsers resolve it, submissions can be dependent on things other than content.
-*/
-
-/*
-How to resolve submissions? Late and early submissions?
-
-What do we want:
-- The most recent submission. If the most recent is under review, we must save the base submission.
-
-CAUTION:
-- We do NOT process only the two most recent submissions because this can be a way to cheat the system.
-By making MANY, but SMALL changes to the post, the program would never recognize the eventual divergence
-from the base submission. It would think all the changes are too small to be relevant, but over many posts
-these changes can add up. Therefore, the solution is to ONLY compare the most recent VALID solution and
-the most recent solution. This also means that edited submissions that have gained slip days can only be
-reviewed to remove ALL slip days, and therefore becomes valid, but not decrease the number of slip days.
-
-What we must know:
-- Submission date
-- Submission content.
-- The submission assignment.
-- All submissions for the assignment.
-- The assignment deadline.
-
-Result:
-- We must find the closest submission to the deadline, with priority to earlier submissions.
-    - If no submissions exist, leave it blank.
-    - If only late submissions exist, use the earliest one as the base.
-    - If only early submissions exist, use the latest as the base.
-    - If there are some of both, use the closest submission before the deadline as the base.
-- Then use the most recent submission after as the target.
-- Then, if the target and base are not the same, calculate the difference error from the base submission.
-    - If the error is greater than a THRESHOLD, then flag for review.
-    - Otherwise, use base as the MOST_RECENT_SUBMISSION.
-*/
-
-/**
- * Create SubmissionDatabase based on input file.
- * @param {Database} db The database to write to.
- * @param {Config} config The program config.
- * @param {String} filepath The path to the file to parse.
- * @param {Object} opts Any additional options.
- */
-async function parse$1(db, config, filepath, opts={})
-{
-    setupDatabase$2(db);
-
-    let first = true;
-    await readCSVFileByRow(filepath, (row) => {
-        // Skip header...
-        if (first) { first = false; return; }
-
-        // 0. Anonymous
-        // 1. Post Number
-        // 2. Folders
-        // 3. Created At
-        // 4. Submission
-        // 5. Submission HTML Removed
-        // 6. Subject
-        // 7. Part of Post
-        // 8. Name
-        // 9. Email
-        // 10. Endorsed by Instructor
-        // ... CUSTOM DATA BELOW ...
-        // 11. UCSD Email
-        // 12. Start date
-        // 13. Week
-        // 14. Base Sunday
-        // 15. Deadline
-        // 16. Slip days used
-        try
-        {
-            // Ignore follow-ups...
-            const postPart = row[7];
-            if (postPart === 'followup'
-                || postPart === 'reply_to_followup'
-                || postPart === 'started_off_i_answer'
-                || postPart === 'updated_i_answer'
-                || postPart === 'started_off_s_answer'
-                || postPart === 'updated_s_answer') return;
-
-            // NOTE: To use, requires ownerKey -> userID Mapping
-            const ownerKey = parseEmail(row[9]);
-            const submitDate = parseDate(row[3]);
-            const postID = row[1];
-            // NOTE: This has to be unique AND deterministic. In other words,
-            // it must uniquely identify this submission given the same input.
-            const submissionID = (Array.isArray(ownerKey) ? ownerKey[0] : ownerKey) + "#" + postID + "_" + stringHash(row[3]);
-
-            const assignmentID = evaluatePostAssignment(row[6], row[5]);
-            const attributes = {
-                content: {
-                    // Used to diff the content to determine if it should be
-                    // considered a late submission or a minor edit.
-                    head: row[6],
-                    body: row[5],
-                    // Used to auto-resolve unassigned assignments.
-                    id: postID,
-                }
-            };
-
-            const submission = addSubmission(db, submissionID, ownerKey, assignmentID, submitDate, attributes);
-        }
-        catch(e)
-        {
-            db.throwError('PARSE', 'Unable to parse submissions - ' + e);
-        }
-    });
-
-    return db;
-}
-
-var ContributionsParser = /*#__PURE__*/Object.freeze({
-    parse: parse$1
-});
-
-/**
- * Create ReviewDatabase based on input file.
- * @param {Database} db The database to write to.
- * @param {String} filepath The path to the file to parse.
- * @param {Object} opts Any additional options.
- */
-async function parse$2(db, config, filepath, opts={})
-{
-    setupDatabase$1(db);
-
-    let first = true;
-    await readCSVFileByRow(filepath, (row) => {
-        // Skip header...
-        if (first) { first = false; return; }
-
-        // 0. Review ID
-        // 1. Review Date
-        // 2. Comments
-        // 3. Review Type
-        // 4. Param[0]
-        // 5. Param[1]
-        // 6. Param[2]
-        // ...
-        try
-        {
-            const reviewID = row[0];
-            const reviewDate = parseDate(row[1]);
-            const comments = row[2];
-            const reviewType = row[3];
-            const params = [];
-            for(let i = 4; i < row.length; ++i)
-            {
-                if (row[i].length <= 0) break;
-                params.push(row[i]);
-            }
-
-            const review = addReview(db, reviewID, reviewDate, comments, reviewType, params);
-        }
-        catch(e)
-        {
-            db.throwError('PARSE', 'Unable to parse reviews - ' + e);
-        }
-    });
-
-    return db;
-}
-
-var ReviewsParser = /*#__PURE__*/Object.freeze({
-    parse: parse$2
-});
-
-/**
- * Create VacationDatabase based on input file.
- * @param {Database} db The database to write to.
- * @param {String} filepath The path to the file to parse.
- * @param {Object} opts Any additional options.
- */
-async function parse$3(db, config, filepath, opts={})
-{
-    setupDatabase$4(db);
-
-    let first = true;
-    await readCSVFileByRow(filepath, (row) => {
-        // Skip header...
-        if (first) { first = false; return; }
-
-        // 0. Vacation ID
-        // 1. User ID
-        // 2. Start Date
-        // 3. End Date
-        // 4. Padding
-        // ...
-        try
-        {
-            const vacationID = row[0];
-            const ownerKey = parseEmail(row[1]);
-            const startDate = parseAmericanDate(row[2]);
-            const endDate = parseAmericanDate(row[3]);
-            const padding = row[4];
-
-            const vacation = addVacation(db, vacationID, ownerKey, startDate, endDate, padding);
-        }
-        catch(e)
-        {
-            db.throwError('PARSE', 'Unable to parse vacations - ' + e);
-        }
-    });
-
-    return db;
-}
-
-var VacationsParser = /*#__PURE__*/Object.freeze({
-    parse: parse$3
-});
-
-function loadParserByType(parserType)
-{
-    switch(parserType)
-    {
-        case 'cohort': return CohortParser;
-        case 'contributions': return ContributionsParser;
-        case 'reviews': return ReviewsParser;
-        case 'vacations': return VacationsParser;
-        default:
-            throw new Error([
-                'Invalid input entry:',
-                '=>',
-                `Cannot find valid parser of type '${parserType}'.`,
-                '<='
-            ]);
-    }
-}
-
-function loadCustomParser(filePath)
-{
-    try
-    {
-        const result = require(filePath);
-
-        // Make sure it is a valid parser file...
-        if (typeof result.parse !== 'function')
-        {
-            throw new Error([
-                'Invalid custom parser file:',
-                '=>',
-                `Missing export for named function 'parse'.`,
-                '<='
-            ]);
-        }
-    }
-    catch(e)
-    {
-        throw new Error([
-            `Unable to import custom parser file:`,
-            '=>',
-            `File: '${filePath}'`, e,
-            '<='
-        ]);
-    }
-}
-
-function createErrorBuffer()
-{
-    return {
-        errors: [],
-        add(header, ...content)
-        {
-            if (content.length > 0)
-            {
-                this.errors.push([header, '=>', ...content, '<=']);
-            }
-            else
-            {
-                this.errors.push(header);
-            }
-        },
-        isEmpty()
-        {
-            return this.errors.length <= 0;
-        },
-        flush(header)
-        {
-            throw new Error([header, '=>', this.errors, '<=']);
-        }
-    };
-}
-
-const PARSERS = new Set();
-
-function registerParser(parser, inputFilePath, parserType, opts)
-{
-    PARSERS.add([parser, inputFilePath, parserType, opts]);
-}
-
-function getParsers()
-{
-    return PARSERS.values();
-}
-
-const fs$2 = require('fs');
-const path$2 = require('path');
-
-function validateInputEntry(config, inputEntry)
-{
-    const ERROR = createErrorBuffer();
-
-    const inputPath = config.inputPath || '.';
-    const inputName = inputEntry.inputName;
-    const inputFilePath = path$2.resolve(inputPath, inputName);
-    const parserType = inputEntry.parser;
-    const customPath = inputEntry.customPath;
-
-    if (!inputName)
-    {
-        ERROR.add('Invalid input entry:', `Missing required property 'inputName'.`);
-    }
-
-    if (!fs$2.existsSync(inputFilePath))
-    {
-        ERROR.add(`Cannot find input file '${inputName}':`, `File does not exist: '${inputFilePath}'.`);
-    }
-
-    if (!parserType && !customPath)
-    {
-        ERROR.add('Invalid input entry:', `Missing one of property 'parser' or 'customPath'.`);
-    }
-
-    if (customPath && !fs$2.existsSync(customPath))
-    {
-        ERROR.add(`Cannot find custom parser file '${path$2.basename(customPath)}':`, `File does not exist: '${customPath}'.`);
-    }
-
-    if (!ERROR.isEmpty())
-    {
-        ERROR.flush('Failed to validate input entry:');
-    }
-}
-
-/** If unable to find entries, an empty array is returned. */
-async function findInputEntries(config)
-{
-    console.log("...Finding input entries...");
-    if (Array.isArray(config.inputs))
-    {
-        const result = config.inputs;
-
-        // Validate input entries...
-        const ERROR = createErrorBuffer();
-        for(const inputEntry of result)
-        {
-            try
-            {
-                validateInputEntry(config, inputEntry);
-            }
-            catch(e)
-            {
-                ERROR.add(e);
-            }
-        }
-
-        if (!ERROR.isEmpty())
-        {
-            ERROR.flush('Failed to resolve input entries from config:');
-        }
-        else
-        {
-            return result;
-        }
-    }
-    else
-    {
-        return [];
-    }
-}
-
-/**
- * Guaranteed to load input entry. Will throw an error if failed.
- * Also assumes that inputEntry is valid.
- */
-async function loadInputEntry(db, config, inputEntry)
-{
-    console.log("...Process input entry...");
-    const inputPath = config.inputPath || '.';
-    const inputName = inputEntry.inputName;
-    const filePath = path$2.resolve(inputPath, inputName);
-    const parserType = inputEntry.parser;
-    const customPath = inputEntry.customPath;
-    const opts = inputEntry.opts || {};
-
-    let Parser;
-
-    const ERROR = createErrorBuffer();
-    try
-    {
-        // customPath will override parserType if defined.
-        if (customPath)
-        {
-            Parser = loadCustomParser(customPath);
-        }
-        else
-        {
-            Parser = loadParserByType(parserType);
-        }
-    }
-    catch(e)
-    {
-        ERROR.add(e);
-    }
-
-    if (!ERROR.isEmpty())
-    {
-        ERROR.flush(`Failed to resolve input entry from config:`);
-    }
-    else
-    {
-        registerParser(Parser, filePath, customPath || parserType, opts);
-    }
-}
-
-async function assign$1(db, name, userID, userSchedule, opts={})
-{
-    assignWeekly(db, userID, name, userSchedule.firstSunday, userSchedule.lastSunday);
-}
-
-var SundayAssignment = /*#__PURE__*/Object.freeze({
-    assign: assign$1
-});
-
-async function assign$2(db, name, userID, userSchedule, opts={})
-{
-    assign(db, userID, name, new Date(userSchedule.lastSunday.getTime()));
-}
-
-var LastAssignment = /*#__PURE__*/Object.freeze({
-    assign: assign$2
-});
-
-async function assign$3(db, name, userID, userSchedule, opts={})
-{
-    assign(db, userID, name, offsetDate(userSchedule.startDate, 7));
-}
-
-var IntroAssignment = /*#__PURE__*/Object.freeze({
-    assign: assign$3
-});
-
-function loadAssignmentByType(assignmentType)
-{
-    switch(assignmentType)
-    {
-        case 'sunday': return SundayAssignment;
-        case 'intro': return IntroAssignment;
-        case 'last': return LastAssignment;
-        default:
-            throw new Error([
-                'Invalid assignment entry:',
-                '=>',
-                `Cannot find valid assignment of type '${assignmentType}'.`,
-                '<='
-            ]);
-    }
-}
-
-function loadCustomAssignment(filePath)
-{
-    try
-    {
-        const result = require(filePath);
-
-        // Make sure it is a valid assignment file...
-        if (typeof result.assign !== 'function')
-        {
-            throw new Error([
-                'Invalid custom assignment file:',
-                '=>',
-                `Missing export for named function 'assign'.`,
-                '<='
-            ]);
-        }
-    }
-    catch(e)
-    {
-        throw new Error([
-            `Unable to import custom assignment file:`,
-            '=>',
-            `File: '${filePath}'`, e,
-            '<='
-        ]);
-    }
-}
-
-const ASSIGNERS = new Map();
-
-function registerAssigner(name, assigner, pattern, opts)
-{
-    ASSIGNERS.set(name, [assigner, pattern, name, opts]);
-}
-
-function getAssigners()
-{
-    return ASSIGNERS.values();
-}
-
-const fs$3 = require('fs');
-const path$3 = require('path');
-
-function validateAssignmentEntry(config, assignmentEntry)
-{
-    const ERROR = createErrorBuffer();
-
-    const assignmentName = assignmentEntry.assignmentName;
-    const patternType = assignmentEntry.pattern;
-    const customPath = assignmentEntry.customPath;
-
-    if (!assignmentName)
-    {
-        ERROR.add('Invalid assignment entry:', `Missing required property 'assignmentName'.`);
-    }
-
-    if (!patternType && !customPath)
-    {
-        ERROR.add('Invalid assignment entry:', `Missing one of property 'pattern' or 'customPath'.`);
-    }
-
-    if (customPath && !fs$3.existsSync(customPath))
-    {
-        ERROR.add(`Cannot find custom assignment file '${path$3.basename(customPath)}':`, `File does not exist: '${customPath}'.`);
-    }
-
-    if (!ERROR.isEmpty())
-    {
-        ERROR.flush('Failed to validate assignment entry:');
-    }
-}
-
-/** If unable to find entries, an empty array is returned. */
-async function findAssignmentEntries(config)
-{
-    console.log("...Finding assignment entries...");
-    if (Array.isArray(config.assignments))
-    {
-        const result = config.assignments;
-
-        // Validate assignment entries...
-        const ERROR = createErrorBuffer();
-        for(const assignmentEntry of result)
-        {
-            try
-            {
-                validateAssignmentEntry(config, assignmentEntry);
-            }
-            catch(e)
-            {
-                ERROR.add(e);
-            }
-        }
-
-        if (!ERROR.isEmpty())
-        {
-            ERROR.flush('Failed to resolve assignment entries from config:');
-        }
-        else
-        {
-            return result;
-        }
-    }
-    else
-    {
-        return [];
-    }
-}
-
-/**
- * Guaranteed to load assignment entry. Will throw an error if failed.
- * Also assumes that assignmentEntry is valid.
- */
-async function loadAssignmentEntry(db, config, assignmentEntry)
-{
-    console.log("...Process assignment entry...");
-    const assignmentName = assignmentEntry.assignmentName;
-    const patternType = assignmentEntry.pattern;
-    const customPath = assignmentEntry.customPath;
-    const opts = assignmentEntry.opts || {};
-
-    let Assignment;
-
-    const ERROR = createErrorBuffer();
-    try
-    {
-        // customPath will override patternType if defined.
-        if (customPath)
-        {
-            Assignment = loadCustomAssignment(customPath);
-        }
-        else
-        {
-            Assignment = loadAssignmentByType(patternType);
-        }
-    }
-    catch(e)
-    {
-        ERROR.add(e);
-    }
-
-    if (!ERROR.isEmpty())
-    {
-        ERROR.flush(`Failed to resolve assignment entry from config:`);
-    }
-    else
-    {
-        registerAssigner(assignmentName, Assignment, customPath || patternType, opts);
-    }
-}
-
-// TODO: this is still hard-coded...
-async function setupDatabase$5(config)
-{
-    const db = createDatabase();
-
-    // HACK: How do people access today's date?
-    let currentDate;
-    if ('currentDate' in config)
-    {
-        currentDate = parseAmericanDate(config.currentDate);
-    }
-    else
-    {
-        currentDate = new Date(Date.now());
-    }
-    db.currentDate = currentDate;
-    
-    // Actually setup the databases...
-    setupDatabase$3(db);
-    setupDatabase$2(db);
-    setupDatabase(db);
-    setupDatabase$1(db);
-    setupDatabase$4(db);
-
-    return db;
-}
-
-/**
- * Clears the database of all data stored from parsers. This does not remove
- * any loaded resources, such as scripts. This is used to restart the
- * database for new reviews or other resolvers. If you want a completely NEW
- * database, just delete it and setup a new one.
- * @param {Database} db The database to clear data from.
- * @param {Object} config The config.
- */
-async function clearDatabase$5(db, config)
-{
-    clearDatabase$3(db);
-    clearDatabase$2(db);
-    clearDatabase(db);
-    clearDatabase$1(db);
-    clearDatabase$4(db);
-    db.clearErrors();
-
-    return db;
-}
-
-// Database setup
-
-/** Guaranteed to succeed. */
-async function createDatabase$1(config)
-{
-    console.log("...Creating database...");
-
-    return await setupDatabase$5(config);
-}
-
-async function prepareDatabaseForInputs(db, config)
-{
-    console.log("...Load database from inputs...");
-    const inputEntries = await findInputEntries(config);
-    for(const inputEntry of inputEntries)
-    {
-        try
-        {
-            await loadInputEntry(db, config, inputEntry);
-        }
-        catch(e)
-        {
-            // TODO: What to output if input file is missing?
-            // TODO: What to output if input file cannot be parsed?
-            // TODO: What to output if custom parser file is missing?
-            // TODO: What to output if custom parser file is invalid?
-            // TODO: What to output if parser type is missing?
-            console.error('Failed to load input entry.', e);
-        }
-    }
-
-    console.log("...Load database from assignments...");
-    const assignmentEntries = await findAssignmentEntries(config);
-    for(const assignmentEntry of assignmentEntries)
-    {
-        try
-        {
-            await loadAssignmentEntry(db, config, assignmentEntry);
-        }
-        catch(e)
-        {
-            // TODO: What to output if assignment type is missing?
-            // TODO: What to output if custom assignment file is missing?
-            // TODO: What to output if custom assignment file is invalid?
-            console.error('Failed to load assignment entry.', e);
-        }
-    }
-}
-
-async function populateDatabaseWithInputs(db, config)
-{
-    const path = require('path');
-
-    // Load input data...
-    for(const parser of getParsers())
-    {
-        const [parserFunction, filePath, pattern, opts] = parser;
-        await parserFunction.parse(db, config, filePath, opts);
-    }
-
-    // Load assignment data...
-    for(const assigner of getAssigners())
-    {
-        const [assignmentFunction, pattern, name, opts] = assigner;
-        console.log(`...Assigning '${path.basename(name)}' with '${path.basename(pattern)}'...`);
-
-        for(const userID of getUsers(db))
-        {
-            const user = getUserByID(db, userID);
-            const schedule = user.schedule;
-            await assignmentFunction.assign(db, name, userID, schedule, opts);
-        }
-    }
-}
-
-async function verifyDatabaseWithClient(db, config)
-{
-    console.log("...Verifying database with client...");
-    return await askWhetherDatabaseIsValidToUse();
-}
-
-// Database validation
-
-/** If unable to find errors, an empty array is returned. */
-async function findDatabaseErrors(db, config)
-{
-    console.log("...Finding database errors...");
-}
-
-async function shouldContinueResolvingErrorsWithClient(db, config, errors)
-{
-    console.log("...Should resolve database errors?");
-}
-
-async function resolveDatabaseErrors(db, config, errors)
-{
-    console.log("...Resolving database errors...");
-}
-
-async function verifyErrorsWithClient(db, config, errors)
-{
-    if (!errors || errors.length <= 0) return true;
-}
-
-async function outputErrorLog(db, config, errors)
-{
-    console.log("...Outputting database errors...");
-}
-
-const path$4 = require('path');
-
-async function output(db, config, outputPath, opts)
-{
-
-    const tableBuilder = new TableBuilder();
-    tableBuilder.addColumn('User ID');
-    tableBuilder.addColumn('Name', (userID) => {
-        return getUserByID(db, userID).name;
-    });
-    tableBuilder.addColumn('Used Slips', (userID) => {
-        return getUserByID(db, userID).attributes.slips.used;
-    });
-    tableBuilder.addColumn('Remaining Slips', (userID) => {
-        return getUserByID(db, userID).attributes.slips.remaining;
-    });
-    tableBuilder.addColumn('Average Slips (Median)', (userID) => {
-        return getUserByID(db, userID).attributes.slips.median;
-    });
-    tableBuilder.addColumn('Max Slips', (userID) => {
-        return getUserByID(db, userID).attributes.slips.max;
-    });
-    tableBuilder.addColumn('Missing Assignments', (userID) => {
-        return getUserByID(db, userID).attributes.progress.missing;
-    });
-    tableBuilder.addColumn('Auto-report', (userID) => {
-        // The auto-report threshold formula
-        let flag = false;
-        // Check the average if maintained from today, would it exceed by the end date.
-        const userAttributes = getUserByID(db, userID).attributes;
-        const averageSlips = userAttributes.slips.mean;
-        const remainingAssignments = userAttributes.progress.missing + userAttributes.progress.unassigned;
-        if (averageSlips * remainingAssignments > userAttributes.slips.max)
-        {
-            flag = true;
-        }
-        // TODO: Check if there are any holes in submissions.
-        // TODO: Check if intro or week 1 is past due date.
-        // ...and the result...
-        if (flag)
-        {
-            return 'NOTICE!';
-        }
-        else
-        {
-            return 'N/A';
-        }
-    });
-
-    // Most recently submitted assignments...
-    const usedAssignments = new Set();
-    for(const userID of getUsers(db))
-    {
-        const assignmentIDs = getAssignmentsByUser(db, userID);
-        for(const assignmentID of assignmentIDs)
-        {
-            if (!usedAssignments.has(assignmentID))
-            {
-                const assignment = getAssignmentByID(db, userID, assignmentID);
-                if (assignment.attributes.status !== '_')
-                {
-                    usedAssignments.add(assignmentID);
-                }
-            }
-        }
-    }
-    const recentAssignments = Array.from(usedAssignments).reverse();
-
-    // Add assignments to table...
-    for(const assignmentID of recentAssignments)
-    {
-        tableBuilder.addColumn(assignmentID + ' Status', (userID) => {
-            const assignment = getAssignmentByID(db, userID, assignmentID);
-            if (!assignment) return '!ERROR';
-            return assignment.attributes.status;
-        });
-        tableBuilder.addColumn(assignmentID + ' Slips', (userID) => {
-            const assignment = getAssignmentByID(db, userID, assignmentID);
-            if (!assignment) return '!ERROR';
-            return assignment.attributes.slipDays;
-        });
-    }
-
-    // Populate the table...
-    for(const userID of getUsers(db))
-    {
-        tableBuilder.addEntry(userID);
-    }
-    
-    const outputTable = tableBuilder.build();
-    writeTableToCSV(outputPath, outputTable);
-}
-
-var InstructorReportOutput = /*#__PURE__*/Object.freeze({
-    output: output
-});
-
-const path$5 = require('path');
-
-/**
-    Name: Bob Ross
-    PID: A12345678
-    Date: August 9, 2019
-    Your weekly student report:
-    Week 0 - Completed
-    Week 1 - Completed (4 slip-day(s) used)
-    Week 2 - Completed (1 slip-day(s) used) - In-Review
-    Week 3 - Missing (9+? slip-day(s) used)
-    Week 4 - Completed
-    Week 5 - Completed
-    Week 6 - Missing (6+? slip-day(s) used)
-
-    Weeks remaining: 2
-    Daily accruing slip-days: -2
-    Remaining slip-days available: 4
-
-    IMPORTANT:
-        Missing assignment for Week 3 and Week 6.
-
-    You must turn in all assignments, even if late. These will continue to accrue slip-days until it is turned in. Based on the number of slip-days available, you have 2 more days until all slip-days are used. To not be deducted points, you must submit the assignments on or before August 11, 2019.
-
-    *In-Review: Significant difference has been found for the submission for the week past the deadline. A review is being conducted to evaluate number slip days used. Until resolved, it will assume the latest submission time is accurate.
- */
-
-function stringifyStatus(status, slipDays = 0)
-{
-    let rateString;
-    if (status === 'N' && slipDays > 0)
-    {
-        rateString = '+?';
-    }
-    else
-    {
-        rateString = '';
-    }
-
-    let slipString;
-    if (slipDays > 0)
-    {
-        slipString = ` (${slipDays}${rateString} slip day(s) used)`;
-    }
-    else
-    {
-        slipString = '';
-    }
-
-    let statusString;
-    switch(status)
-    {
-        case 'Y':
-            statusString = 'Completed';
-            break;
-        case 'N':
-            statusString = 'Missing';
-            break;
-        case '_':
-            statusString = 'Not yet assigned';
-            break;
-        default:
-            statusString = 'Unknown';
-            break;
-    }
-
-    return statusString + slipString;
-}
-
-function generateProgressReport(db, userID)
-{
-    const user = getUserByID(db, userID);
-    const dst = [];
-
-    dst.push('Name: ' + user.name);
-    dst.push('PID: ' + user.attributes.pid);
-    dst.push('Date: ' + db.currentDate.toDateString());
-    dst.push('');
-    dst.push('Your weekly student report:');
-    const assignments = getAssignmentsByUser(db, userID);
-    const inReviewAssignments = [];
-    const missingAssignments = [];
-    let accruedSlips = 0;
-    let slipRate = 0;
-    for(const assignmentID of assignments)
-    {
-        const assignment = getAssignmentByID(db, userID, assignmentID);
-        if (assignment.attributes.status === 'N')
-        {
-            missingAssignments.push(assignment);
-            slipRate += 1;
-        }
-        else if (assignment.attributes.status === '?')
-        {
-            inReviewAssignments.push(assignment);
-        }
-        accruedSlips += assignment.attributes.slipDays;
-        dst.push(assignment.id + ' - ' + stringifyStatus(assignment.attributes.status, assignment.attributes.slipDays));
-    }
-    dst.push('');
-    const schedule = user.schedule;
-    const totalSlipDays = calculateNumberOfSlipDays(schedule);
-    // TODO: The issue with this is that assignments != schedule weeks. There can be more than 1 assigment in a week.
-    // dst.push('Weeks Remaining:' + (schedule.weeks - (assignments.length - missingAssignments.length)));
-    dst.push('Daily accruing slip days:' + slipRate);
-    dst.push('Remaining slip days available:' + (totalSlipDays - accruedSlips));
-    dst.push('');
-
-    if (missingAssignments.length > 0)
-    {
-        dst.push('IMPORTANT:');
-        dst.push('');
-
-        dst.push('Missing assignment for ' + missingAssignments.map((value) => value.id).join(', ') + '.');
-
-        dst.push('');
-        dst.push('You must turn in all assignments, even if late. These will continue to accrue slip-days until it is turned in.');
-
-        // Calculate this based on schedule...
-        /*
-        const remainingDays = 0;
-        const finalDueDate = 0;
-        dst.push(`Based on the number of slip-days available, you have ${remainingDays} more days until all slip-days are used. To not be deducted points, you must submit the assignments on or before ${finalDueDate}.`);
-        */
-
-        dst.push('');
-    }
-
-    if (inReviewAssignments.length > 0)
-    {
-        dst.push('*In-Review: Significant difference has been found for the submission for the week past the deadline. A review is being conducted to evaluate number slip days used. Until resolved, it will assume the latest submission time is accurate.');
-    }
-
-    dst.push('');
-
-    return "\"" + dst.join('\n') + "\"";
-}
-
-function generateNoticeReport(db, userID)
-{
-    return 'N/A';
-}
-
-async function output$1(db, config, outputPath, opts)
-{
-    const tableBuilder = new TableBuilder();
-    tableBuilder.addColumn('User ID');
-    tableBuilder.addColumn('User Name', (userID) => {
-        return getUserByID(db, userID).name;
-    });
-    tableBuilder.addColumn('Progress Report', (userID) => {
-        return generateProgressReport(db, userID);
-    });
-    tableBuilder.addColumn('Notice Report', (userID) => {
-        return generateNoticeReport();
-    });
-
-    // Populate the table...
-    for(const userID of getUsers(db))
-    {
-        tableBuilder.addEntry(userID);
-    }
-    
-    const outputTable = tableBuilder.build();
-    writeTableToCSV(outputPath, outputTable);
-}
-
-var StudentReportOutput = /*#__PURE__*/Object.freeze({
-    output: output$1
-});
-
-const path$6 = require('path');
-
-async function output$2(db, config, outputPath, opts)
-{
-    // Output all database logs...
-    outputLog$3(db, outputPath);
-    outputLog$2(db, outputPath);
-    outputLog(db, outputPath);
-    outputLog$1(db, outputPath);
-    outputLog$4(db, outputPath);
-
-    // Output computed config file...
-    writeToFile(path$6.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
-
-    // Output error list...
-    let output;
-    if (db.getErrors().length <= 0)
-    {
-        output = "HOORAY! No errors!";
-    }
-    else
-    {
-        let errors = [];
-        for(const error of db.getErrors())
-        {
-            errors.push(`${error.id}: [${error.tag}] ${error.message}\n=== SOLUTIONS: ===\n => ${error.options.join('\n => ')}\n=== MOREINFO: ===\n${error.more.join('\n')}\n`);
-        }
-        output = "It's okay. We'll get through this.\n\n" + errors.join('\n');
-    }
-    writeToFile(path$6.resolve(outputPath, 'errors.txt'), output);
-}
-
-var DebugReportOutput = /*#__PURE__*/Object.freeze({
-    output: output$2
-});
-
-const path$7 = require('path');
-
-function findOutputEntries(config)
-{
-    console.log("...Finding output entries...");
-    if (Array.isArray(config.outputs))
-    {
-        return config.outputs;
-    }
-    else
-    {
-        return [];
-    }
-}
-
-async function processOutputEntry(db, config, outputEntry)
-{
-    console.log("...Process output entry...");
-    const outputPath = config.outputPath;
-    const outputName = outputEntry.outputName;
-    const filePath = path$7.resolve(outputPath, outputName);
-    const formatType = outputEntry.format;
-    const customFormatPath = outputEntry.customFormatPath;
-    const opts = outputEntry.opts;
-
-    let Format;
-
-    // If customFormatPath is defined, ignore formatType.
-    if (customFormatPath)
-    {
-        try
-        {
-            Format = require(customFormatPath);
-            if (typeof Format.output !== 'function')
-            {
-                throw new Error(`Invalid custom format '${customFormatPath}' - must export named function 'output'.`);
-            }
-        }
-        catch(e)
-        {
-            throw new Error(`Cannot load custom format from '${customFormatPath}'.`, e);
-        }
-    }
-    // No customFormatPath, so use formatType.
-    else
-    {
-        switch(formatType)
-        {
-            case 'instructor':
-                Format = InstructorReportOutput;
-                break;
-            case 'student':
-                Format = StudentReportOutput;
-                break;
-            case 'debug':
-                Format = DebugReportOutput;
-            default:
-                throw new Error(`Cannot find valid output of type '${formatType}'.`);
-        }
-    }
-
-    await Format.output(db, config, filePath, opts);
-}
-
-async function outputDebugLog(db, config)
-{
-    if (config.debug)
-    {
-        await output$2(db, config, config.outputPath);
-    }
-}
-
-/**
- * Guarantees a config will be returned. It will throw an error if unable to.
- * @param {String} directory The root project directory.
- * @returns {Config} The config.
- */
-async function resolveConfig(directory)
-{
-    console.log("Resolving config...");
-
-    // Try to load the provided config file in the directory...
-    let config;
-    try
-    {
-        config = await loadConfigFile(directory);
-    }
-    catch(e)
-    {
-        // Try other fallback config files... maybe ask for one?
-        let configFilePath;
-        while (configFilePath = await requestConfigFile())
-        {
-            try
-            {
-                // Found config file. Load it up.
-                config = await loadConfigFile(configFilePath);
-                if (config) break;
-            }
-            catch(e)
-            {
-                // Failed to load config. Try again.
-                console.error('Failed to load config.', e);
-            }
-        }
-    
-        // None found. Use the default instead.
-        if (!config) config = await loadDefaultConfig();
-    }
-
-    if (!config)
-    {
-        // This should never happen...
-        throw new Error('Could not resolve a config file for program. Stopping program...');
-    }
-    return config;
-}
-
-/**
- * Guarantees a database will be returned. It will throw an error if unable to.
- * @param {Config} config The config.
- * @returns {Database} The database.
- */
-async function resolveDatabase(config)
-{
-    console.log("Resolving database...");
-
-    // Creates an empty database (with no structure at all)...
-    const db = await createDatabase$1(config);
-
-    // Try to prepare all database entries from config...
-    await prepareDatabaseForInputs(db, config);
-
-    // Try to load all database entries from config...
-    await populateDatabaseWithInputs(db, config);
-
-    // Check with the user if it is okay to continue, based on some data stats...
-    if (!await verifyDatabaseWithClient())
-    {
-        throw new Error('Could not resolve database for program. Please update the config to match your specifications, then try again. Stopping program...');
-    }
-    return db;
-}
-
-/**
- * Guarantees to prepare the database for output. Otherwise, it will throw an error.
- * @param {Database} db The database.
- * @param {Config} config The config.
- */
-async function validateDatabase(db, config)
-{
-    console.log("Validating database...");
-
-    // Apply reviews...
-    let errors;
-    while(errors = await findDatabaseErrors())
-    {
-        // Check whether the client wants to continue resolving errors... cause there could be a lot.
-        if (await shouldContinueResolvingErrorsWithClient())
-        {
-            await resolveDatabaseErrors();
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    // Whether to ignore errors and continue as normal...
-    if (!await verifyErrorsWithClient(db, config, errors))
-    {
-        await outputErrorLog();
-        
-        // IT'S AN ERROR! RUN AWAY!!!
-        throw new Error('Could not validate database. Stopping program...');
-    }
-
-    // All is well.
-}
-
-/**
- * Guarantees no changes will be made to the database or the config.
- * @param {Database} db The database.
- * @param {Config} config The config.
- */
-async function generateOutput(db, config)
-{
-    console.log("Generating output...");
-    
-    const outputEntries = findOutputEntries(config);
-
-    for(const outputEntry of outputEntries)
-    {
-        try
-        {
-            await processOutputEntry(db, config, outputEntry);
-        }
-        catch(e)
-        {
-            console.error('Failed to process output entry.', e);
-        }
-    }
 }
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -48821,6 +47366,1471 @@ async function askChoose(message, ...options)
     return answer.value;
 }
 
+async function askForConfigFilePath(directory)
+{
+    // TODO: Let the client specify another config file...
+    return null;
+}
+
+async function askWhetherDatabaseIsValidToUse(db, config)
+{
+    // TODO: Let the client verify the database stats...
+    return true;
+}
+
+async function askWhetherToSaveNewReviews(db, config, reviews)
+{
+    // Let the client decide whether to save it...
+    if (reviews.length > 0)
+    {
+        return await askYesNo("Do you want to save the new reviews?");
+    }
+    return false;
+}
+
+/** If unable to load config file, null is returned. */
+async function loadConfigFile(filepath)
+{
+    console.log("...Load config...");
+    return await loadConfig(filepath);
+}
+
+/** If unable to request config file, null is returned. */
+async function requestConfigFile(directory)
+{
+    console.log("...Request config...");
+    return await askForConfigFilePath();
+}
+
+/** If unable to load default config file, null is returned. */
+async function loadDefaultConfig(directory)
+{
+    console.log("...Load default config...");
+    return {
+        scheme: 'piazza',
+        inputPath: '.',
+        outputPath: './out/',
+        inputs: [],
+        outputs: [],
+    };
+}
+
+/**
+ * Create UserDatabase based on input file.
+ * @param {Database} db The database to write to.
+ * @param {Config} config The program config.
+ * @param {String} filepath The path to the file to parse.
+ * @param {Object} opts Any additional options.
+ */
+async function parse(db, config, filepath, opts={ threshold: 2 })
+{
+    setupDatabase$3(db);
+
+    let first = true;
+    await readCSVFileByRow(filepath, (row) => {
+        // Skip header...
+        if (first) { first = false; return; }
+
+        // 0. Timestamp
+        // 1. Email Address (not sure what this is for)
+        // 2. Last name
+        // 3. First name
+        // 4. Display name
+        // 5. PID
+        // 6. Email
+        // ...
+        // 11. Start date of internship
+        // 12. Anticipated end date of internship
+        // ...
+        // 24. EASy approval date
+        // 25. Admin notes
+        // 28. Max slip days allowed (giving 4 instead of 3 per week to account for time zone)
+        // ...
+        try
+        {
+            const userID = parseEmail(row[6]);
+            const ownerKey = parseEmail(row[6], row[1]);
+            const userName = parseName(`${row[3]} ${row[2]}`);
+            const pid = row[5].trim().toUpperCase();
+            const startDate = parseAmericanDate(row[11]);
+            const endDate = parseAmericanDate(row[12]);
+            const user = addUser(db, userID, ownerKey, userName, startDate, endDate, opts, { pid });
+        }
+        catch(e)
+        {
+            db.throwError('PARSE', 'Unable to parse users - ' + e);
+        }
+    });
+
+    return db;
+}
+
+var CohortParser = /*#__PURE__*/Object.freeze({
+    parse: parse
+});
+
+function evaluatePostAssignment(headerContent, bodyContent)
+{
+    // Intro Assignment
+    {
+        if (/intro/i.test(headerContent))
+        {
+            return 'intro';
+        }
+    }
+    // Weekly Assignment
+    {
+        const pattern = /week ?([0-9]+)/i;
+        const result = pattern.exec(headerContent);
+        if (result && result.length > 0)
+        {
+            if (result[1] == '0')
+            {
+                return 'intro';
+            }
+            else
+            {
+                return 'week[' + Number.parseInt(result[1]) + ']';
+            }
+        }
+    }
+    // Last Assignment
+    {
+        if (/last/i.test(headerContent))
+        {
+            return 'last';
+        }
+    }
+    
+    return 'null';
+}
+
+/*
+How to resolve reports?
+
+If the formula succeeds for the user, then generate a report for the user.
+*/
+
+/*
+How to resolve vacations?
+
+Result:
+- Any submission already reviewed to be ON-HOLD due to vacation should be SHOWN each run.
+- All later due dates should shift (if able) by the vacation length.
+- Vacations can be indefinite.
+- There can be multiple vacations.
+
+Solution:
+That means that vacations must be taken into account when generating due dates for an assignment.
+And since assignments could always be due on a Sunday, per month basis, or any other restriction, it
+would be best to allow assignments to handle vacations when generating the shifted due dates, instead
+of altering post generation.
+This also means that if a due date is shifted due to vacations, it should be marked as such.
+
+Vacations should therefore ALWAYS have a start date and an end date (tentative). Even if indefinite, just put some large value.
+Assignments, when generating schedules, should know about user vacations.
+*/
+
+/*
+How to resolve assignments?
+
+We must know:
+- User vacations
+- Assignment deadlines
+- Assignment resolvers
+- Submission date
+- Submission content
+- Current time
+
+Result:
+- We must be able to find the user's most recent submission for this assignment.
+    - If the user does not have a submission for the assignment, then it should be in-complete.
+    - Otherwise, it should be as expected.
+- We must be able to check if the user's submission for the assignment is overdue.
+    - We must therefore know the assignment due date for the user.
+        - Due to vacations, this can factor into the user's deadline schedule.
+- We must be able to assign submissions to the assignment for each user.
+    - Since submission are just data, assignments must be able to determine itself by submission title and content.
+
+Solution:
+Assignment must have a schedule generator (that knows about vacations).
+
+Should the assignment be responsible for resolving submission assignment?
+- If assignments resolve it, submissions must save content for the assignment resolver.
+- If parsers resolve it, submissions can be dependent on things other than content.
+*/
+
+/*
+How to resolve submissions? Late and early submissions?
+
+What do we want:
+- The most recent submission. If the most recent is under review, we must save the base submission.
+
+CAUTION:
+- We do NOT process only the two most recent submissions because this can be a way to cheat the system.
+By making MANY, but SMALL changes to the post, the program would never recognize the eventual divergence
+from the base submission. It would think all the changes are too small to be relevant, but over many posts
+these changes can add up. Therefore, the solution is to ONLY compare the most recent VALID solution and
+the most recent solution. This also means that edited submissions that have gained slip days can only be
+reviewed to remove ALL slip days, and therefore becomes valid, but not decrease the number of slip days.
+
+What we must know:
+- Submission date
+- Submission content.
+- The submission assignment.
+- All submissions for the assignment.
+- The assignment deadline.
+
+Result:
+- We must find the closest submission to the deadline, with priority to earlier submissions.
+    - If no submissions exist, leave it blank.
+    - If only late submissions exist, use the earliest one as the base.
+    - If only early submissions exist, use the latest as the base.
+    - If there are some of both, use the closest submission before the deadline as the base.
+- Then use the most recent submission after as the target.
+- Then, if the target and base are not the same, calculate the difference error from the base submission.
+    - If the error is greater than a THRESHOLD, then flag for review.
+    - Otherwise, use base as the MOST_RECENT_SUBMISSION.
+*/
+
+/**
+ * Create SubmissionDatabase based on input file.
+ * @param {Database} db The database to write to.
+ * @param {Config} config The program config.
+ * @param {String} filepath The path to the file to parse.
+ * @param {Object} opts Any additional options.
+ */
+async function parse$1(db, config, filepath, opts={})
+{
+    setupDatabase$2(db);
+
+    let first = true;
+    await readCSVFileByRow(filepath, (row) => {
+        // Skip header...
+        if (first) { first = false; return; }
+
+        // 0. Anonymous
+        // 1. Post Number
+        // 2. Folders
+        // 3. Created At
+        // 4. Submission
+        // 5. Submission HTML Removed
+        // 6. Subject
+        // 7. Part of Post
+        // 8. Name
+        // 9. Email
+        // 10. Endorsed by Instructor
+        // ... CUSTOM DATA BELOW ...
+        // 11. UCSD Email
+        // 12. Start date
+        // 13. Week
+        // 14. Base Sunday
+        // 15. Deadline
+        // 16. Slip days used
+        try
+        {
+            // Ignore follow-ups...
+            const postPart = row[7];
+            if (postPart === 'followup'
+                || postPart === 'reply_to_followup'
+                || postPart === 'started_off_i_answer'
+                || postPart === 'updated_i_answer'
+                || postPart === 'started_off_s_answer'
+                || postPart === 'updated_s_answer') return;
+
+            // NOTE: To use, requires ownerKey -> userID Mapping
+            const ownerKey = parseEmail(row[9]);
+            const submitDate = parseDate(row[3]);
+            const postID = row[1];
+            // NOTE: This has to be unique AND deterministic. In other words,
+            // it must uniquely identify this submission given the same input.
+            const submissionID = (Array.isArray(ownerKey) ? ownerKey[0] : ownerKey) + "#" + postID + "_" + stringHash(row[3]);
+
+            const assignmentID = evaluatePostAssignment(row[6], row[5]);
+            const attributes = {
+                content: {
+                    // Used to diff the content to determine if it should be
+                    // considered a late submission or a minor edit.
+                    head: row[6],
+                    body: row[5],
+                    // Used to auto-resolve unassigned assignments.
+                    id: postID,
+                }
+            };
+
+            const submission = addSubmission(db, submissionID, ownerKey, assignmentID, submitDate, attributes);
+        }
+        catch(e)
+        {
+            db.throwError('PARSE', 'Unable to parse submissions - ' + e);
+        }
+    });
+
+    return db;
+}
+
+var ContributionsParser = /*#__PURE__*/Object.freeze({
+    parse: parse$1
+});
+
+/**
+ * Create ReviewDatabase based on input file.
+ * @param {Database} db The database to write to.
+ * @param {String} filepath The path to the file to parse.
+ * @param {Object} opts Any additional options.
+ */
+async function parse$2(db, config, filepath, opts={})
+{
+    setupDatabase$1(db);
+
+    let first = true;
+    await readCSVFileByRow(filepath, (row) => {
+        // Skip header...
+        if (first) { first = false; return; }
+
+        // 0. Review ID
+        // 1. Review Date
+        // 2. Comments
+        // 3. Review Type
+        // 4. Param[0]
+        // 5. Param[1]
+        // 6. Param[2]
+        // ...
+        try
+        {
+            const reviewID = row[0];
+            const reviewDate = parseDate(row[1]);
+            const comments = row[2];
+            const reviewType = row[3];
+            const params = [];
+            for(let i = 4; i < row.length; ++i)
+            {
+                if (row[i].length <= 0) break;
+                params.push(row[i]);
+            }
+
+            const review = addReview(db, reviewID, reviewDate, comments, reviewType, params);
+        }
+        catch(e)
+        {
+            db.throwError('PARSE', 'Unable to parse reviews - ' + e);
+        }
+    });
+
+    return db;
+}
+
+var ReviewsParser = /*#__PURE__*/Object.freeze({
+    parse: parse$2
+});
+
+/**
+ * Create VacationDatabase based on input file.
+ * @param {Database} db The database to write to.
+ * @param {String} filepath The path to the file to parse.
+ * @param {Object} opts Any additional options.
+ */
+async function parse$3(db, config, filepath, opts={})
+{
+    setupDatabase$4(db);
+
+    let first = true;
+    await readCSVFileByRow(filepath, (row) => {
+        // Skip header...
+        if (first) { first = false; return; }
+
+        // 0. Vacation ID
+        // 1. User ID
+        // 2. Start Date
+        // 3. End Date
+        // 4. Padding
+        // ...
+        try
+        {
+            const vacationID = row[0];
+            const ownerKey = parseEmail(row[1]);
+            const startDate = parseAmericanDate(row[2]);
+            const endDate = parseAmericanDate(row[3]);
+            const padding = row[4];
+
+            const vacation = addVacation(db, vacationID, ownerKey, startDate, endDate, padding);
+        }
+        catch(e)
+        {
+            db.throwError('PARSE', 'Unable to parse vacations - ' + e);
+        }
+    });
+
+    return db;
+}
+
+var VacationsParser = /*#__PURE__*/Object.freeze({
+    parse: parse$3
+});
+
+function loadParserByType(parserType)
+{
+    switch(parserType)
+    {
+        case 'cohort': return CohortParser;
+        case 'contributions': return ContributionsParser;
+        case 'reviews': return ReviewsParser;
+        case 'vacations': return VacationsParser;
+        default:
+            throw new Error([
+                'Invalid input entry:',
+                '=>',
+                `Cannot find valid parser of type '${parserType}'.`,
+                '<='
+            ]);
+    }
+}
+
+function loadCustomParser(filePath)
+{
+    try
+    {
+        const result = require(filePath);
+
+        // Make sure it is a valid parser file...
+        if (typeof result.parse !== 'function')
+        {
+            throw new Error([
+                'Invalid custom parser file:',
+                '=>',
+                `Missing export for named function 'parse'.`,
+                '<='
+            ]);
+        }
+    }
+    catch(e)
+    {
+        throw new Error([
+            `Unable to import custom parser file:`,
+            '=>',
+            `File: '${filePath}'`, e,
+            '<='
+        ]);
+    }
+}
+
+function createErrorBuffer()
+{
+    return {
+        errors: [],
+        add(header, ...content)
+        {
+            if (content.length > 0)
+            {
+                this.errors.push([header, '=>', ...content, '<=']);
+            }
+            else
+            {
+                this.errors.push(header);
+            }
+        },
+        isEmpty()
+        {
+            return this.errors.length <= 0;
+        },
+        flush(header)
+        {
+            throw new Error([header, '=>', this.errors, '<=']);
+        }
+    };
+}
+
+const PARSERS = new Set();
+
+function registerParser(parser, inputFilePath, parserType, opts)
+{
+    PARSERS.add([parser, inputFilePath, parserType, opts]);
+}
+
+function getParsers()
+{
+    return PARSERS.values();
+}
+
+const fs$2 = require('fs');
+const path$2 = require('path');
+
+function validateInputEntry(config, inputEntry)
+{
+    const ERROR = createErrorBuffer();
+
+    const inputPath = config.inputPath || '.';
+    const inputName = inputEntry.inputName;
+    const inputFilePath = path$2.resolve(inputPath, inputName);
+    const parserType = inputEntry.parser;
+    const customPath = inputEntry.customPath;
+
+    if (!inputName)
+    {
+        ERROR.add('Invalid input entry:', `Missing required property 'inputName'.`);
+    }
+
+    if (!fs$2.existsSync(inputFilePath))
+    {
+        ERROR.add(`Cannot find input file '${inputName}':`, `File does not exist: '${inputFilePath}'.`);
+    }
+
+    if (!parserType && !customPath)
+    {
+        ERROR.add('Invalid input entry:', `Missing one of property 'parser' or 'customPath'.`);
+    }
+
+    if (customPath && !fs$2.existsSync(customPath))
+    {
+        ERROR.add(`Cannot find custom parser file '${path$2.basename(customPath)}':`, `File does not exist: '${customPath}'.`);
+    }
+
+    if (!ERROR.isEmpty())
+    {
+        ERROR.flush('Failed to validate input entry:');
+    }
+}
+
+/** If unable to find entries, an empty array is returned. */
+async function findInputEntries(config)
+{
+    console.log("...Finding input entries...");
+    if (Array.isArray(config.inputs))
+    {
+        const result = config.inputs;
+
+        // Validate input entries...
+        const ERROR = createErrorBuffer();
+        for(const inputEntry of result)
+        {
+            try
+            {
+                validateInputEntry(config, inputEntry);
+            }
+            catch(e)
+            {
+                ERROR.add(e);
+            }
+        }
+
+        if (!ERROR.isEmpty())
+        {
+            ERROR.flush('Failed to resolve input entries from config:');
+        }
+        else
+        {
+            return result;
+        }
+    }
+    else
+    {
+        return [];
+    }
+}
+
+/**
+ * Guaranteed to load input entry. Will throw an error if failed.
+ * Also assumes that inputEntry is valid.
+ */
+async function loadInputEntry(db, config, inputEntry)
+{
+    console.log("...Process input entry...");
+    const inputPath = config.inputPath || '.';
+    const inputName = inputEntry.inputName;
+    const filePath = path$2.resolve(inputPath, inputName);
+    const parserType = inputEntry.parser;
+    const customPath = inputEntry.customPath;
+    const opts = inputEntry.opts || {};
+
+    let Parser;
+
+    const ERROR = createErrorBuffer();
+    try
+    {
+        // customPath will override parserType if defined.
+        if (customPath)
+        {
+            Parser = loadCustomParser(customPath);
+        }
+        else
+        {
+            Parser = loadParserByType(parserType);
+        }
+    }
+    catch(e)
+    {
+        ERROR.add(e);
+    }
+
+    if (!ERROR.isEmpty())
+    {
+        ERROR.flush(`Failed to resolve input entry from config:`);
+    }
+    else
+    {
+        registerParser(Parser, filePath, customPath || parserType, opts);
+    }
+}
+
+async function assign$1(db, name, userID, userSchedule, opts={})
+{
+    assignWeekly(db, userID, name, userSchedule.firstSunday, userSchedule.lastSunday);
+}
+
+var SundayAssignment = /*#__PURE__*/Object.freeze({
+    assign: assign$1
+});
+
+async function assign$2(db, name, userID, userSchedule, opts={})
+{
+    assign(db, userID, name, new Date(userSchedule.lastSunday.getTime()));
+}
+
+var LastAssignment = /*#__PURE__*/Object.freeze({
+    assign: assign$2
+});
+
+async function assign$3(db, name, userID, userSchedule, opts={})
+{
+    assign(db, userID, name, offsetDate(userSchedule.startDate, 7));
+}
+
+var IntroAssignment = /*#__PURE__*/Object.freeze({
+    assign: assign$3
+});
+
+function loadAssignmentByType(assignmentType)
+{
+    switch(assignmentType)
+    {
+        case 'sunday': return SundayAssignment;
+        case 'intro': return IntroAssignment;
+        case 'last': return LastAssignment;
+        default:
+            throw new Error([
+                'Invalid assignment entry:',
+                '=>',
+                `Cannot find valid assignment of type '${assignmentType}'.`,
+                '<='
+            ]);
+    }
+}
+
+function loadCustomAssignment(filePath)
+{
+    try
+    {
+        const result = require(filePath);
+
+        // Make sure it is a valid assignment file...
+        if (typeof result.assign !== 'function')
+        {
+            throw new Error([
+                'Invalid custom assignment file:',
+                '=>',
+                `Missing export for named function 'assign'.`,
+                '<='
+            ]);
+        }
+    }
+    catch(e)
+    {
+        throw new Error([
+            `Unable to import custom assignment file:`,
+            '=>',
+            `File: '${filePath}'`, e,
+            '<='
+        ]);
+    }
+}
+
+const ASSIGNERS = new Map();
+
+function registerAssigner(name, assigner, pattern, opts)
+{
+    ASSIGNERS.set(name, [assigner, pattern, name, opts]);
+}
+
+function getAssigners()
+{
+    return ASSIGNERS.values();
+}
+
+const fs$3 = require('fs');
+const path$3 = require('path');
+
+function validateAssignmentEntry(config, assignmentEntry)
+{
+    const ERROR = createErrorBuffer();
+
+    const assignmentName = assignmentEntry.assignmentName;
+    const patternType = assignmentEntry.pattern;
+    const customPath = assignmentEntry.customPath;
+
+    if (!assignmentName)
+    {
+        ERROR.add('Invalid assignment entry:', `Missing required property 'assignmentName'.`);
+    }
+
+    if (!patternType && !customPath)
+    {
+        ERROR.add('Invalid assignment entry:', `Missing one of property 'pattern' or 'customPath'.`);
+    }
+
+    if (customPath && !fs$3.existsSync(customPath))
+    {
+        ERROR.add(`Cannot find custom assignment file '${path$3.basename(customPath)}':`, `File does not exist: '${customPath}'.`);
+    }
+
+    if (!ERROR.isEmpty())
+    {
+        ERROR.flush('Failed to validate assignment entry:');
+    }
+}
+
+/** If unable to find entries, an empty array is returned. */
+async function findAssignmentEntries(config)
+{
+    console.log("...Finding assignment entries...");
+    if (Array.isArray(config.assignments))
+    {
+        const result = config.assignments;
+
+        // Validate assignment entries...
+        const ERROR = createErrorBuffer();
+        for(const assignmentEntry of result)
+        {
+            try
+            {
+                validateAssignmentEntry(config, assignmentEntry);
+            }
+            catch(e)
+            {
+                ERROR.add(e);
+            }
+        }
+
+        if (!ERROR.isEmpty())
+        {
+            ERROR.flush('Failed to resolve assignment entries from config:');
+        }
+        else
+        {
+            return result;
+        }
+    }
+    else
+    {
+        return [];
+    }
+}
+
+/**
+ * Guaranteed to load assignment entry. Will throw an error if failed.
+ * Also assumes that assignmentEntry is valid.
+ */
+async function loadAssignmentEntry(db, config, assignmentEntry)
+{
+    console.log("...Process assignment entry...");
+    const assignmentName = assignmentEntry.assignmentName;
+    const patternType = assignmentEntry.pattern;
+    const customPath = assignmentEntry.customPath;
+    const opts = assignmentEntry.opts || {};
+
+    let Assignment;
+
+    const ERROR = createErrorBuffer();
+    try
+    {
+        // customPath will override patternType if defined.
+        if (customPath)
+        {
+            Assignment = loadCustomAssignment(customPath);
+        }
+        else
+        {
+            Assignment = loadAssignmentByType(patternType);
+        }
+    }
+    catch(e)
+    {
+        ERROR.add(e);
+    }
+
+    if (!ERROR.isEmpty())
+    {
+        ERROR.flush(`Failed to resolve assignment entry from config:`);
+    }
+    else
+    {
+        registerAssigner(assignmentName, Assignment, customPath || patternType, opts);
+    }
+}
+
+// TODO: this is still hard-coded...
+async function setupDatabase$5(config)
+{
+    const db = createDatabase();
+
+    // HACK: How do people access today's date?
+    let currentDate;
+    if ('currentDate' in config)
+    {
+        currentDate = parseAmericanDate(config.currentDate);
+    }
+    else
+    {
+        currentDate = new Date(Date.now());
+    }
+    db.currentDate = currentDate;
+    
+    // Actually setup the databases...
+    setupDatabase$3(db);
+    setupDatabase$2(db);
+    setupDatabase(db);
+    setupDatabase$1(db);
+    setupDatabase$4(db);
+
+    return db;
+}
+
+/**
+ * Clears the database of all data stored from parsers. This does not remove
+ * any loaded resources, such as scripts. This is used to restart the
+ * database for new reviews or other resolvers. If you want a completely NEW
+ * database, just delete it and setup a new one.
+ * @param {Database} db The database to clear data from.
+ * @param {Object} config The config.
+ */
+async function clearDatabase$5(db, config)
+{
+    clearDatabase$3(db);
+    clearDatabase$2(db);
+    clearDatabase(db);
+    clearDatabase$1(db);
+    clearDatabase$4(db);
+    db.clearErrors();
+
+    return db;
+}
+
+// Database setup
+
+/** Guaranteed to succeed. */
+async function createDatabase$1(config)
+{
+    console.log("...Creating database...");
+
+    return await setupDatabase$5(config);
+}
+
+async function prepareDatabaseForInputs(db, config)
+{
+    console.log("...Load database from inputs...");
+    const inputEntries = await findInputEntries(config);
+    for(const inputEntry of inputEntries)
+    {
+        try
+        {
+            await loadInputEntry(db, config, inputEntry);
+        }
+        catch(e)
+        {
+            // TODO: What to output if input file is missing?
+            // TODO: What to output if input file cannot be parsed?
+            // TODO: What to output if custom parser file is missing?
+            // TODO: What to output if custom parser file is invalid?
+            // TODO: What to output if parser type is missing?
+            console.error('Failed to load input entry.', e);
+        }
+    }
+
+    console.log("...Load database from assignments...");
+    const assignmentEntries = await findAssignmentEntries(config);
+    for(const assignmentEntry of assignmentEntries)
+    {
+        try
+        {
+            await loadAssignmentEntry(db, config, assignmentEntry);
+        }
+        catch(e)
+        {
+            // TODO: What to output if assignment type is missing?
+            // TODO: What to output if custom assignment file is missing?
+            // TODO: What to output if custom assignment file is invalid?
+            console.error('Failed to load assignment entry.', e);
+        }
+    }
+}
+
+async function populateDatabaseWithInputs(db, config)
+{
+    const path = require('path');
+
+    // Load input data...
+    for(const parser of getParsers())
+    {
+        const [parserFunction, filePath, pattern, opts] = parser;
+        await parserFunction.parse(db, config, filePath, opts);
+    }
+
+    // Load assignment data...
+    for(const assigner of getAssigners())
+    {
+        const [assignmentFunction, pattern, name, opts] = assigner;
+        console.log(`...Assigning '${path.basename(name)}' with '${path.basename(pattern)}'...`);
+
+        for(const userID of getUsers(db))
+        {
+            const user = getUserByID(db, userID);
+            const schedule = user.schedule;
+            await assignmentFunction.assign(db, name, userID, schedule, opts);
+        }
+    }
+}
+
+async function verifyDatabaseWithClient(db, config)
+{
+    console.log("...Verifying database with client...");
+    return await askWhetherDatabaseIsValidToUse();
+}
+
+// Database validation
+
+/** If unable to find errors, an empty array is returned. */
+async function findDatabaseErrors(db, config)
+{
+    console.log("...Finding database errors...");
+}
+
+async function shouldContinueResolvingErrorsWithClient(db, config, errors)
+{
+    console.log("...Should resolve database errors?");
+}
+
+async function resolveDatabaseErrors(db, config, errors)
+{
+    console.log("...Resolving database errors...");
+}
+
+async function verifyErrorsWithClient(db, config, errors)
+{
+    if (!errors || errors.length <= 0) return true;
+}
+
+async function outputErrorLog(db, config, errors)
+{
+    console.log("...Outputting database errors...");
+}
+
+const path$4 = require('path');
+
+async function output(db, config, outputPath, opts)
+{
+
+    const tableBuilder = new TableBuilder();
+    tableBuilder.addColumn('User ID');
+    tableBuilder.addColumn('Name', (userID) => {
+        return getUserByID(db, userID).name;
+    });
+    tableBuilder.addColumn('Used Slips', (userID) => {
+        return getUserByID(db, userID).attributes.slips.used;
+    });
+    tableBuilder.addColumn('Remaining Slips', (userID) => {
+        return getUserByID(db, userID).attributes.slips.remaining;
+    });
+    tableBuilder.addColumn('Average Slips (Median)', (userID) => {
+        return getUserByID(db, userID).attributes.slips.median;
+    });
+    tableBuilder.addColumn('Max Slips', (userID) => {
+        return getUserByID(db, userID).attributes.slips.max;
+    });
+    tableBuilder.addColumn('Missing Assignments', (userID) => {
+        return getUserByID(db, userID).attributes.progress.missing;
+    });
+    tableBuilder.addColumn('Auto-report', (userID) => {
+        // The auto-report threshold formula
+        let flag = false;
+        // Check the average if maintained from today, would it exceed by the end date.
+        const userAttributes = getUserByID(db, userID).attributes;
+        const averageSlips = userAttributes.slips.mean;
+        const remainingAssignments = userAttributes.progress.missing + userAttributes.progress.unassigned;
+        if (averageSlips * remainingAssignments > userAttributes.slips.max)
+        {
+            flag = true;
+        }
+        // TODO: Check if there are any holes in submissions.
+        // TODO: Check if intro or week 1 is past due date.
+        // ...and the result...
+        if (flag)
+        {
+            return 'NOTICE!';
+        }
+        else
+        {
+            return 'N/A';
+        }
+    });
+
+    // Most recently submitted assignments...
+    const usedAssignments = new Set();
+    for(const userID of getUsers(db))
+    {
+        const assignmentIDs = getAssignmentsByUser(db, userID);
+        for(const assignmentID of assignmentIDs)
+        {
+            if (!usedAssignments.has(assignmentID))
+            {
+                const assignment = getAssignmentByID(db, userID, assignmentID);
+                if (assignment.attributes.status !== '_')
+                {
+                    usedAssignments.add(assignmentID);
+                }
+            }
+        }
+    }
+    const recentAssignments = Array.from(usedAssignments).reverse();
+
+    // Add assignments to table...
+    for(const assignmentID of recentAssignments)
+    {
+        tableBuilder.addColumn(assignmentID + ' Status', (userID) => {
+            const assignment = getAssignmentByID(db, userID, assignmentID);
+            if (!assignment) return '!ERROR';
+            return assignment.attributes.status;
+        });
+        tableBuilder.addColumn(assignmentID + ' Slips', (userID) => {
+            const assignment = getAssignmentByID(db, userID, assignmentID);
+            if (!assignment) return '!ERROR';
+            return assignment.attributes.slipDays;
+        });
+    }
+
+    // Populate the table...
+    for(const userID of getUsers(db))
+    {
+        tableBuilder.addEntry(userID);
+    }
+    
+    const outputTable = tableBuilder.build();
+    writeTableToCSV(outputPath, outputTable);
+}
+
+var InstructorReportOutput = /*#__PURE__*/Object.freeze({
+    output: output
+});
+
+const path$5 = require('path');
+
+/**
+    Name: Bob Ross
+    PID: A12345678
+    Date: August 9, 2019
+    Your weekly student report:
+    Week 0 - Completed
+    Week 1 - Completed (4 slip-day(s) used)
+    Week 2 - Completed (1 slip-day(s) used) - In-Review
+    Week 3 - Missing (9+? slip-day(s) used)
+    Week 4 - Completed
+    Week 5 - Completed
+    Week 6 - Missing (6+? slip-day(s) used)
+
+    Weeks remaining: 2
+    Daily accruing slip-days: -2
+    Remaining slip-days available: 4
+
+    IMPORTANT:
+        Missing assignment for Week 3 and Week 6.
+
+    You must turn in all assignments, even if late. These will continue to accrue slip-days until it is turned in. Based on the number of slip-days available, you have 2 more days until all slip-days are used. To not be deducted points, you must submit the assignments on or before August 11, 2019.
+
+    *In-Review: Significant difference has been found for the submission for the week past the deadline. A review is being conducted to evaluate number slip days used. Until resolved, it will assume the latest submission time is accurate.
+ */
+
+function stringifyStatus(status, slipDays = 0)
+{
+    let rateString;
+    if (status === 'N' && slipDays > 0)
+    {
+        rateString = '+?';
+    }
+    else
+    {
+        rateString = '';
+    }
+
+    let slipString;
+    if (slipDays > 0)
+    {
+        slipString = ` (${slipDays}${rateString} slip day(s) used)`;
+    }
+    else
+    {
+        slipString = '';
+    }
+
+    let statusString;
+    switch(status)
+    {
+        case 'Y':
+            statusString = 'Completed';
+            break;
+        case 'N':
+            statusString = 'Missing';
+            break;
+        case '_':
+            statusString = 'Not yet assigned';
+            break;
+        default:
+            statusString = 'Unknown';
+            break;
+    }
+
+    return statusString + slipString;
+}
+
+function generateProgressReport(db, userID)
+{
+    const user = getUserByID(db, userID);
+    const dst = [];
+
+    dst.push('Name: ' + user.name);
+    dst.push('PID: ' + user.attributes.pid);
+    dst.push('Date: ' + db.currentDate.toDateString());
+    dst.push('');
+    dst.push('Your weekly student report:');
+    const assignments = getAssignmentsByUser(db, userID);
+    const inReviewAssignments = [];
+    const missingAssignments = [];
+    let accruedSlips = 0;
+    let slipRate = 0;
+    for(const assignmentID of assignments)
+    {
+        const assignment = getAssignmentByID(db, userID, assignmentID);
+        if (assignment.attributes.status === 'N')
+        {
+            missingAssignments.push(assignment);
+            slipRate += 1;
+        }
+        else if (assignment.attributes.status === '?')
+        {
+            inReviewAssignments.push(assignment);
+        }
+        accruedSlips += assignment.attributes.slipDays;
+        dst.push(assignment.id + ' - ' + stringifyStatus(assignment.attributes.status, assignment.attributes.slipDays));
+    }
+    dst.push('');
+    const schedule = user.schedule;
+    const totalSlipDays = calculateNumberOfSlipDays(schedule);
+    // TODO: The issue with this is that assignments != schedule weeks. There can be more than 1 assigment in a week.
+    // dst.push('Weeks Remaining:' + (schedule.weeks - (assignments.length - missingAssignments.length)));
+    dst.push('Daily accruing slip days:' + slipRate);
+    dst.push('Remaining slip days available:' + (totalSlipDays - accruedSlips));
+    dst.push('');
+
+    if (missingAssignments.length > 0)
+    {
+        dst.push('IMPORTANT:');
+        dst.push('');
+
+        dst.push('Missing assignment for ' + missingAssignments.map((value) => value.id).join(', ') + '.');
+
+        dst.push('');
+        dst.push('You must turn in all assignments, even if late. These will continue to accrue slip-days until it is turned in.');
+
+        // Calculate this based on schedule...
+        /*
+        const remainingDays = 0;
+        const finalDueDate = 0;
+        dst.push(`Based on the number of slip-days available, you have ${remainingDays} more days until all slip-days are used. To not be deducted points, you must submit the assignments on or before ${finalDueDate}.`);
+        */
+
+        dst.push('');
+    }
+
+    if (inReviewAssignments.length > 0)
+    {
+        dst.push('*In-Review: Significant difference has been found for the submission for the week past the deadline. A review is being conducted to evaluate number slip days used. Until resolved, it will assume the latest submission time is accurate.');
+    }
+
+    dst.push('');
+
+    return "\"" + dst.join('\n') + "\"";
+}
+
+function generateNoticeReport(db, userID)
+{
+    return 'N/A';
+}
+
+async function output$1(db, config, outputPath, opts)
+{
+    const tableBuilder = new TableBuilder();
+    tableBuilder.addColumn('User ID');
+    tableBuilder.addColumn('User Name', (userID) => {
+        return getUserByID(db, userID).name;
+    });
+    tableBuilder.addColumn('Progress Report', (userID) => {
+        return generateProgressReport(db, userID);
+    });
+    tableBuilder.addColumn('Notice Report', (userID) => {
+        return generateNoticeReport();
+    });
+
+    // Populate the table...
+    for(const userID of getUsers(db))
+    {
+        tableBuilder.addEntry(userID);
+    }
+    
+    const outputTable = tableBuilder.build();
+    writeTableToCSV(outputPath, outputTable);
+}
+
+var StudentReportOutput = /*#__PURE__*/Object.freeze({
+    output: output$1
+});
+
+const path$6 = require('path');
+
+async function output$2(db, config, outputPath, opts)
+{
+    // Output all database logs...
+    outputLog$3(db, outputPath);
+    outputLog$2(db, outputPath);
+    outputLog(db, outputPath);
+    outputLog$1(db, outputPath);
+    outputLog$4(db, outputPath);
+
+    // Output computed config file...
+    writeToFile(path$6.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
+
+    // Output error list...
+    let output;
+    if (db.getErrors().length <= 0)
+    {
+        output = "HOORAY! No errors!";
+    }
+    else
+    {
+        let errors = [];
+        for(const error of db.getErrors())
+        {
+            errors.push(`${error.id}: [${error.tag}] ${error.message}\n=== SOLUTIONS: ===\n => ${error.options.join('\n => ')}\n=== MOREINFO: ===\n${error.more.join('\n')}\n`);
+        }
+        output = "It's okay. We'll get through this.\n\n" + errors.join('\n');
+    }
+    writeToFile(path$6.resolve(outputPath, 'errors.txt'), output);
+}
+
+var DebugReportOutput = /*#__PURE__*/Object.freeze({
+    output: output$2
+});
+
+const path$7 = require('path');
+
+function findOutputEntries(config)
+{
+    console.log("...Finding output entries...");
+    if (Array.isArray(config.outputs))
+    {
+        return config.outputs;
+    }
+    else
+    {
+        return [];
+    }
+}
+
+async function processOutputEntry(db, config, outputEntry)
+{
+    console.log("...Process output entry...");
+    const outputPath = config.outputPath;
+    const outputName = outputEntry.outputName;
+    const filePath = path$7.resolve(outputPath, outputName);
+    const formatType = outputEntry.format;
+    const customFormatPath = outputEntry.customFormatPath;
+    const opts = outputEntry.opts;
+
+    let Format;
+
+    // If customFormatPath is defined, ignore formatType.
+    if (customFormatPath)
+    {
+        try
+        {
+            Format = require(customFormatPath);
+            if (typeof Format.output !== 'function')
+            {
+                throw new Error(`Invalid custom format '${customFormatPath}' - must export named function 'output'.`);
+            }
+        }
+        catch(e)
+        {
+            throw new Error(`Cannot load custom format from '${customFormatPath}'.`, e);
+        }
+    }
+    // No customFormatPath, so use formatType.
+    else
+    {
+        switch(formatType)
+        {
+            case 'instructor':
+                Format = InstructorReportOutput;
+                break;
+            case 'student':
+                Format = StudentReportOutput;
+                break;
+            case 'debug':
+                Format = DebugReportOutput;
+            default:
+                throw new Error(`Cannot find valid output of type '${formatType}'.`);
+        }
+    }
+
+    await Format.output(db, config, filePath, opts);
+}
+
+async function outputDebugLog(db, config)
+{
+    if (config.debug)
+    {
+        await output$2(db, config, config.outputPath);
+    }
+}
+
+/**
+ * Guarantees a config will be returned. It will throw an error if unable to.
+ * @param {String} directory The root project directory.
+ * @returns {Config} The config.
+ */
+async function resolveConfig(directory)
+{
+    console.log("Resolving config...");
+
+    // Try to load the provided config file in the directory...
+    let config;
+    try
+    {
+        config = await loadConfigFile(directory);
+    }
+    catch(e)
+    {
+        // Try other fallback config files... maybe ask for one?
+        let configFilePath;
+        while (configFilePath = await requestConfigFile())
+        {
+            try
+            {
+                // Found config file. Load it up.
+                config = await loadConfigFile(configFilePath);
+                if (config) break;
+            }
+            catch(e)
+            {
+                // Failed to load config. Try again.
+                console.error('Failed to load config.', e);
+            }
+        }
+    
+        // None found. Use the default instead.
+        if (!config) config = await loadDefaultConfig();
+    }
+
+    if (!config)
+    {
+        // This should never happen...
+        throw new Error('Could not resolve a config file for program. Stopping program...');
+    }
+    return config;
+}
+
+/**
+ * Guarantees a database will be returned. It will throw an error if unable to.
+ * @param {Config} config The config.
+ * @returns {Database} The database.
+ */
+async function resolveDatabase(config)
+{
+    console.log("Resolving database...");
+
+    // Creates an empty database (with no structure at all)...
+    const db = await createDatabase$1(config);
+
+    // Try to prepare all database entries from config...
+    await prepareDatabaseForInputs(db, config);
+
+    // Try to load all database entries from config...
+    await populateDatabaseWithInputs(db, config);
+
+    // Check with the user if it is okay to continue, based on some data stats...
+    if (!await verifyDatabaseWithClient())
+    {
+        throw new Error('Could not resolve database for program. Please update the config to match your specifications, then try again. Stopping program...');
+    }
+    return db;
+}
+
+/**
+ * Guarantees to prepare the database for output. Otherwise, it will throw an error.
+ * @param {Database} db The database.
+ * @param {Config} config The config.
+ */
+async function validateDatabase(db, config)
+{
+    console.log("Validating database...");
+
+    // Apply reviews...
+    let errors;
+    while(errors = await findDatabaseErrors())
+    {
+        // Check whether the client wants to continue resolving errors... cause there could be a lot.
+        if (await shouldContinueResolvingErrorsWithClient())
+        {
+            await resolveDatabaseErrors();
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    // Whether to ignore errors and continue as normal...
+    if (!await verifyErrorsWithClient(db, config, errors))
+    {
+        await outputErrorLog();
+        
+        // IT'S AN ERROR! RUN AWAY!!!
+        throw new Error('Could not validate database. Stopping program...');
+    }
+
+    // All is well.
+}
+
+/**
+ * Guarantees no changes will be made to the database or the config.
+ * @param {Database} db The database.
+ * @param {Config} config The config.
+ */
+async function generateOutput(db, config)
+{
+    console.log("Generating output...");
+    
+    const outputEntries = findOutputEntries(config);
+
+    for(const outputEntry of outputEntries)
+    {
+        try
+        {
+            await processOutputEntry(db, config, outputEntry);
+        }
+        catch(e)
+        {
+            console.error('Failed to process output entry.', e);
+        }
+    }
+}
+
 const REVIEWERS = new Map();
 
 function registerReviewer(reviewer)
@@ -49903,6 +49913,77 @@ async function setup(db, config)
     }
 }
 
+async function prepareScheme(db, config)
+{
+    const schemeName = config.scheme;
+    if (!schemeName) throw new Error('Missing \'scheme\' name from config.');
+    switch(schemeName)
+    {
+        case SCHEME_NAME:
+            setup();
+            break;
+        default:
+            throw new Error(`Unknown scheme by name '${schemeName}'.`);
+    }
+}
+
+async function reviewDatabase(db, config)
+{
+    console.log('...Reviewing our work...');
+    // Review data...
+    for(const reviewID of getReviews(db))
+    {
+        const review = getReviewByID(db, reviewID);
+        const reviewType = review.type;
+        const reviewParams = review.params;
+
+        const reviewer = getReviewerByType(reviewType);
+        await reviewer.review(db, reviewID, reviewType, reviewParams);
+    }
+
+    console.log('...Helping you resolve a few things...');
+    // Resolve data...
+    const processors = getProcessors('post');
+    for(const processor of processors)
+    {
+        await processor.resolve(db);
+    }
+}
+
+async function saveReviewsToFile(db, config, reviews)
+{
+    const path = require('path');
+    
+    const reviewTableHeader = [
+        'Review ID',
+        'Date',
+        'Comment',
+        'Type',
+        'Param[0]',
+        'Param[1]',
+        'Param[2]',
+        'Param[3]',
+        '...'
+    ];
+    const reviewTable = [reviewTableHeader];
+    for(const review of reviews)
+    {
+        const reviewEntry = [];
+        // ID
+        reviewEntry.push(review[0]);
+        // Date
+        reviewEntry.push(review[1]);
+        // Comment
+        reviewEntry.push(review[2]);
+        // Type
+        reviewEntry.push(review[3]);
+        // Params
+        reviewEntry.push(...review[4]);
+        reviewTable.push(reviewEntry);
+    }
+    await writeTableToCSV(path.resolve(config.outputPath, `reviews-${db.currentDate.toISOString()}.csv`), reviewTable);
+}
+
 const path$8 = require('path');
 
 async function onStart(args)
@@ -49916,8 +49997,14 @@ async function onStart(args)
 
 async function onSetup(db, config)
 {
+    /**
+     * Loading - Where all data should be loaded from file. This
+     * should be raw data as defined by the user. No modifications
+     * should take place; they will be considered for alterations
+     * in the processing stage.
+     */
+
     // Prepare registries from scheme...
-    // NOTE: Any new schemes should be added to prepareScheme().
     await prepareScheme(db, config);
 
     println("Date:", db.currentDate.toDateString());
@@ -49926,54 +50013,31 @@ async function onSetup(db, config)
 
 async function onPreProcess(db, config)
 {
+    /**
+     * Processing - Where all data is evaluated and processed into
+     * valid and useful information. This is also where most of the
+     * errors not related to IO will be thrown. This stage consists
+     * of two steps: the review and the resolution. The resolution
+     * step will attempt to automatically format and validate the
+     * data. If it is unable to then the data is invalid and is
+     * flagged for review by the user. Therefore, the review step,
+     * which processes all user-created reviews, is computed before
+     * the resolution. This is a frequent debug loop.
+     */
+    
     await runProcessors(db, config, false);
     
     // Review resolution loop
     const reviews = await run$1(db, config, runProcessors);
 
-    if (reviews.length > 0)
+    if (await askWhetherToSaveNewReviews(db, config, reviews))
     {
-        if (await askYesNo("Do you want to save the new reviews?"))
-        {
-            const reviewTableHeader = [
-                'Review ID',
-                'Date',
-                'Comment',
-                'Type',
-                'Param[0]',
-                'Param[1]',
-                'Param[2]',
-                'Param[3]',
-                '...'
-            ];
-            const reviewTable = [reviewTableHeader];
-            for(const review of reviews)
-            {
-                const reviewEntry = [];
-                // ID
-                reviewEntry.push(review[0]);
-                // Date
-                reviewEntry.push(review[1]);
-                // Comment
-                reviewEntry.push(review[2]);
-                // Type
-                reviewEntry.push(review[3]);
-                // Params
-                reviewEntry.push(...review[4]);
-                reviewTable.push(reviewEntry);
-            }
-            await FileUtil.writeTableToCSV(path$8.resolve(config.outputPath, `reviews-${db.currentDate.toISOString()}.csv`), reviewTable);
-        }
-        else
-        {
-            println("Dumping reviews...");
-        }
+        await saveReviewsToFile(db, config, reviews);
     }
-
-    // await runOutputs(db, config);
-
-    console.log("......Stopped.");
-    console.log();
+    else
+    {
+        println("Dumping reviews...");
+    }
 }
 
 async function onPostProcess(db, config)
@@ -49983,7 +50047,11 @@ async function onPostProcess(db, config)
 
 async function onOutput(db, config)
 {
-
+    /**
+     * Outputting - Where all data is outputted into relevant
+     * files. If any errors had occured, it will exit-early and
+     * output any gathered debug information.
+     */
 }
 
 async function onError(db, config, error)
@@ -50007,70 +50075,8 @@ async function runProcessors(db, config, populate = true)
         await populateDatabaseWithInputs(db, config);
     }
 
-    println("Evaluating reviews...");
-    console.log('......Looking over our work...');
-    await processReviews(db);
-
-    println("Resolving database...");
-    console.log(`......Helping you fix a few things...`);
-    await processDatabase(db);
-
+    await reviewDatabase(db);
     println();
-}
-
-// NOTE: Any new schemes should be imported here AND added to prepareScheme().
-async function prepareScheme(db, config)
-{
-    const schemeName = config.scheme;
-    if (!schemeName) throw new Error('Missing \'scheme\' name from config.');
-    switch(schemeName)
-    {
-        case SCHEME_NAME:
-            setup();
-            break;
-        default:
-            throw new Error(`Unknown scheme by name '${schemeName}'.`);
-    }
-}
-
-/**
- * Assumes reviewers are already loaded.
- * @param {Database} db The database to review.
- * @param {Object} config The config.
- */
-async function processReviews(db, config)
-{
-    // Run the reviews...
-    const reviewResults = [];
-    for(const reviewID of getReviews(db))
-    {
-        const review = getReviewByID(db, reviewID);
-        const reviewType = review.type;
-        const reviewParams = review.params;
-
-        const reviewer = getReviewerByType(reviewType);
-        reviewResults.push(reviewer.review(db, reviewID, reviewType, reviewParams));
-    }
-
-    return Promise.all(reviewResults);
-}
-
-/**
- * Assumes processors have already been registered.
- * @param {Database} db The database to resolve data for.
- * @param {Object} config The config.
- */
-async function processDatabase(db, config)
-{
-    // Resolve database...
-    const processors = getProcessors('post');
-    const results = [];
-    for(const processor of processors)
-    {
-        console.log(`.........Resolving with '${processor}'...`);
-        results.push(processor.resolve(db));
-    }
-    return Promise.all(results);
 }
 
 // TODO: This should be it's own bundled file for plugins to use. But for now, it's a global.
@@ -50089,47 +50095,20 @@ async function main$2(args)
     let db;
     try
     {
-        /**
-         * Loading - Where all data should be loaded from file. This
-         * should be raw data as defined by the user. No modifications
-         * should take place; they will be considered for alterations
-         * in the processing stage.
-         */
-
         // Starting setup...
         config = await resolveConfig(DIRECTORY);
         db = await resolveDatabase(config);
 
         await onSetup(db, config);
-
-        /**
-         * Processing - Where all data is evaluated and processed into
-         * valid and useful information. This is also where most of the
-         * errors not related to IO will be thrown. This stage consists
-         * of two steps: the review and the resolution. The resolution
-         * step will attempt to automatically format and validate the
-         * data. If it is unable to then the data is invalid and is
-         * flagged for review by the user. Therefore, the review step,
-         * which processes all user-created reviews, is computed before
-         * the resolution. This is a frequent debug loop.
-         */
         await onPreProcess(db, config);
 
         // All setup is GUARANTEED to be done now. Reviews are now to be processed...
         // Any errors that dare to surface will be vanquished here. Or ignored...
         await validateDatabase(db, config);
-
         await onPostProcess(db, config);
     
-        /**
-         * Outputting - Where all data is outputted into relevant
-         * files. If any errors had occured, it will exit-early and
-         * output any gathered debug information.
-         */
-
         // All validation is GUARANTEED to be done now. Outputs can now be generated...
         await generateOutput(db, config);
-
         await onOutput(db, config);
     }
     catch(e)
