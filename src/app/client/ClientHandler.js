@@ -29,6 +29,7 @@ export async function askWhetherToReviewErrors(db, config, errors)
 {
     // Let the client decide whether to review the errors...
     Menu.printlnError(`Found ${errors.length} errors. :(`);
+    Menu.printMotivation();
     const result = await Menu.askYesNo("Do you want to review them now?");
     if (!result)
     {
