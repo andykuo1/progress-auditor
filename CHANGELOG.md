@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default implementations for assignment patterns
 - Default implementations for input formats
 - PDF exporting for student reports
+- Added stack tracing for debug mode
 
 ### Changed
 - Revamped API system (again with less clutter)
