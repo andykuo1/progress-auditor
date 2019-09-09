@@ -38,5 +38,12 @@ export async function review(db, config, reviewID, reviewType, reviewParams)
     const submissionAttributes = reviewParams.length >= 3
         ? JSON.parse(reviewParams[3])
         : {};
+    
+    if (SubmissionDatabase.getSubmissionByID(db, submissionID))
+    {
+        console.log("...Ignoring dupliate reviewed submission...");
+        return;
+    }
+
     SubmissionDatabase.addSubmission(db, submissionID, ownerKey, assignmentID, submissionDate, submissionAttributes);
 }
