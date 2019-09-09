@@ -1,6 +1,10 @@
 import * as ConfigHandler from './ConfigHandler.js';
+import * as SchemeHandler from './SchemeHandler.js';
 import * as DatabaseHandler from './DatabaseHandler.js';
+import * as DatabaseSolver from './DatabaseSolver.js';
 import * as OutputHandler from './OutputHandler.js';
+
+import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 
 /**
  * Guarantees a config will be returned. It will throw an error if unable to.
@@ -60,11 +64,17 @@ export async function resolveDatabase(config)
     // Creates an empty database (with no structure at all)...
     const db = await DatabaseHandler.createDatabase(config);
 
+    // Prepare registries with scheme...
+    await SchemeHandler.prepareScheme(db, config);
+
     // Try to prepare all database entries from config...
     await DatabaseHandler.prepareDatabaseForInputs(db, config);
 
     // Try to load all database entries from config...
     await DatabaseHandler.populateDatabaseWithInputs(db, config);
+
+    // Apply the database review fixes...
+    await DatabaseHandler.fixDatabaseWithReviews(db, config);
 
     // Check with the user if it is okay to continue, based on some data stats...
     if (!await DatabaseHandler.verifyDatabaseWithClient(db, config))
@@ -84,13 +94,42 @@ export async function validateDatabase(db, config)
     console.log("Validating database...");
 
     // Apply reviews...
+    let reviews = [];
     let errors;
-    while(errors = await DatabaseHandler.findDatabaseErrors(db, config))
+    while(errors = await DatabaseSolver.findDatabaseErrors(db, config))
     {
         // Check whether the client wants to continue resolving errors... cause there could be a lot.
-        if (await DatabaseHandler.shouldContinueResolvingErrorsWithClient(db, config, errors))
+        if (await DatabaseSolver.shouldContinueResolvingErrorsWithClient(db, config, errors))
         {
-            await DatabaseHandler.resolveDatabaseErrors(db, config, errors);
+            const result = await DatabaseSolver.resolveDatabaseErrors(db, config, errors);
+
+            // If review was successful...
+            if (result)
+            {
+                if (Array.isArray(result))
+                {
+                    reviews.push(...result);
+                }
+                else
+                {
+                    reviews.push(result);
+                }
+
+                // Restart the database...
+                await DatabaseSolver.clearDatabase(db, config);
+    
+                // Re-apply all the data...
+                await DatabaseHandler.populateDatabaseWithInputs(db, config);
+                // Apply the new reviews...
+                for(const review of reviews)
+                {
+                    ReviewDatabase.addReview(db, ...review);
+                }
+                // Re-fix them...
+                await DatabaseHandler.fixDatabaseWithReviews(db, config);    
+            }
+
+            // And go back to check for errors again...
         }
         else
         {
@@ -98,13 +137,19 @@ export async function validateDatabase(db, config)
         }
     }
 
-    // Whether to ignore errors and continue as normal...
-    if (!await DatabaseHandler.verifyErrorsWithClient(db, config, errors))
+    // Whether to ignore errors or continue as normal...
+    if (!await DatabaseSolver.verifyErrorsWithClient(db, config, errors))
     {
-        await DatabaseHandler.outputErrorLog(db, config, errors);
+        await DatabaseSolver.outputErrorLog(db, config, errors);
         
         // IT'S AN ERROR! RUN AWAY!!!
         throw new Error('Could not validate database. Stopping program...');
+    }
+
+    // Whether to save any newly created reviews...
+    if (await DatabaseSolver.shouldSaveNewReviewsForClient(db, config, reviews))
+    {
+        await DatabaseSolver.outputNewReviewsToFile(db, config, reviews);
     }
 
     // All is well.
@@ -118,7 +163,7 @@ export async function validateDatabase(db, config)
 export async function generateOutput(db, config)
 {
     console.log("Generating output...");
-    
+
     const outputEntries = OutputHandler.findOutputEntries(config);
 
     for(const outputEntry of outputEntries)

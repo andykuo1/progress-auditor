@@ -33,7 +33,7 @@ function calculateSlipDays(submitDate, dueDate)
  * already being assigned appropriately.
  * @param {Database} db The database to resolve for.
  */
-export async function resolve(db)
+export async function resolve(db, config)
 {
     // HACK: There should be a better way to get today's date.
     const currentDate = db.currentDate;

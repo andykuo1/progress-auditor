@@ -1,11 +1,6 @@
 import * as Menu from './menu/Menu.js';
-import * as ErrorReviewer from './menu/ErrorReviewer.js';
 
-import * as DatabaseHandler from '../main/DatabaseHandler.js';
 import * as OutputHandler from '../main/OutputHandler.js';
-import * as SchemeHandler from './SchemeHandler.js';
-import * as ReviewHandler from './ReviewHandler.js';
-import * as ClientHandler from '../ClientHandler.js';
 
 const path = require('path');
 
@@ -27,9 +22,6 @@ export async function onSetup(db, config)
      * in the processing stage.
      */
 
-    // Prepare registries from scheme...
-    await SchemeHandler.prepareScheme(db, config);
-
     Menu.println("Date:", db.currentDate.toDateString());
     Menu.println();
 }
@@ -47,20 +39,6 @@ export async function onPreProcess(db, config)
      * which processes all user-created reviews, is computed before
      * the resolution. This is a frequent debug loop.
      */
-    
-    await runProcessors(db, config, false);
-    
-    // Review resolution loop
-    const reviews = await ErrorReviewer.run(db, config, runProcessors);
-
-    if (await ClientHandler.askWhetherToSaveNewReviews(db, config, reviews))
-    {
-        await ReviewHandler.saveReviewsToFile(db, config, reviews);
-    }
-    else
-    {
-        Menu.println("Dumping reviews...");
-    }
 }
 
 export async function onPostProcess(db, config)
@@ -88,17 +66,3 @@ export async function onStop(db, config)
 {
 
 }
-
-async function runProcessors(db, config, populate = true)
-{
-    if (populate)
-    {
-        Menu.println("...Processing...");
-        Menu.println("Parsing databases...");
-        await DatabaseHandler.populateDatabaseWithInputs(db, config);
-    }
-
-    await ReviewHandler.reviewDatabase(db, config);
-    Menu.println();
-}
-

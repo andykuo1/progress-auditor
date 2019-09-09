@@ -8,7 +8,9 @@ import * as ParserRegistry from '../../input/parser/ParserRegistry.js';
 import * as AssignerRegistry from '../../input/assignment/AssignerRegistry.js';
 import * as UserDatabase from '../../database/UserDatabase.js';
 
-// Database setup
+import * as ResolverRegistry from '../../input/review/ResolverRegistry.js';
+import * as ReviewRegistry from '../../input/review/ReviewRegistry.js';
+import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 
 /** Guaranteed to succeed. */
 export async function createDatabase(config)
@@ -64,7 +66,8 @@ export async function populateDatabaseWithInputs(db, config)
     // Load input data...
     for(const parser of ParserRegistry.getParsers())
     {
-        const [parserFunction, filePath, pattern, opts] = parser;
+        const [parserFunction, filePath, parserType, opts] = parser;
+        console.log(`...Parsing '${path.basename(filePath)}' with '${path.basename(parserType)}'...`);
         await parserFunction.parse(db, config, filePath, opts);
     }
 
@@ -72,7 +75,7 @@ export async function populateDatabaseWithInputs(db, config)
     for(const assigner of AssignerRegistry.getAssigners())
     {
         const [assignmentFunction, pattern, name, opts] = assigner;
-        console.log(`...Assigning '${path.basename(name)}' with '${path.basename(pattern)}'...`);
+        console.log(`...Assigning '${name}' as '${pattern}'...`);
 
         for(const userID of UserDatabase.getUsers(db))
         {
@@ -83,38 +86,32 @@ export async function populateDatabaseWithInputs(db, config)
     }
 }
 
+export async function fixDatabaseWithReviews(db, config)
+{
+    console.log('...Reviewing our work...');
+    
+    // Review data...
+    for(const reviewID of ReviewDatabase.getReviews(db))
+    {
+        const review = ReviewDatabase.getReviewByID(db, reviewID);
+        const reviewType = review.type;
+        const reviewParams = review.params;
+
+        const reviewer = ReviewRegistry.getReviewerByType(reviewType);
+        await reviewer.review(db, config, reviewID, reviewType, reviewParams);
+    }
+
+    console.log('...Helping you resolve a few things...');
+    // Resolve data...
+    const resolvers = ResolverRegistry.getResolvers();
+    for(const resolver of resolvers)
+    {
+        await resolver.resolve(db, config);
+    }
+}
+
 export async function verifyDatabaseWithClient(db, config)
 {
     console.log("...Verifying database with client...");
     return await ClientHandler.askWhetherDatabaseIsValidToUse(db, config);
-}
-
-// Database validation
-
-/** If unable to find errors, an empty array is returned. */
-export async function findDatabaseErrors(db, config)
-{
-    console.log("...Finding database errors...");
-    return db.getErrors();
-}
-
-export async function shouldContinueResolvingErrorsWithClient(db, config, errors)
-{
-    console.log("...Should resolve database errors?");
-}
-
-export async function resolveDatabaseErrors(db, config, errors)
-{
-    console.log("...Resolving database errors...");
-}
-
-export async function verifyErrorsWithClient(db, config, errors)
-{
-    if (!errors || errors.length <= 0) return true;
-    
-}
-
-export async function outputErrorLog(db, config, errors)
-{
-    console.log("...Outputting database errors...");
 }

@@ -4,7 +4,7 @@ export const REVIEW_TYPE = 'null';
 export const REVIEW_DESC = 'Unknown review type.';
 export const REVIEW_PARAM_TYPES = [];
 
-export async function review(db, reviewID, reviewType, reviewParams)
+export async function review(db, config, reviewID, reviewType, reviewParams)
 {
     db.throwError(ERROR_TAG, `Unhandled review type ${reviewType} for review '${reviewID}'.`, {
         id: [reviewID, reviewType],

@@ -56,7 +56,7 @@ function getNearestSubmission(submissions, targetDate)
  * Searches through all submissions and assigns them to the appropriate assignment.
  * @param {Database} db The database to resolve for.
  */
-export async function resolve(db)
+export async function resolve(db, config)
 {
     for(const ownerKey of SubmissionDatabase.getOwners(db))
     {

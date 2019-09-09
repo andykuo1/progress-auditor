@@ -3337,7 +3337,7 @@ var templates = (chalk, tmp) => {
 	return chunks.join('');
 };
 
-var chalk = createCommonjsModule(function (module) {
+var chalk$1 = createCommonjsModule(function (module) {
 
 
 const stdoutColor = supportsColor_1.stdout;
@@ -3566,7 +3566,7 @@ module.exports = Chalk(); // eslint-disable-line new-cap
 module.exports.supportsColor = stdoutColor;
 module.exports.default = module.exports; // For TypeScript
 });
-var chalk_1 = chalk.supportsColor;
+var chalk_1 = chalk$1.supportsColor;
 
 var figlet_1 = createCommonjsModule(function (module) {
 
@@ -4793,7 +4793,7 @@ var figures_1 = Object.assign(fn, figures);
 class Separator {
   constructor(line) {
     this.type = 'separator';
-    this.line = chalk.dim(line || new Array(15).join(figures_1.line));
+    this.line = chalk$1.dim(line || new Array(15).join(figures_1.line));
   }
 
   /**
@@ -31565,7 +31565,7 @@ class Prompt {
       filter: val => val,
       when: () => true,
       suffix: '',
-      prefix: chalk.green('?')
+      prefix: chalk$1.green('?')
     });
 
     // Make sure name is present
@@ -31667,17 +31667,17 @@ class Prompt {
     var message =
       this.opt.prefix +
       ' ' +
-      chalk.bold(this.opt.message) +
+      chalk$1.bold(this.opt.message) +
       this.opt.suffix +
-      chalk.reset(' ');
+      chalk$1.reset(' ');
 
     // Append the default if available, and if question isn't answered
     if (this.opt.default != null && this.status !== 'answered') {
       // If default password is supplied, hide it
       if (this.opt.type === 'password') {
-        message += chalk.italic.dim('[hidden] ');
+        message += chalk$1.italic.dim('[hidden] ');
       } else {
-        message += chalk.dim('(' + this.opt.default + ') ');
+        message += chalk$1.dim('(' + this.opt.default + ') ');
       }
     }
 
@@ -31785,7 +31785,7 @@ class Paginator {
     var topIndex = Math.max(0, active + lines.length - this.pointer);
 
     var section = infinite.splice(topIndex, pageSize).join('\n');
-    return section + '\n' + chalk.dim('(Move up and down to reveal more choices)');
+    return section + '\n' + chalk$1.dim('(Move up and down to reveal more choices)');
   }
 }
 
@@ -31874,12 +31874,12 @@ class ListPrompt extends base {
     var message = this.getQuestion();
 
     if (this.firstRender) {
-      message += chalk.dim('(Use arrow keys)');
+      message += chalk$1.dim('(Use arrow keys)');
     }
 
     // Render choices or answer depending on the state
     if (this.status === 'answered') {
-      message += chalk.cyan(this.opt.choices.getChoice(this.selected).short);
+      message += chalk$1.cyan(this.opt.choices.getChoice(this.selected).short);
     } else {
       var choicesStr = listRender(this.opt.choices, this.selected);
       var indexPosition = this.opt.choices.indexOf(
@@ -31964,7 +31964,7 @@ function listRender(choices, pointer) {
     var isSelected = i - separatorOffset === pointer;
     var line = (isSelected ? figures_1.pointer + ' ' : '  ') + choice.name;
     if (isSelected) {
-      line = chalk.cyan(line);
+      line = chalk$1.cyan(line);
     }
 
     output += line + ' \n';
@@ -32033,11 +32033,11 @@ class InputPrompt extends base {
     if (transformer) {
       message += transformer(appendContent, this.answers, { isFinal });
     } else {
-      message += isFinal ? chalk.cyan(appendContent) : appendContent;
+      message += isFinal ? chalk$1.cyan(appendContent) : appendContent;
     }
 
     if (error) {
-      bottomContent = chalk.red('>> ') + error;
+      bottomContent = chalk$1.red('>> ') + error;
     }
 
     this.screen.render(message, bottomContent);
@@ -32183,7 +32183,7 @@ class ConfirmPrompt extends base {
     var message = this.getQuestion();
 
     if (typeof answer === 'boolean') {
-      message += chalk.cyan(answer ? 'Yes' : 'No');
+      message += chalk$1.cyan(answer ? 'Yes' : 'No');
     } else {
       message += this.rl.line;
     }
@@ -32308,7 +32308,7 @@ class RawListPrompt extends base {
     var bottomContent = '';
 
     if (this.status === 'answered') {
-      message += chalk.cyan(this.answer);
+      message += chalk$1.cyan(this.answer);
     } else {
       var choicesStr = renderChoices(this.opt.choices, this.selected);
       message +=
@@ -32319,7 +32319,7 @@ class RawListPrompt extends base {
     message += this.rl.line;
 
     if (error) {
-      bottomContent = '\n' + chalk.red('>> ') + error;
+      bottomContent = '\n' + chalk$1.red('>> ') + error;
     }
 
     this.screen.render(message, bottomContent);
@@ -32423,7 +32423,7 @@ function renderChoices(choices, pointer) {
     var index = i - separatorOffset;
     var display = index + 1 + ') ' + choice.name;
     if (index === pointer) {
-      display = chalk.cyan(display);
+      display = chalk$1.cyan(display);
     }
 
     output += display;
@@ -32513,7 +32513,7 @@ class ExpandPrompt extends base {
     var bottomContent = '';
 
     if (this.status === 'answered') {
-      message += chalk.cyan(this.answer);
+      message += chalk$1.cyan(this.answer);
     } else if (this.status === 'expanded') {
       var choicesStr = renderChoices$1(this.opt.choices, this.selectedKey);
       message += this.paginator.paginate(choicesStr, this.selectedKey, this.opt.pageSize);
@@ -32523,11 +32523,11 @@ class ExpandPrompt extends base {
     message += this.rl.line;
 
     if (error) {
-      bottomContent = chalk.red('>> ') + error;
+      bottomContent = chalk$1.red('>> ') + error;
     }
 
     if (hint) {
-      bottomContent = chalk.cyan('>> ') + hint;
+      bottomContent = chalk$1.cyan('>> ') + hint;
     }
 
     this.screen.render(message, bottomContent);
@@ -32564,7 +32564,7 @@ class ExpandPrompt extends base {
 
       var choiceStr = choice.key + ') ' + choice.name;
       if (this.selectedKey === choice.key) {
-        choiceStr = chalk.cyan(choiceStr);
+        choiceStr = chalk$1.cyan(choiceStr);
       }
 
       output += choiceStr;
@@ -32699,7 +32699,7 @@ function renderChoices$1(choices, pointer) {
 
     var choiceStr = choice.key + ') ' + choice.name;
     if (pointer === choice.key) {
-      choiceStr = chalk.cyan(choiceStr);
+      choiceStr = chalk$1.cyan(choiceStr);
     }
 
     output += choiceStr;
@@ -32800,17 +32800,17 @@ class CheckboxPrompt extends base {
     if (!this.spaceKeyPressed) {
       message +=
         '(Press ' +
-        chalk.cyan.bold('<space>') +
+        chalk$1.cyan.bold('<space>') +
         ' to select, ' +
-        chalk.cyan.bold('<a>') +
+        chalk$1.cyan.bold('<a>') +
         ' to toggle all, ' +
-        chalk.cyan.bold('<i>') +
+        chalk$1.cyan.bold('<i>') +
         ' to invert selection)';
     }
 
     // Render choices or answer depending on the state
     if (this.status === 'answered') {
-      message += chalk.cyan(this.selection.join(', '));
+      message += chalk$1.cyan(this.selection.join(', '));
     } else {
       var choicesStr = renderChoices$2(this.opt.choices, this.pointer);
       var indexPosition = this.opt.choices.indexOf(
@@ -32821,7 +32821,7 @@ class CheckboxPrompt extends base {
     }
 
     if (error) {
-      bottomContent = chalk.red('>> ') + error;
+      bottomContent = chalk$1.red('>> ') + error;
     }
 
     this.screen.render(message, bottomContent);
@@ -32940,7 +32940,7 @@ function renderChoices$2(choices, pointer) {
     } else {
       var line = getCheckbox(choice.checked) + ' ' + choice.name;
       if (i - separatorOffset === pointer) {
-        output += chalk.cyan(figures_1.pointer + line);
+        output += chalk$1.cyan(figures_1.pointer + line);
       } else {
         output += ' ' + line;
       }
@@ -32959,7 +32959,7 @@ function renderChoices$2(choices, pointer) {
  */
 
 function getCheckbox(checked) {
-  return checked ? chalk.green(figures_1.radioOn) : figures_1.radioOff;
+  return checked ? chalk$1.green(figures_1.radioOn) : figures_1.radioOff;
 }
 
 var checkbox = CheckboxPrompt;
@@ -33023,16 +33023,16 @@ class PasswordPrompt extends base {
 
     if (this.status === 'answered') {
       message += this.opt.mask
-        ? chalk.cyan(mask(this.answer, this.opt.mask))
-        : chalk.italic.dim('[hidden]');
+        ? chalk$1.cyan(mask(this.answer, this.opt.mask))
+        : chalk$1.italic.dim('[hidden]');
     } else if (this.opt.mask) {
       message += mask(this.rl.line || '', this.opt.mask);
     } else {
-      message += chalk.italic.dim('[input is hidden] ');
+      message += chalk$1.italic.dim('[input is hidden] ');
     }
 
     if (error) {
-      bottomContent = '\n' + chalk.red('>> ') + error;
+      bottomContent = '\n' + chalk$1.red('>> ') + error;
     }
 
     this.screen.render(message, bottomContent);
@@ -47119,13 +47119,13 @@ class EditorPrompt extends base {
     var message = this.getQuestion();
 
     if (this.status === 'answered') {
-      message += chalk.dim('Received');
+      message += chalk$1.dim('Received');
     } else {
-      message += chalk.dim('Press <enter> to launch your preferred editor.');
+      message += chalk$1.dim('Press <enter> to launch your preferred editor.');
     }
 
     if (error) {
-      bottomContent = chalk.red('>> ') + error;
+      bottomContent = chalk$1.red('>> ') + error;
     }
 
     this.screen.render(message, bottomContent);
@@ -47260,7 +47260,7 @@ inquirer.restoreDefaultPrompts = function() {
 
 const version$1 = "0.3.0";
 
-const chalk$1 = require('chalk');
+const chalk$2 = require('chalk');
 
 const TITLE = "Progress Auditor";
 const DIVIDER_LENGTH = TITLE.length * 5;
@@ -47277,7 +47277,7 @@ function printToString(...messages)
 
 function printDivider(token = 'nu')
 {
-    println(chalk.gray(
+    println(chalk$1.gray(
         token.repeat(Math.floor(DIVIDER_LENGTH / token.length))
         + token.substring(0, DIVIDER_LENGTH % token.length)
     ));
@@ -47291,7 +47291,7 @@ function rightAlignString(...messages)
 
 function printTitle()
 {
-    const STYLED_TEXT = chalk.green(
+    const STYLED_TEXT = chalk$1.green(
         nodeFiglet.textSync(TITLE, {
             font: "Big"
         })
@@ -47330,7 +47330,7 @@ function printError(errorMessage, depth = 0)
     }
     else
     {
-        println('  '.repeat(depth), chalk.red(((depth <= 0) ? '+' : '-') + ' ' + errorMessage));
+        println('  '.repeat(depth), chalk$1.red(((depth <= 0) ? '+' : '-') + ' ' + errorMessage));
     }
 }
 
@@ -47341,28 +47341,6 @@ async function askYesNo(message)
         type: 'confirm',
         message
     }]);
-    return answer.value;
-}
-
-async function askChoose(message, ...options)
-{
-    const choices = [];
-    for(const option of options)
-    {
-        choices.push({
-            name: option[0],
-            value: option[1],
-            short: option[1]
-        });
-    }
-    const answer = await inquirer_1.prompt([
-        {
-            name: 'value',
-            type: 'list',
-            message,
-            choices
-        }
-    ]);
     return answer.value;
 }
 
@@ -47378,14 +47356,28 @@ async function askWhetherDatabaseIsValidToUse(db, config)
     return true;
 }
 
+async function askWhetherToIgnoreErrors(db, config, errors)
+{
+    // TODO: Let the client decide whether to skip these errors...
+    return await askYesNo(`Do you want to continue despite ${errors.length} error(s)?`);
+}
+
 async function askWhetherToSaveNewReviews(db, config, reviews)
 {
     // Let the client decide whether to save it...
-    if (reviews.length > 0)
+    return await askYesNo(`Do you want to save the new ${reviews.length} review(s)?`);
+}
+
+async function askWhetherToReviewErrors(db, config, errors)
+{
+    // Let the client decide whether to review the errors...
+    printlnError(`Found ${errors.length} errors. :(`);
+    const result = await askYesNo("Do you want to review them now?");
+    if (!result)
     {
-        return await askYesNo("Do you want to save the new reviews?");
+        println(`Skipping errors...${Math.random() > 0.6 ? chalk.gray(`...(I trust you)...`) : ''}`);
     }
-    return false;
+    return result;
 }
 
 /** If unable to load config file, null is returned. */
@@ -47414,6 +47406,725 @@ async function loadDefaultConfig(directory)
         inputs: [],
         outputs: [],
     };
+}
+
+const REVIEWERS = new Map();
+
+function registerReviewer(reviewer)
+{
+    REVIEWERS.set(reviewer.REVIEW_TYPE, reviewer);
+}
+
+function getReviewerByType(type)
+{
+    if (REVIEWERS.has(type))
+    {
+        return REVIEWERS.get(type);
+    }
+    else
+    {
+        return REVIEWERS.get('null');
+    }
+}
+
+function getReviewers()
+{
+    return REVIEWERS.values();
+}
+
+const ERROR_TAG = 'REVIEW';
+
+const REVIEW_TYPE = 'null';
+const REVIEW_DESC = 'Unknown review type.';
+const REVIEW_PARAM_TYPES = [];
+
+async function review(db, config, reviewID, reviewType, reviewParams)
+{
+    db.throwError(ERROR_TAG, `Unhandled review type ${reviewType} for review '${reviewID}'.`, {
+        id: [reviewID, reviewType],
+        options: [
+            `You probably misspelled the review type.`,
+            `Ask the developer to handle a new '${reviewType}' review type.`
+        ]
+    });
+}
+
+var NullReviewer = /*#__PURE__*/Object.freeze({
+    REVIEW_TYPE: REVIEW_TYPE,
+    REVIEW_DESC: REVIEW_DESC,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES,
+    review: review
+});
+
+const ERROR_TAG$1 = 'REVIEW';
+
+const REVIEW_TYPE$1 = 'change_assignment';
+const REVIEW_DESC$1 = 'Change assignment for submission.';
+const REVIEW_PARAM_TYPES$1 = [
+    'Assignment ID',
+    'Submission ID'
+];
+
+async function review$1(db, config, reviewID, reviewType, reviewParams)
+{
+    if (reviewType !== REVIEW_TYPE$1) db.throwError(ERROR_TAG$1, `Mismatched review type - '${REVIEW_TYPE$1}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 2) db.throwError(ERROR_TAG$1, `Missing review params - expected 2 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+
+    const submission = getSubmissionByID(db, reviewParams[1]);
+    if (!submission)
+    {
+        db.throwError(ERROR_TAG$1, `Invalid review param - unable to find submission for id '${reviewParams[1]}'.`, {
+            id: [reviewID, reviewType],
+            options: [
+                'The submission for that id is missing from the database.',
+                'Or it\'s the wrong id.'
+            ]
+        });
+        return;
+    }
+
+    changeSubmissionAssignment(db, submission, reviewParams[0]);
+}
+
+var SubmissionChangeAssignmentReviewer = /*#__PURE__*/Object.freeze({
+    REVIEW_TYPE: REVIEW_TYPE$1,
+    REVIEW_DESC: REVIEW_DESC$1,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$1,
+    review: review$1
+});
+
+const ERROR_TAG$2 = 'REVIEW';
+
+const REVIEW_TYPE$2 = 'ignore_owner';
+const REVIEW_DESC$2 = 'Ignore submissions by owner.';
+const REVIEW_PARAM_TYPES$2 = [
+    'Owner Key'
+];
+
+async function review$2(db, config, reviewID, reviewType, reviewParams)
+{
+    if (reviewType !== REVIEW_TYPE$2) db.throwError(ERROR_TAG$2, `Mismatched review type - '${REVIEW_TYPE$2}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 1) db.throwError(ERROR_TAG$2, `Missing review params - expected 1 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+
+    clearSubmissionsByOwner(db, reviewParams[0]);
+}
+
+var SubmissionIgnoreOwnerReviewer = /*#__PURE__*/Object.freeze({
+    REVIEW_TYPE: REVIEW_TYPE$2,
+    REVIEW_DESC: REVIEW_DESC$2,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$2,
+    review: review$2
+});
+
+const ERROR_TAG$3 = 'REVIEW';
+
+const REVIEW_TYPE$3 = 'ignore_submission';
+const REVIEW_DESC$3 = 'Ignore specific submission by id.';
+const REVIEW_PARAM_TYPES$3 = [
+    'Submission ID'
+];
+
+async function review$3(db, config, reviewID, reviewType, reviewParams)
+{
+    if (reviewType !== REVIEW_TYPE$3) db.throwError(ERROR_TAG$3, `Mismatched review type - '${REVIEW_TYPE$3}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 1) db.throwError(ERROR_TAG$3, `Missing review params - expected 1 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+
+    const targetSubmission = getSubmissionByID(db, reviewParams[0]);
+    if (!targetSubmission)
+    {
+        db.throwError(ERROR_TAG$3, `Invalid review param - Cannot find submission for id '${reviewParams[0]}'.`, {
+            id: [reviewID, reviewType],
+            options: [
+                `Submission with this id has probably already been removed.`,
+                `Or the id is wrong.`
+            ]
+        });
+        return;
+    }
+
+    const deleteSubmisssionIDs = [];
+    for(const submissionID of getSubmissions(db))
+    {
+        const submission = getSubmissionByID(db, submissionID);
+        if (submission.owner == targetSubmission.owner
+            && submission.attributes.content.id == targetSubmission.attributes.content.id)
+        {
+            deleteSubmisssionIDs.push(submissionID);
+        }
+    }
+
+    for(const submissionID of deleteSubmisssionIDs)
+    {
+        removeSubmissionByID(db, submissionID);
+    }
+}
+
+var SubmissionIgnoreReviewer = /*#__PURE__*/Object.freeze({
+    REVIEW_TYPE: REVIEW_TYPE$3,
+    REVIEW_DESC: REVIEW_DESC$3,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$3,
+    review: review$3
+});
+
+const ERROR_TAG$4 = 'REVIEW';
+
+const REVIEW_TYPE$4 = 'add_submission';
+const REVIEW_DESC$4 = 'Add submission (with assignment) for owner.';
+const REVIEW_PARAM_TYPES$4 = [
+    'Owner Key',
+    'Assignment ID',
+    'Submission Date (Optional)',
+    'Submission Attributes (Optional)',
+];
+
+async function review$4(db, config, reviewID, reviewType, reviewParams)
+{
+    if (reviewType !== REVIEW_TYPE$4) db.throwError(ERROR_TAG$4, `Mismatched review type - '${REVIEW_TYPE$4}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 2) db.throwError(ERROR_TAG$4, `Missing review params - expected 2 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+
+    const ownerKey = reviewParams[0];
+    const userID = getUserByOwnerKey(db, ownerKey);
+    if (!userID)
+    {
+        db.throwError(ERROR_TAG$4, `Cannot find user for owner key ${ownerKey}`, {
+            id: [reviewID, reviewType],
+            options: [`Add missing owner key '${ownerKey}' to a user.`]
+        });
+    }
+    
+    const assignmentID = reviewParams[1];
+    const submissionID = ownerKey + '#proxy_' + stringHash(`${reviewID}:${ownerKey}.${assignmentID}`);
+    const submissionDate = reviewParams.length >= 2
+        ? parseAmericanDate(reviewParams[2])
+        : new Date(getAssignmentByID(db, userID, assignmentID).dueDate.getTime() - 1);
+    const submissionAttributes = reviewParams.length >= 3
+        ? JSON.parse(reviewParams[3])
+        : {};
+    addSubmission(db, submissionID, ownerKey, assignmentID, submissionDate, submissionAttributes);
+}
+
+var SubmissionAddReviewer = /*#__PURE__*/Object.freeze({
+    REVIEW_TYPE: REVIEW_TYPE$4,
+    REVIEW_DESC: REVIEW_DESC$4,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$4,
+    review: review$4
+});
+
+const ERROR_TAG$5 = 'REVIEW';
+
+const REVIEW_TYPE$5 = 'add_owner_key';
+const REVIEW_DESC$5 = 'Add additional owner key for user';
+const REVIEW_PARAM_TYPES$5 = [
+    'User ID',
+    'Owner Key'
+];
+
+async function review$5(db, config, reviewID, reviewType, reviewParams)
+{
+    if (reviewType !== REVIEW_TYPE$5) db.throwError(ERROR_TAG$5, `Mismatched review type - '${REVIEW_TYPE$5}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 2) db.throwError(ERROR_TAG$5, `Missing review params - expected 2 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+
+    const user = getUserByID(db, reviewParams[0]);
+    if (!user)
+    {
+        db.throwError(ERROR_TAG$5, `Invalid review param - Cannot find user for id '${reviewParams[0]}'.`, {
+            id: [reviewID, reviewType],
+            options: [
+                `User with this id has probably already been removed.`,
+                `Or the id is wrong.`
+            ]
+        });
+        return;
+    }
+
+    const ownerKey = reviewParams[1];
+    if (user.ownerKey.includes(ownerKey))
+    {
+        db.throwError(ERROR_TAG$5, `Invalid review param - Duplicate owner key '${ownerKey}' for user.`, {
+            id: [reviewID, reviewType],
+            options: [`The user already has this owner key.`]
+        });
+        return;
+    }
+
+    if (Array.isArray(user.ownerKey))
+    {
+        user.ownerKey.push(ownerKey);
+    }
+    else
+    {
+        user.ownerKey = [user.ownerKey, ownerKey];
+    }
+}
+
+var UserAddOwnerKeyReviewer = /*#__PURE__*/Object.freeze({
+    REVIEW_TYPE: REVIEW_TYPE$5,
+    REVIEW_DESC: REVIEW_DESC$5,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$5,
+    review: review$5
+});
+
+const ERROR_TAG$6 = 'REVIEW';
+
+const REVIEW_TYPE$6 = 'change_assignment_status';
+const REVIEW_DESC$6 = 'Changes the assignment status and slips for an owner.';
+const REVIEW_PARAM_TYPES$6 = [
+    'Owner Key',
+    'Assignment ID',
+    'Status (Y/N/_)',
+    'Slip days (Optional)',
+];
+
+async function review$6(db, config, reviewID, reviewType, reviewParams)
+{
+    if (reviewType !== REVIEW_TYPE$6) db.throwError(ERROR_TAG$6, `Mismatched review type - '${REVIEW_TYPE$6}' reviewer cannot process review type '${reviewType}'.`);
+    if (reviewParams.length < 3) db.throwError(ERROR_TAG$6, `Missing review params - expected 3 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
+
+    const ownerKey = reviewParams[0];
+    const userID = getUserByOwnerKey(db, ownerKey);
+    if (!userID) db.throwError(ERROR_TAG$6, `Cannot find user for owner key ${ownerKey}`, { id: [reviewID, reviewType], options: [`Add missing owner key '${ownerKey}' to a user.`] });
+
+    const assignmentID = reviewParams[1];
+    const status = reviewParams[2];
+
+    const slipDays = reviewParams.length > 3 ? Number(reviewParams[3]) : 0;
+    const assignment = getAssignmentByID(db, userID, assignmentID);
+    if (!assignment) db.throwError(ERROR_TAG$6, `Cannot find assignment for id ${assignmentID}`, { id: [reviewID, reviewType], options: [`User may not be assigned this assignment.`, `Assignment id may not exist.`] });
+
+    assignment.attributes.status = status;
+    assignment.attributes.slipDays = slipDays;
+}
+
+var AssignmentChangeStatusReviewer = /*#__PURE__*/Object.freeze({
+    REVIEW_TYPE: REVIEW_TYPE$6,
+    REVIEW_DESC: REVIEW_DESC$6,
+    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$6,
+    review: review$6
+});
+
+const RESOLVERS = new Set();
+
+function registerResolver(resolver)
+{
+    RESOLVERS.add(resolver);
+}
+
+function getResolvers()
+{
+    return RESOLVERS;
+}
+
+/**
+ * Searches through all submissions and tries to assign them by post id.
+ * @param {Database} db The database to resolve for.
+ */
+async function resolve(db, config)
+{
+    for(const submissionID of getSubmissions(db))
+    {
+        const submission = getSubmissionByID(db, submissionID);
+        if (submission.assignment === 'null')
+        {
+            const unassignedSubmission = submission;
+
+            let resolved = false;
+            const ownerKey = unassignedSubmission.owner;
+            const assignedSubmissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
+            for(const [assignmentID, submissions] of Object.entries(assignedSubmissions))
+            {
+                // If it is a properly assigned assignment...
+                if (assignmentID === 'null') continue;
+
+                for(const ownedSubmission of submissions)
+                {
+                    // And it has the same post id as the unassigned one...
+                    if (unassignedSubmission.attributes.content.id === ownedSubmission.attributes.content.id)
+                    {
+                        // It should be of the same assignment :D
+                        changeSubmissionAssignment(db, unassignedSubmission, ownedSubmission.assignment);
+                        resolved = true;
+                    }
+
+                    if (resolved) break;
+                }
+                if (resolved) break;
+            }
+        }
+    }
+}
+
+var AssignSubmissionByPostIDResolver = /*#__PURE__*/Object.freeze({
+    resolve: resolve
+});
+
+/**
+ * Searches all unassigned submissions to check if they could also be 'intro' assignments.
+ * @param {Database} db The database to resolve for.
+ */
+async function resolve$1(db, config)
+{
+    for(const ownerKey of getOwners(db))
+    {
+        const userID = getUserByOwnerKey(db, ownerKey);
+        if (userID)
+        {
+            const userName = getUserByID(db, userID).name;
+    
+            const assignedSubmissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
+            if ('null' in assignedSubmissions)
+            {
+                const unassignedSubmissions = assignedSubmissions['null'].slice();
+                for(const unassignedSubmission of unassignedSubmissions)
+                {
+                    if (unassignedSubmission.attributes.content.head.trim() === userName)
+                    {
+                        changeSubmissionAssignment(db, unassignedSubmission, 'intro');
+                    }
+                }
+            }
+        }
+    }
+}
+
+var AssignSubmissionByIntroResolver = /*#__PURE__*/Object.freeze({
+    resolve: resolve$1
+});
+
+const ERROR_TAG$7 = 'POSTPROCESS';
+
+const SUBMISSION_TYPE_UNKNOWN = 'unknown';
+const SUBMISSION_TYPE_SOURCE = 'source';
+const SUBMISSION_TYPE_MINOR_EDIT = 'minor';
+const SUBMISSION_TYPE_MAJOR_EDIT = 'major';
+
+function evaluatePostType(submission, baseSubmission)
+{
+    if (submission === baseSubmission) return SUBMISSION_TYPE_SOURCE;
+    // There are posts that have the same content, but different times. They are treated as minor edits;
+    if (submission.attributes.content.body == baseSubmission.attributes.content.body) return SUBMISSION_TYPE_MINOR_EDIT;
+    if (submission.attributes.content.body != baseSubmission.attributes.content.body) return SUBMISSION_TYPE_MAJOR_EDIT;
+
+    // TODO: This will never be reached, but once we have a tolerance function for the body content compare, it will.
+    if (submission.attributes.content.head != baseSubmission.attributes.content.head) return SUBMISSION_TYPE_MINOR_EDIT;
+    return SUBMISSION_TYPE_UNKNOWN;
+}
+
+function setGradedSubmissionForAssignment(db, userID, assignmentID, submission)
+{
+    const assignment = getAssignmentByID(db, userID, assignmentID);
+    assignment.attributes.submission = submission;
+}
+
+function getNearestSubmission(submissions, targetDate)
+{
+    let minSubmission = null;
+    let minDateOffset = Infinity;
+    for(const submission of submissions)
+    {
+        const dateOffset = compareDates(submission.date, targetDate);
+
+        // If there exists a submission BEFORE the due date, return that one.
+        if (minSubmission && dateOffset > 0)
+        {
+            return minSubmission;
+        }
+
+        // Otherwise...
+        if (Math.abs(dateOffset) < minDateOffset)
+        {
+            minSubmission = submission;
+            minDateOffset = Math.abs(dateOffset);
+        }
+    }
+    return minSubmission;
+}
+
+/**
+ * Searches through all submissions and assigns them to the appropriate assignment.
+ * @param {Database} db The database to resolve for.
+ */
+async function resolve$2(db, config)
+{
+    for(const ownerKey of getOwners(db))
+    {
+        const userID = getUserByOwnerKey(db, ownerKey);
+        if (userID)
+        {
+            // Found owner -> user match! Now resolve post type...
+            const submittedAssignments = getAssignedSubmissionsByOwnerKey(db, ownerKey);
+            for(const assignmentID of Object.keys(submittedAssignments))
+            {
+                // Submissions are guaranteed to be in-order by time. The most recent entry being the last.
+                const submissions = submittedAssignments[assignmentID];
+                
+                const ownedAssignment = getAssignmentByID(db, userID, assignmentID);
+                if (ownedAssignment)
+                {
+                    const dueDate = ownedAssignment.dueDate;
+                    // TODO: baseSubmission will change if there are reviews. That would mean the new reviewed will be the base.
+                    const baseSubmission = getNearestSubmission(submissions, dueDate);
+                    const nextSubmission = submissions[submissions.length - 1];
+                    const postType = evaluatePostType(nextSubmission, baseSubmission);
+    
+                    // TODO: Always review major post edits. There is a post edit only if PAST the due date. Otherwise, it would be the new source.
+                    // TODO: Should NOT ALWAYS pick the earliest one.
+                    setGradedSubmissionForAssignment(db, userID, assignmentID, baseSubmission);
+                    /*
+                    if (postType === 'major')
+                    {
+                        setGradedSubmissionForAssignment(db, userID, assignmentID, nextSubmission);
+                    }
+                    else if (postType === 'source' || postType === 'minor')
+                    {
+                        setGradedSubmissionForAssignment(db, userID, assignmentID, baseSubmission);
+                    }
+                    else
+                    {
+                        db.throwError('[UNKNOWN_SUBMISSION_TYPE]\t', 'Unknown submission type - cannot evaluate edited post -', postType, '- DUE:', dueDate);
+                        db.throwError('\t\t\t\t\t\t\t\tSubmission:', baseSubmission, '\n=-=-=-=-=-=>\n', nextSubmission);
+                    }
+                    */
+    
+                    // Submission is processed... delete content and mark as resolved.
+                    for(const submission of submissions)
+                    {
+                        delete submission.attributes.content;
+                    }
+                }
+                else
+                {
+                    for(const submission of submissions)
+                    {
+                        db.throwError(ERROR_TAG$7, `Found unassigned assignment '${assignmentID}' with submission '${submission.id}' from user '${userID}'.`, {
+                            id: [userID, assignmentID],
+                            options: [
+                                `The submission header could be ill-formatted. We could not deduce its appropriate assignment automatically. Please verify the submitted content and header formats. Try submitting a 'change_assignment' review once you figure out its proper assignment.`,
+                                `It could be a non-assignment submission. Try submitting a 'ignore_submission' review.`
+                            ],
+                            more: [
+                                JSON.stringify(submission, null, 4)
+                            ]
+                        });
+                    }
+                }
+            }
+        }
+        else
+        {
+            const submissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
+            let submissionCount = 0;
+            for(const assignmentID of Object.keys(submissions))
+            {
+                submissionCount += submissions[assignmentID].length;
+            }
+            db.throwError(ERROR_TAG$7, `Found ${submissionCount} unowned submissions - cannot find user for owner key '${ownerKey}'.`, {
+                id: [ownerKey],
+                options: [
+                    `There are submissions without a valid user associated with it. Perhaps someone is using a different owner key? Try submitting a 'add_owner' review once you've found who these submissions belong to.`,
+                    `The owner key may be ill-formatted. Instead of fixing the mispelling, try submitting a 'add_owner' review to associate it back to the user.`
+                ],
+                more: [
+                    JSON.stringify(submissions, null, 4)
+                ]
+            });
+        }
+    }
+}
+
+var AssignSubmissionResolver = /*#__PURE__*/Object.freeze({
+    resolve: resolve$2
+});
+
+/**
+ * This is the LAST time zone offset from UTC. This means that there does
+ * not exist any other place on Earth with an earlier time, therefore the due
+ * date MUST be passed for everyone.
+ */
+const LATEST_TIMEZONE_OFFSET = 12 * 3600000;
+
+/**
+ * Calculates the number of days past the submission, accounting for time zones and partial days.
+ * @param {Date} submitDate The date submitted.
+ * @param {Date} dueDate The date the something should have been due.
+ * @returns {Number} The number of days past the due date from submission. Otherwise, it is 0.
+ */
+function calculateSlipDays(submitDate, dueDate)
+{
+    const days = Math.floor((dueDate.getTime() + LATEST_TIMEZONE_OFFSET) / ONE_DAYTIME) - Math.floor(submitDate.getTime() / ONE_DAYTIME);
+    if (days < 0)
+    {
+        return -days;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+/**
+ * Calculates the slip days for each user and assignment. This depends on submission
+ * already being assigned appropriately.
+ * @param {Database} db The database to resolve for.
+ */
+async function resolve$3(db, config)
+{
+    // HACK: There should be a better way to get today's date.
+    const currentDate = db.currentDate;
+
+    // Dependent on accurate assignment resolution for submissions...
+    for(const userID of getUsers(db))
+    {
+        // Progress calculations
+        let missing = 0;
+        let unassigned = 0;
+        let submitted = 0;
+
+        // Slip calculations
+        const submittedSlips = [];
+        let totalSlips = 0;
+        let daySlips = 0;
+        const user = getUserByID(db, userID);
+        const schedule = user.schedule;
+        const maxSlips = schedule.weeks * 3;
+        const assignments = getAssignmentsByUser(db, userID);
+
+        for(const assignmentID of assignments)
+        {
+            const assignment = getAssignmentByID(db, userID, assignmentID);
+
+            // Check if not yet processed... (sometimes already processed by review)
+            if (!('status' in assignment.attributes) || !('slip' in assignment.attributes))
+            {
+                const dueDate = assignment.dueDate;
+                if (compareDates(currentDate, dueDate) < 0)
+                {
+                    assignment.attributes.status = '_';
+                    assignment.attributes.slipDays = 0;
+                }
+                else
+                {
+                    let submitDate;
+                    if (assignment.attributes.submission)
+                    {
+                        assignment.attributes.status = 'Y';
+                        submitDate = assignment.attributes.submission.date;
+                    }
+                    else
+                    {
+                        assignment.attributes.status = 'N';
+                        submitDate = currentDate;
+                    }
+
+                    const slipDays = calculateSlipDays(submitDate, dueDate);
+                    assignment.attributes.slipDays = slipDays;
+                }
+            }
+
+            // Update assignment info...
+            const slipDays = assignment.attributes.slipDays;
+            if (slipDays > 0)
+            {
+                submittedSlips.push(slipDays);
+                totalSlips += slipDays;
+                ++daySlips;
+            }
+
+            switch(assignment.attributes.status)
+            {
+                case 'Y': ++submitted; break;
+                case 'N': ++missing; break;
+                case '_': ++unassigned; break;
+                // Don't recognize the status...
+                default: ++unassigned;
+            }
+        }
+
+        let mean = 0;
+        let median = 0;
+        if (daySlips > 0)
+        {
+            // Calculate mean...
+            mean = totalSlips / daySlips;
+            
+            // Calculate median...
+            if (submittedSlips.length % 2 === 0)
+            {
+                const left = Math.floor(submittedSlips.length / 2);
+                const right = left + 1;
+                median = left + right / 2;
+            }
+            else
+            {
+                median = Math.floor(submittedSlips.length / 2);
+            }
+        }
+
+        user.attributes.slips = {
+            used: totalSlips,
+            remaining: maxSlips - totalSlips,
+            max: maxSlips,
+            mean,
+            median,
+        };
+        
+        user.attributes.progress = {
+            submitted,
+            missing,
+            unassigned,
+        };
+    }
+}
+
+var SlipDayResolver = /*#__PURE__*/Object.freeze({
+    resolve: resolve$3
+});
+
+const SCHEME_NAME = 'piazza';
+
+// Order does NOT matter!
+const REVIEWERS$1 = [
+    NullReviewer,
+    UserAddOwnerKeyReviewer,
+    SubmissionChangeAssignmentReviewer,
+    SubmissionIgnoreOwnerReviewer,
+    SubmissionIgnoreReviewer,
+    SubmissionAddReviewer,
+    AssignmentChangeStatusReviewer
+];
+
+// Order DOES matter!
+const RESOLVERS$1 = [
+    AssignSubmissionByPostIDResolver,
+    AssignSubmissionByIntroResolver,
+    AssignSubmissionResolver,
+    SlipDayResolver,
+];
+
+async function setup(db, config)
+{
+    for(const reviewer of REVIEWERS$1)
+    {
+        registerReviewer(reviewer);
+    }
+
+    for(const resolver of RESOLVERS$1)
+    {
+        registerResolver(resolver);
+    }
+}
+
+async function prepareScheme(db, config)
+{
+    const schemeName = config.scheme;
+    if (!schemeName) throw new Error('Missing \'scheme\' name from config.');
+    switch(schemeName)
+    {
+        case SCHEME_NAME:
+            setup();
+            break;
+        default:
+            throw new Error(`Unknown scheme by name '${schemeName}'.`);
+    }
 }
 
 /**
@@ -48237,8 +48948,6 @@ async function clearDatabase$5(db, config)
     return db;
 }
 
-// Database setup
-
 /** Guaranteed to succeed. */
 async function createDatabase$1(config)
 {
@@ -48293,7 +49002,8 @@ async function populateDatabaseWithInputs(db, config)
     // Load input data...
     for(const parser of getParsers())
     {
-        const [parserFunction, filePath, pattern, opts] = parser;
+        const [parserFunction, filePath, parserType, opts] = parser;
+        console.log(`...Parsing '${path.basename(filePath)}' with '${path.basename(parserType)}'...`);
         await parserFunction.parse(db, config, filePath, opts);
     }
 
@@ -48301,7 +49011,7 @@ async function populateDatabaseWithInputs(db, config)
     for(const assigner of getAssigners())
     {
         const [assignmentFunction, pattern, name, opts] = assigner;
-        console.log(`...Assigning '${path.basename(name)}' with '${path.basename(pattern)}'...`);
+        console.log(`...Assigning '${name}' as '${pattern}'...`);
 
         for(const userID of getUsers(db))
         {
@@ -48312,35 +49022,431 @@ async function populateDatabaseWithInputs(db, config)
     }
 }
 
+async function fixDatabaseWithReviews(db, config)
+{
+    console.log('...Reviewing our work...');
+    
+    // Review data...
+    for(const reviewID of getReviews(db))
+    {
+        const review = getReviewByID(db, reviewID);
+        const reviewType = review.type;
+        const reviewParams = review.params;
+
+        const reviewer = getReviewerByType(reviewType);
+        await reviewer.review(db, config, reviewID, reviewType, reviewParams);
+    }
+
+    console.log('...Helping you resolve a few things...');
+    // Resolve data...
+    const resolvers = getResolvers();
+    for(const resolver of resolvers)
+    {
+        await resolver.resolve(db, config);
+    }
+}
+
 async function verifyDatabaseWithClient(db, config)
 {
     console.log("...Verifying database with client...");
     return await askWhetherDatabaseIsValidToUse();
 }
 
-// Database validation
+const inquirer = require('inquirer');
+const chalk$3 = require('chalk');
+
+/**
+ * This will run the steps to make a review and save it to file.
+ */
+async function run(db, config, skipFirstCheck = true)
+{
+    console.log(chalk$3.gray("Starting Review Maker..."));
+    console.log("Welcome to Review Maker");
+
+    let result = null;
+    
+    while(!result)
+    {
+        let answer;
+        if (!skipFirstCheck)
+        {
+            answer = await inquirer.prompt([
+                {
+                    message: "Would you like to make a new review?",
+                    name: "value",
+                    type: "confirm",
+                }
+            ]);
+        }
+        else
+        {
+            skipFirstCheck = false;
+            answer = { value: true };
+        }
+
+        if (!answer.value) break;
+
+        result = await makeReview(db, config);
+
+        if (result)
+        {
+            const ID = 0;
+            const DATE = 1;
+            const COMMENT = 2;
+            const TYPE = 3;
+            const PARAMS = 4;
+
+            const reviewer = getReviewerByType(result[TYPE]);
+            const paramTypes = reviewer.REVIEW_PARAM_TYPES;
+            const desc = reviewer.REVIEW_DESC;
+    
+            console.log(chalk$3.cyan('>'), 'Review', chalk$3.green(`${result[TYPE]} ( ${paramTypes.join(', ')} )`, chalk$3.gray(`- ${desc}`)));
+            console.log(chalk$3.cyan('>'), 'Comment', chalk$3.cyan(`${result[COMMENT]}`));
+            console.log(chalk$3.cyan('>'), 'Date', chalk$3.cyan(`${result[DATE]}`));
+            console.log(chalk$3.cyan('>'), 'ID', chalk$3.cyan(`${result[ID]}`));
+            console.log(chalk$3.cyan('>'), 'Parameters');
+            for(let i = 0; i < result[PARAMS].length; ++i)
+            {
+                console.log(chalk$3.cyan('>'), `- ${paramTypes[i]} = '${chalk$3.cyan(result[PARAMS][i])}'`);
+            }
+
+            answer = await inquirer.prompt([
+                {
+                    message: 'Is this correct?',
+                    name: 'value',
+                    type: 'confirm'
+                }
+            ]);
+            if (!answer.value) result = null;
+        }
+        else
+        {
+            console.log(chalk$3.red('...trying again...'));
+        }
+    }
+
+    if (result)
+    {
+        console.log("Good review! Hope to see you soon!");
+    }
+    
+    console.log(chalk$3.gray("...Stopping Review Maker"));
+
+    return result;
+}
+
+async function makeReview(db, config)
+{
+    let id = stringHash(uuid());
+    let date = new Date(Date.now());
+    let comment = '';
+    let type;
+    let params;
+
+    // Resolve type...
+    type = await chooseReviewType();
+    if (!type) return null;
+
+    // Resolve params...
+    params = await chooseReviewParameters(db, config, type);
+    if (!params) return null;
+
+    // (Optionally) Resolve comment...
+    if ((await inquirer.prompt([
+        {
+            message: 'Do you want to add a comment?',
+            name: 'value',
+            type: 'confirm'
+        }
+    ])).value)
+    {
+        comment = (await inquirer.prompt([
+            {
+                message: 'What is the comment? (By default, it is blank.)',
+                name: 'value',
+                type: 'input',
+            }
+        ])).value;
+    }
+
+    // (Optionally) Resolve id...
+    // TODO: Not yet implemented.
+
+    return [id, date, comment, type, params];
+}
+
+async function chooseReviewType(db, config)
+{
+    const reviewers = getReviewers();
+    let answer;
+
+    answer = await inquirer.prompt([
+        {
+            message: "What type of review do you want to make?",
+            name: "value",
+            type: "list",
+            choices: (session) => {
+                const result = [];
+                for(const reviewer of reviewers)
+                {
+                    result.push({
+                        name: `${reviewer.REVIEW_TYPE} - ${reviewer.REVIEW_DESC}`,
+                        value: reviewer.REVIEW_TYPE,
+                        short: reviewer.REVIEW_TYPE
+                    });
+                }
+                result.push(
+                    {
+                        name: "...or a custom type?",
+                        value: "__custom",
+                        short: "(custom type)"
+                    }
+                );
+                result.push(
+                    {
+                        name: "...or go back?",
+                        value: "__cancel",
+                        short: "(go back)"
+                    }
+                );
+                return result;
+            }
+        }
+    ]);
+
+    if (answer.value === '__custom')
+    {
+        answer = await inquirer.prompt([
+            {
+                message: "What is the custom review type?",
+                name: "value",
+                type: "input",
+                validate: (input) => {
+                    if (input.length === 0) return "Cannot be empty.";
+                    if (input.trim().length < input.length) return "Cannot have leading or trailing whitespace.";
+                    if (/^\S*$/.test(input)) return "Cannot have whitespaces.";
+                    if (reviewTypes.has(input)) return "Review type already exists.";
+                    return true;
+                }
+            }
+        ]);
+    }
+    else if (answer.value === '__cancel')
+    {
+        return null;
+    }
+
+    return await confirmLoop(answer.value, async (reviewType) => {
+        const reviewer = getReviewerByType(reviewType);
+        const paramTypes = reviewer.REVIEW_PARAM_TYPES;
+        const desc = reviewer.REVIEW_DESC;
+
+        console.log(chalk$3.cyan('>'), chalk$3.green(`${reviewType} ( ${paramTypes.join(', ')} )`, chalk$3.gray(`- ${desc}`)));
+        const answer = await inquirer.prompt([
+            {
+                name: 'value',
+                message: `Is this correct?`,
+                type: 'confirm'
+            }
+        ]);
+
+        return answer.value;
+    }, async () => await chooseReviewType());
+}
+
+async function chooseReviewParameter(db, config, paramType)
+{
+    let answer;
+
+    answer = await inquirer.prompt([
+        {
+            message: `What is the value for '${paramType}'?`,
+            name: 'value',
+            type: 'input',
+        }
+    ]);
+
+    return answer.value;
+}
+
+async function chooseReviewParameters(db, config, reviewType)
+{
+    const result = [];
+    const reviewer = getReviewerByType(reviewType);
+    const paramTypes = reviewer.REVIEW_PARAM_TYPES;
+    for(const paramType of paramTypes)
+    {
+        const paramValue = await chooseReviewParameter(db, config, paramType);
+        if (paramValue !== null)
+        {
+            result.push(paramValue);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return result;
+}
+
+async function confirmLoop(value, confirmCallback, loopCallback)
+{
+    const result = await confirmCallback(value);
+    if (result)
+    {
+        return value;
+    }
+    else
+    {
+        return await loopCallback();
+    }
+}
+
+const chalk$4 = require('chalk');
+const inquirer$1 = require('inquirer');
+
+async function askClientToPickError(errors)
+{
+    const dst = [];
+    for(const error of errors)
+    {
+        dst.push({
+            name: `${chalk$4.gray(error.id + ': ')} ${error.message}`,
+            value: error.id,
+            short: error.id + ': ' + error.message,
+        });
+    }
+    const answer = await inquirer$1.prompt([
+        {
+            message: 'Which error do you want to review?',
+            name: 'value',
+            type: 'rawlist',
+            choices: dst,
+            pageSize: 20
+        }
+    ]);
+    return answer.value;
+}
+
+async function showErrorInfo(error)
+{
+    const errorMessage = `${chalk$4.gray(error.id + ':')} ${error.message}`;
+    printError(errorMessage);
+    const errorSolutions = `${chalk$4.green(`${chalk$4.bold(`= Solutions: ${'='.repeat(67)}`)}\n => ${error.options.join('\n => ')}\n${chalk$4.bold('='.repeat(80))}`)}`;
+    println(errorSolutions);
+
+    if (await askYesNo("Show more info?"))
+    {
+        const errorInfo = `${chalk$4.yellow(`${chalk$4.bold(`= More Info: ${'='.repeat(67)}`)}\n | ${error.more.join('\n')}\n${'='.repeat(80)}`)}`;
+        println(errorInfo);
+    }
+}
+
+async function askClientToReviewError(db, errorID)
+{
+    const error = db.getErrorByID(errorID);
+    await showErrorInfo(error);
+    return await askYesNo("Continue to review?");
+}
+
+async function doReviewSession(db, config)
+{
+    return await run(db, config, true);
+}
 
 /** If unable to find errors, an empty array is returned. */
 async function findDatabaseErrors(db, config)
 {
     console.log("...Finding database errors...");
-    return db.getErrors();
+    const result = db.getErrors();
+    if (!result || result.length <= 0)
+    {
+        println("No errors! Hooray!");
+        return null;
+    }
+    else
+    {
+        return result;
+    }
 }
 
 async function shouldContinueResolvingErrorsWithClient(db, config, errors)
 {
     console.log("...Should resolve database errors?");
+    return askWhetherToReviewErrors(db, config, errors);
 }
 
 async function resolveDatabaseErrors(db, config, errors)
 {
     console.log("...Resolving database errors...");
+
+    const errorID = await askClientToPickError(errors);
+
+    if (await askClientToReviewError(db, errorID))
+    {
+        return await doReviewSession(db, config);
+    }
+
+    return null;
+}
+
+async function clearDatabase$6(db, config)
+{
+    console.log("...Clearing database...");
+    clearDatabase$5(db);
 }
 
 async function verifyErrorsWithClient(db, config, errors)
 {
     if (!errors || errors.length <= 0) return true;
     
+    return await askWhetherToIgnoreErrors(db, config, errors);
+}
+
+async function shouldSaveNewReviewsForClient(db, config, reviews)
+{
+    if (!reviews || reviews.length <= 0) return false;
+
+    const result = await askWhetherToSaveNewReviews(db, config, reviews);
+    if (!result) println("Dumping reviews...");
+    return result;
+}
+
+async function outputNewReviewsToFile(db, config, reviews)
+{
+    const path = require('path');
+    
+    const reviewTableHeader = [
+        'Review ID',
+        'Date',
+        'Comment',
+        'Type',
+        'Param[0]',
+        'Param[1]',
+        'Param[2]',
+        'Param[3]',
+        '...'
+    ];
+    const reviewTable = [reviewTableHeader];
+    for(const review of reviews)
+    {
+        const reviewEntry = [];
+        // ID
+        reviewEntry.push(review[0]);
+        // Date
+        reviewEntry.push(review[1]);
+        // Comment
+        reviewEntry.push(review[2]);
+        // Type
+        reviewEntry.push(review[3]);
+        // Params
+        reviewEntry.push(...review[4]);
+        reviewTable.push(reviewEntry);
+    }
+
+    const outputFilePath = path.resolve(config.outputPath, `reviews-${db.currentDate.toISOString()}.csv`);
+    await writeTableToCSV(outputFilePath, reviewTable);
 }
 
 async function outputErrorLog(db, config, errors)
@@ -48621,11 +49727,16 @@ const path$6 = require('path');
 async function output$2(db, config, outputPath, opts)
 {
     // Output all database logs...
-    outputLog$3(db, outputPath);
-    outputLog$2(db, outputPath);
-    outputLog(db, outputPath);
-    outputLog$1(db, outputPath);
-    outputLog$4(db, outputPath);
+    try { outputLog$3(db, outputPath); }
+    catch(e) { console.error('Failed to output log.', e); }
+    try { outputLog$2(db, outputPath); }
+    catch(e) { console.error('Failed to output log.', e); }
+    try { outputLog(db, outputPath); }
+    catch(e) { console.error('Failed to output log.', e); }
+    try { outputLog$1(db, outputPath); }
+    catch(e) { console.error('Failed to output log.', e); }
+    try { outputLog$4(db, outputPath); }
+    catch(e) { console.error('Failed to output log.', e); }
 
     // Output computed config file...
     writeToFile(path$6.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
@@ -48782,11 +49893,17 @@ async function resolveDatabase(config)
     // Creates an empty database (with no structure at all)...
     const db = await createDatabase$1(config);
 
+    // Prepare registries with scheme...
+    await prepareScheme(db, config);
+
     // Try to prepare all database entries from config...
     await prepareDatabaseForInputs(db, config);
 
     // Try to load all database entries from config...
     await populateDatabaseWithInputs(db, config);
+
+    // Apply the database review fixes...
+    await fixDatabaseWithReviews(db, config);
 
     // Check with the user if it is okay to continue, based on some data stats...
     if (!await verifyDatabaseWithClient())
@@ -48806,13 +49923,42 @@ async function validateDatabase(db, config)
     console.log("Validating database...");
 
     // Apply reviews...
+    let reviews = [];
     let errors;
     while(errors = await findDatabaseErrors(db))
     {
         // Check whether the client wants to continue resolving errors... cause there could be a lot.
-        if (await shouldContinueResolvingErrorsWithClient())
+        if (await shouldContinueResolvingErrorsWithClient(db, config, errors))
         {
-            await resolveDatabaseErrors();
+            const result = await resolveDatabaseErrors(db, config, errors);
+
+            // If review was successful...
+            if (result)
+            {
+                if (Array.isArray(result))
+                {
+                    reviews.push(...result);
+                }
+                else
+                {
+                    reviews.push(result);
+                }
+
+                // Restart the database...
+                await clearDatabase$6(db);
+    
+                // Re-apply all the data...
+                await populateDatabaseWithInputs(db, config);
+                // Apply the new reviews...
+                for(const review of reviews)
+                {
+                    addReview(db, ...review);
+                }
+                // Re-fix them...
+                await fixDatabaseWithReviews(db, config);    
+            }
+
+            // And go back to check for errors again...
         }
         else
         {
@@ -48820,13 +49966,19 @@ async function validateDatabase(db, config)
         }
     }
 
-    // Whether to ignore errors and continue as normal...
+    // Whether to ignore errors or continue as normal...
     if (!await verifyErrorsWithClient(db, config, errors))
     {
         await outputErrorLog();
         
         // IT'S AN ERROR! RUN AWAY!!!
         throw new Error('Could not validate database. Stopping program...');
+    }
+
+    // Whether to save any newly created reviews...
+    if (await shouldSaveNewReviewsForClient(db, config, reviews))
+    {
+        await outputNewReviewsToFile(db, config, reviews);
     }
 
     // All is well.
@@ -48840,7 +49992,7 @@ async function validateDatabase(db, config)
 async function generateOutput(db, config)
 {
     console.log("Generating output...");
-    
+
     const outputEntries = findOutputEntries(config);
 
     for(const outputEntry of outputEntries)
@@ -48854,1131 +50006,6 @@ async function generateOutput(db, config)
             console.error('Failed to process output entry.', e);
         }
     }
-}
-
-const REVIEWERS = new Map();
-
-function registerReviewer(reviewer)
-{
-    REVIEWERS.set(reviewer.REVIEW_TYPE, reviewer);
-}
-
-function getReviewerByType(type)
-{
-    if (REVIEWERS.has(type))
-    {
-        return REVIEWERS.get(type);
-    }
-    else
-    {
-        return REVIEWERS.get('null');
-    }
-}
-
-function getReviewers()
-{
-    return REVIEWERS.values();
-}
-
-const inquirer = require('inquirer');
-const chalk$2 = require('chalk');
-
-/**
- * This will run the steps to make a review and save it to file.
- */
-async function run(db, config, skipFirstCheck = true)
-{
-    console.log(chalk$2.gray("Starting Review Maker..."));
-    console.log("Welcome to Review Maker");
-
-    let result = null;
-    
-    while(!result)
-    {
-        let answer;
-        if (!skipFirstCheck)
-        {
-            answer = await inquirer.prompt([
-                {
-                    message: "Would you like to make a new review?",
-                    name: "value",
-                    type: "confirm",
-                }
-            ]);
-        }
-        else
-        {
-            skipFirstCheck = false;
-            answer = { value: true };
-        }
-
-        if (!answer.value) break;
-
-        result = await makeReview(db, config);
-
-        if (result)
-        {
-            const ID = 0;
-            const DATE = 1;
-            const COMMENT = 2;
-            const TYPE = 3;
-            const PARAMS = 4;
-
-            const reviewer = getReviewerByType(result[TYPE]);
-            const paramTypes = reviewer.REVIEW_PARAM_TYPES;
-            const desc = reviewer.REVIEW_DESC;
-    
-            console.log(chalk$2.cyan('>'), 'Review', chalk$2.green(`${result[TYPE]} ( ${paramTypes.join(', ')} )`, chalk$2.gray(`- ${desc}`)));
-            console.log(chalk$2.cyan('>'), 'Comment', chalk$2.cyan(`${result[COMMENT]}`));
-            console.log(chalk$2.cyan('>'), 'Date', chalk$2.cyan(`${result[DATE]}`));
-            console.log(chalk$2.cyan('>'), 'ID', chalk$2.cyan(`${result[ID]}`));
-            console.log(chalk$2.cyan('>'), 'Parameters');
-            for(let i = 0; i < result[PARAMS].length; ++i)
-            {
-                console.log(chalk$2.cyan('>'), `- ${paramTypes[i]} = '${chalk$2.cyan(result[PARAMS][i])}'`);
-            }
-
-            answer = await inquirer.prompt([
-                {
-                    message: 'Is this correct?',
-                    name: 'value',
-                    type: 'confirm'
-                }
-            ]);
-            if (!answer.value) result = null;
-        }
-        else
-        {
-            console.log(chalk$2.red('...trying again...'));
-        }
-    }
-
-    if (result)
-    {
-        console.log("Good review! Hope to see you soon!");
-    }
-    
-    console.log(chalk$2.gray("...Stopping Review Maker"));
-
-    return result;
-}
-
-async function makeReview(db, config)
-{
-    let id = stringHash(uuid());
-    let date = new Date(Date.now());
-    let comment = '';
-    let type;
-    let params;
-
-    // Resolve type...
-    type = await chooseReviewType();
-    if (!type) return null;
-
-    // Resolve params...
-    params = await chooseReviewParameters(db, config, type);
-    if (!params) return null;
-
-    // (Optionally) Resolve comment...
-    if ((await inquirer.prompt([
-        {
-            message: 'Do you want to add a comment?',
-            name: 'value',
-            type: 'confirm'
-        }
-    ])).value)
-    {
-        comment = (await inquirer.prompt([
-            {
-                message: 'What is the comment? (By default, it is blank.)',
-                name: 'value',
-                type: 'input',
-            }
-        ])).value;
-    }
-
-    // (Optionally) Resolve id...
-    // TODO: Not yet implemented.
-
-    return [id, date, comment, type, params];
-}
-
-async function chooseReviewType(db, config)
-{
-    const reviewers = getReviewers();
-    let answer;
-
-    answer = await inquirer.prompt([
-        {
-            message: "What type of review do you want to make?",
-            name: "value",
-            type: "list",
-            choices: (session) => {
-                const result = [];
-                for(const reviewer of reviewers)
-                {
-                    result.push({
-                        name: `${reviewer.REVIEW_TYPE} - ${reviewer.REVIEW_DESC}`,
-                        value: reviewer.REVIEW_TYPE,
-                        short: reviewer.REVIEW_TYPE
-                    });
-                }
-                result.push(
-                    {
-                        name: "...or a custom type?",
-                        value: "__custom",
-                        short: "(custom type)"
-                    }
-                );
-                result.push(
-                    {
-                        name: "...or go back?",
-                        value: "__cancel",
-                        short: "(go back)"
-                    }
-                );
-                return result;
-            }
-        }
-    ]);
-
-    if (answer.value === '__custom')
-    {
-        answer = await inquirer.prompt([
-            {
-                message: "What is the custom review type?",
-                name: "value",
-                type: "input",
-                validate: (input) => {
-                    if (input.length === 0) return "Cannot be empty.";
-                    if (input.trim().length < input.length) return "Cannot have leading or trailing whitespace.";
-                    if (/^\S*$/.test(input)) return "Cannot have whitespaces.";
-                    if (reviewTypes.has(input)) return "Review type already exists.";
-                    return true;
-                }
-            }
-        ]);
-    }
-    else if (answer.value === '__cancel')
-    {
-        return null;
-    }
-
-    return await confirmLoop(answer.value, async (reviewType) => {
-        const reviewer = getReviewerByType(reviewType);
-        const paramTypes = reviewer.REVIEW_PARAM_TYPES;
-        const desc = reviewer.REVIEW_DESC;
-
-        console.log(chalk$2.cyan('>'), chalk$2.green(`${reviewType} ( ${paramTypes.join(', ')} )`, chalk$2.gray(`- ${desc}`)));
-        const answer = await inquirer.prompt([
-            {
-                name: 'value',
-                message: `Is this correct?`,
-                type: 'confirm'
-            }
-        ]);
-
-        return answer.value;
-    }, async () => await chooseReviewType());
-}
-
-async function chooseReviewParameter(db, config, paramType)
-{
-    let answer;
-
-    answer = await inquirer.prompt([
-        {
-            message: `What is the value for '${paramType}'?`,
-            name: 'value',
-            type: 'input',
-        }
-    ]);
-
-    return answer.value;
-}
-
-async function chooseReviewParameters(db, config, reviewType)
-{
-    const result = [];
-    const reviewer = getReviewerByType(reviewType);
-    const paramTypes = reviewer.REVIEW_PARAM_TYPES;
-    for(const paramType of paramTypes)
-    {
-        const paramValue = await chooseReviewParameter(db, config, paramType);
-        if (paramValue !== null)
-        {
-            result.push(paramValue);
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return result;
-}
-
-async function confirmLoop(value, confirmCallback, loopCallback)
-{
-    const result = await confirmCallback(value);
-    if (result)
-    {
-        return value;
-    }
-    else
-    {
-        return await loopCallback();
-    }
-}
-
-const inquirer$1 = require('inquirer');
-const chalk$3 = require('chalk');
-
-async function chooseError(errors)
-{
-    const dst = [];
-    for(const error of errors)
-    {
-        dst.push({
-            name: `${chalk$3.gray(error.id + ': ')} ${error.message}`,
-            value: error.id,
-            short: error.id + ': ' + error.message,
-        });
-    }
-    const answer = await inquirer$1.prompt([
-        {
-            message: 'Which error do you want to review?',
-            name: 'value',
-            type: 'list',
-            choices: dst,
-            pageSize: 20
-        }
-    ]);
-    return answer.value;
-}
-
-async function run$1(db, config, processCallback)
-{
-    let dst = [];
-    let errors = db.getErrors();
-    while (errors.length > 0)
-    {
-        printlnError(`Found ${errors.length} errors. :(`);
-        if (await askYesNo("Do you want to review them now?"))
-        {
-            // Review each error...
-            const errorID = await chooseError(errors);
-            const error = db.getErrorByID(errorID);
-            const errorMessage = `${chalk$3.gray(error.id + ':')} ${error.message}`;
-            printError(errorMessage);
-            const errorSolutions = `${chalk$3.green(`${chalk$3.bold(`= Solutions: ${'='.repeat(67)}`)}\n => ${error.options.join('\n => ')}\n${chalk$3.bold('='.repeat(80))}`)}`;
-            println(errorSolutions);
-
-            const answer = await askChoose(
-                "Continue to review?",
-                ["Yes, review it now.", 'yes'],
-                ["Yes, but with more info.", 'more'],
-                ["No, go back.", 'no']
-            );
-
-            switch(answer)
-            {
-                case 'more':
-                    const errorInfo = `${chalk$3.yellow(`${chalk$3.bold(`= More Info: ${'='.repeat(67)}`)}\n | ${error.more.join('\n')}\n${'='.repeat(80)}`)}`;
-                    println(errorInfo);
-                case 'yes':
-                    // Let it pass.
-                    break;
-                case 'no':
-                default:
-                    // Go back to the start of the loop.
-                    continue;
-            }
-
-            const review = await run(db, config, true);
-            if (review) dst.push(review);
-
-            // Restart the database...
-            await clearDatabase$5(db);
-
-            // Add the new reviews to the database...
-            for(const review of dst)
-            {
-                addReview(db, ...review);
-            }
-
-            // Re-run the process again for new errors...
-            await processCallback(db, config);
-
-            // Get new errors...
-            errors = db.getErrors();
-        }
-        else
-        {
-            println(`Skipping errors...${Math.random() > 0.6 ? chalk$3.gray(`...(I trust you)...`) : ''}`);
-            errors.length = 0;
-            break;
-        }
-    }
-
-    if (errors.length <= 0)
-    {
-        println("Hooray! No errors!");
-    }
-
-    return dst;
-}
-
-const ERROR_TAG = 'REVIEW';
-
-const REVIEW_TYPE = 'null';
-const REVIEW_DESC = 'Unknown review type.';
-const REVIEW_PARAM_TYPES = [];
-
-async function review(db, reviewID, reviewType, reviewParams)
-{
-    db.throwError(ERROR_TAG, `Unhandled review type ${reviewType} for review '${reviewID}'.`, {
-        id: [reviewID, reviewType],
-        options: [
-            `You probably misspelled the review type.`,
-            `Ask the developer to handle a new '${reviewType}' review type.`
-        ]
-    });
-}
-
-var NullReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE,
-    REVIEW_DESC: REVIEW_DESC,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES,
-    review: review
-});
-
-const ERROR_TAG$1 = 'REVIEW';
-
-const REVIEW_TYPE$1 = 'change_assignment';
-const REVIEW_DESC$1 = 'Change assignment for submission.';
-const REVIEW_PARAM_TYPES$1 = [
-    'Assignment ID',
-    'Submission ID'
-];
-
-async function review$1(db, reviewID, reviewType, reviewParams)
-{
-    if (reviewType !== REVIEW_TYPE$1) db.throwError(ERROR_TAG$1, `Mismatched review type - '${REVIEW_TYPE$1}' reviewer cannot process review type '${reviewType}'.`);
-    if (reviewParams.length < 2) db.throwError(ERROR_TAG$1, `Missing review params - expected 2 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
-
-    const submission = getSubmissionByID(db, reviewParams[1]);
-    if (!submission)
-    {
-        db.throwError(ERROR_TAG$1, `Invalid review param - unable to find submission for id '${reviewParams[1]}'.`, {
-            id: [reviewID, reviewType],
-            options: [
-                'The submission for that id is missing from the database.',
-                'Or it\'s the wrong id.'
-            ]
-        });
-        return;
-    }
-
-    changeSubmissionAssignment(db, submission, reviewParams[0]);
-}
-
-var SubmissionChangeAssignmentReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE$1,
-    REVIEW_DESC: REVIEW_DESC$1,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$1,
-    review: review$1
-});
-
-const ERROR_TAG$2 = 'REVIEW';
-
-const REVIEW_TYPE$2 = 'ignore_owner';
-const REVIEW_DESC$2 = 'Ignore submissions by owner.';
-const REVIEW_PARAM_TYPES$2 = [
-    'Owner Key'
-];
-
-async function review$2(db, reviewID, reviewType, reviewParams)
-{
-    if (reviewType !== REVIEW_TYPE$2) db.throwError(ERROR_TAG$2, `Mismatched review type - '${REVIEW_TYPE$2}' reviewer cannot process review type '${reviewType}'.`);
-    if (reviewParams.length < 1) db.throwError(ERROR_TAG$2, `Missing review params - expected 1 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
-
-    clearSubmissionsByOwner(db, reviewParams[0]);
-}
-
-var SubmissionIgnoreOwnerReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE$2,
-    REVIEW_DESC: REVIEW_DESC$2,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$2,
-    review: review$2
-});
-
-const ERROR_TAG$3 = 'REVIEW';
-
-const REVIEW_TYPE$3 = 'ignore_submission';
-const REVIEW_DESC$3 = 'Ignore specific submission by id.';
-const REVIEW_PARAM_TYPES$3 = [
-    'Submission ID'
-];
-
-async function review$3(db, reviewID, reviewType, reviewParams)
-{
-    if (reviewType !== REVIEW_TYPE$3) db.throwError(ERROR_TAG$3, `Mismatched review type - '${REVIEW_TYPE$3}' reviewer cannot process review type '${reviewType}'.`);
-    if (reviewParams.length < 1) db.throwError(ERROR_TAG$3, `Missing review params - expected 1 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
-
-    const targetSubmission = getSubmissionByID(db, reviewParams[0]);
-    if (!targetSubmission)
-    {
-        db.throwError(ERROR_TAG$3, `Invalid review param - Cannot find submission for id '${reviewParams[0]}'.`, {
-            id: [reviewID, reviewType],
-            options: [
-                `Submission with this id has probably already been removed.`,
-                `Or the id is wrong.`
-            ]
-        });
-        return;
-    }
-
-    const deleteSubmisssionIDs = [];
-    for(const submissionID of getSubmissions(db))
-    {
-        const submission = getSubmissionByID(db, submissionID);
-        if (submission.owner == targetSubmission.owner
-            && submission.attributes.content.id == targetSubmission.attributes.content.id)
-        {
-            deleteSubmisssionIDs.push(submissionID);
-        }
-    }
-
-    for(const submissionID of deleteSubmisssionIDs)
-    {
-        removeSubmissionByID(db, submissionID);
-    }
-}
-
-var SubmissionIgnoreReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE$3,
-    REVIEW_DESC: REVIEW_DESC$3,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$3,
-    review: review$3
-});
-
-const ERROR_TAG$4 = 'REVIEW';
-
-const REVIEW_TYPE$4 = 'add_submission';
-const REVIEW_DESC$4 = 'Add submission (with assignment) for owner.';
-const REVIEW_PARAM_TYPES$4 = [
-    'Owner Key',
-    'Assignment ID',
-    'Submission Date (Optional)',
-    'Submission Attributes (Optional)',
-];
-
-async function review$4(db, reviewID, reviewType, reviewParams)
-{
-    if (reviewType !== REVIEW_TYPE$4) db.throwError(ERROR_TAG$4, `Mismatched review type - '${REVIEW_TYPE$4}' reviewer cannot process review type '${reviewType}'.`);
-    if (reviewParams.length < 2) db.throwError(ERROR_TAG$4, `Missing review params - expected 2 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
-
-    const ownerKey = reviewParams[0];
-    const userID = getUserByOwnerKey(db, ownerKey);
-    if (!userID)
-    {
-        db.throwError(ERROR_TAG$4, `Cannot find user for owner key ${ownerKey}`, {
-            id: [reviewID, reviewType],
-            options: [`Add missing owner key '${ownerKey}' to a user.`]
-        });
-    }
-    
-    const assignmentID = reviewParams[1];
-    const submissionID = ownerKey + '#proxy_' + stringHash(`${reviewID}:${ownerKey}.${assignmentID}`);
-    const submissionDate = reviewParams.length >= 2
-        ? parseAmericanDate(reviewParams[2])
-        : new Date(getAssignmentByID(db, userID, assignmentID).dueDate.getTime() - 1);
-    const submissionAttributes = reviewParams.length >= 3
-        ? JSON.parse(reviewParams[3])
-        : {};
-    addSubmission(db, submissionID, ownerKey, assignmentID, submissionDate, submissionAttributes);
-}
-
-var SubmissionAddReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE$4,
-    REVIEW_DESC: REVIEW_DESC$4,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$4,
-    review: review$4
-});
-
-const ERROR_TAG$5 = 'REVIEW';
-
-const REVIEW_TYPE$5 = 'add_owner_key';
-const REVIEW_DESC$5 = 'Add additional owner key for user';
-const REVIEW_PARAM_TYPES$5 = [
-    'User ID',
-    'Owner Key'
-];
-
-async function review$5(db, reviewID, reviewType, reviewParams)
-{
-    if (reviewType !== REVIEW_TYPE$5) db.throwError(ERROR_TAG$5, `Mismatched review type - '${REVIEW_TYPE$5}' reviewer cannot process review type '${reviewType}'.`);
-    if (reviewParams.length < 2) db.throwError(ERROR_TAG$5, `Missing review params - expected 2 parameter.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
-
-    const user = getUserByID(db, reviewParams[0]);
-    if (!user)
-    {
-        db.throwError(ERROR_TAG$5, `Invalid review param - Cannot find user for id '${reviewParams[0]}'.`, {
-            id: [reviewID, reviewType],
-            options: [
-                `User with this id has probably already been removed.`,
-                `Or the id is wrong.`
-            ]
-        });
-        return;
-    }
-
-    const ownerKey = reviewParams[1];
-    if (user.ownerKey.includes(ownerKey))
-    {
-        db.throwError(ERROR_TAG$5, `Invalid review param - Duplicate owner key '${ownerKey}' for user.`, {
-            id: [reviewID, reviewType],
-            options: [`The user already has this owner key.`]
-        });
-        return;
-    }
-
-    if (Array.isArray(user.ownerKey))
-    {
-        user.ownerKey.push(ownerKey);
-    }
-    else
-    {
-        user.ownerKey = [user.ownerKey, ownerKey];
-    }
-}
-
-var UserAddOwnerKeyReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE$5,
-    REVIEW_DESC: REVIEW_DESC$5,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$5,
-    review: review$5
-});
-
-const ERROR_TAG$6 = 'REVIEW';
-
-const REVIEW_TYPE$6 = 'change_assignment_status';
-const REVIEW_DESC$6 = 'Changes the assignment status and slips for an owner.';
-const REVIEW_PARAM_TYPES$6 = [
-    'Owner Key',
-    'Assignment ID',
-    'Status (Y/N/_)',
-    'Slip days (Optional)',
-];
-
-async function review$6(db, reviewID, reviewType, reviewParams)
-{
-    if (reviewType !== REVIEW_TYPE$6) db.throwError(ERROR_TAG$6, `Mismatched review type - '${REVIEW_TYPE$6}' reviewer cannot process review type '${reviewType}'.`);
-    if (reviewParams.length < 3) db.throwError(ERROR_TAG$6, `Missing review params - expected 3 parameters.`, { id: [reviewID, reviewType], options: [`Add more parameters to the review.`] });
-
-    const ownerKey = reviewParams[0];
-    const userID = getUserByOwnerKey(db, ownerKey);
-    if (!userID) db.throwError(ERROR_TAG$6, `Cannot find user for owner key ${ownerKey}`, { id: [reviewID, reviewType], options: [`Add missing owner key '${ownerKey}' to a user.`] });
-
-    const assignmentID = reviewParams[1];
-    const status = reviewParams[2];
-
-    const slipDays = reviewParams.length > 3 ? Number(reviewParams[3]) : 0;
-    const assignment = getAssignmentByID(db, userID, assignmentID);
-    if (!assignment) db.throwError(ERROR_TAG$6, `Cannot find assignment for id ${assignmentID}`, { id: [reviewID, reviewType], options: [`User may not be assigned this assignment.`, `Assignment id may not exist.`] });
-
-    assignment.attributes.status = status;
-    assignment.attributes.slipDays = slipDays;
-}
-
-var AssignmentChangeStatusReviewer = /*#__PURE__*/Object.freeze({
-    REVIEW_TYPE: REVIEW_TYPE$6,
-    REVIEW_DESC: REVIEW_DESC$6,
-    REVIEW_PARAM_TYPES: REVIEW_PARAM_TYPES$6,
-    review: review$6
-});
-
-const RESOLVERS = new Set();
-
-function registerResolver(resolver)
-{
-    RESOLVERS.add(resolver);
-}
-
-function getResolvers()
-{
-    return RESOLVERS;
-}
-
-/**
- * Searches through all submissions and tries to assign them by post id.
- * @param {Database} db The database to resolve for.
- */
-async function resolve(db)
-{
-    for(const submissionID of getSubmissions(db))
-    {
-        const submission = getSubmissionByID(db, submissionID);
-        if (submission.assignment === 'null')
-        {
-            const unassignedSubmission = submission;
-
-            let resolved = false;
-            const ownerKey = unassignedSubmission.owner;
-            const assignedSubmissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
-            for(const [assignmentID, submissions] of Object.entries(assignedSubmissions))
-            {
-                // If it is a properly assigned assignment...
-                if (assignmentID === 'null') continue;
-
-                for(const ownedSubmission of submissions)
-                {
-                    // And it has the same post id as the unassigned one...
-                    if (unassignedSubmission.attributes.content.id === ownedSubmission.attributes.content.id)
-                    {
-                        // It should be of the same assignment :D
-                        changeSubmissionAssignment(db, unassignedSubmission, ownedSubmission.assignment);
-                        resolved = true;
-                    }
-
-                    if (resolved) break;
-                }
-                if (resolved) break;
-            }
-        }
-    }
-}
-
-var AssignSubmissionByPostIDResolver = /*#__PURE__*/Object.freeze({
-    resolve: resolve
-});
-
-/**
- * Searches all unassigned submissions to check if they could also be 'intro' assignments.
- * @param {Database} db The database to resolve for.
- */
-async function resolve$1(db)
-{
-    for(const ownerKey of getOwners(db))
-    {
-        const userID = getUserByOwnerKey(db, ownerKey);
-        if (userID)
-        {
-            const userName = getUserByID(db, userID).name;
-    
-            const assignedSubmissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
-            if ('null' in assignedSubmissions)
-            {
-                const unassignedSubmissions = assignedSubmissions['null'].slice();
-                for(const unassignedSubmission of unassignedSubmissions)
-                {
-                    if (unassignedSubmission.attributes.content.head.trim() === userName)
-                    {
-                        changeSubmissionAssignment(db, unassignedSubmission, 'intro');
-                    }
-                }
-            }
-        }
-    }
-}
-
-var AssignSubmissionByIntroResolver = /*#__PURE__*/Object.freeze({
-    resolve: resolve$1
-});
-
-const ERROR_TAG$7 = 'POSTPROCESS';
-
-const SUBMISSION_TYPE_UNKNOWN = 'unknown';
-const SUBMISSION_TYPE_SOURCE = 'source';
-const SUBMISSION_TYPE_MINOR_EDIT = 'minor';
-const SUBMISSION_TYPE_MAJOR_EDIT = 'major';
-
-function evaluatePostType(submission, baseSubmission)
-{
-    if (submission === baseSubmission) return SUBMISSION_TYPE_SOURCE;
-    // There are posts that have the same content, but different times. They are treated as minor edits;
-    if (submission.attributes.content.body == baseSubmission.attributes.content.body) return SUBMISSION_TYPE_MINOR_EDIT;
-    if (submission.attributes.content.body != baseSubmission.attributes.content.body) return SUBMISSION_TYPE_MAJOR_EDIT;
-
-    // TODO: This will never be reached, but once we have a tolerance function for the body content compare, it will.
-    if (submission.attributes.content.head != baseSubmission.attributes.content.head) return SUBMISSION_TYPE_MINOR_EDIT;
-    return SUBMISSION_TYPE_UNKNOWN;
-}
-
-function setGradedSubmissionForAssignment(db, userID, assignmentID, submission)
-{
-    const assignment = getAssignmentByID(db, userID, assignmentID);
-    assignment.attributes.submission = submission;
-}
-
-function getNearestSubmission(submissions, targetDate)
-{
-    let minSubmission = null;
-    let minDateOffset = Infinity;
-    for(const submission of submissions)
-    {
-        const dateOffset = compareDates(submission.date, targetDate);
-
-        // If there exists a submission BEFORE the due date, return that one.
-        if (minSubmission && dateOffset > 0)
-        {
-            return minSubmission;
-        }
-
-        // Otherwise...
-        if (Math.abs(dateOffset) < minDateOffset)
-        {
-            minSubmission = submission;
-            minDateOffset = Math.abs(dateOffset);
-        }
-    }
-    return minSubmission;
-}
-
-/**
- * Searches through all submissions and assigns them to the appropriate assignment.
- * @param {Database} db The database to resolve for.
- */
-async function resolve$2(db)
-{
-    for(const ownerKey of getOwners(db))
-    {
-        const userID = getUserByOwnerKey(db, ownerKey);
-        if (userID)
-        {
-            // Found owner -> user match! Now resolve post type...
-            const submittedAssignments = getAssignedSubmissionsByOwnerKey(db, ownerKey);
-            for(const assignmentID of Object.keys(submittedAssignments))
-            {
-                // Submissions are guaranteed to be in-order by time. The most recent entry being the last.
-                const submissions = submittedAssignments[assignmentID];
-                
-                const ownedAssignment = getAssignmentByID(db, userID, assignmentID);
-                if (ownedAssignment)
-                {
-                    const dueDate = ownedAssignment.dueDate;
-                    // TODO: baseSubmission will change if there are reviews. That would mean the new reviewed will be the base.
-                    const baseSubmission = getNearestSubmission(submissions, dueDate);
-                    const nextSubmission = submissions[submissions.length - 1];
-                    const postType = evaluatePostType(nextSubmission, baseSubmission);
-    
-                    // TODO: Always review major post edits. There is a post edit only if PAST the due date. Otherwise, it would be the new source.
-                    // TODO: Should NOT ALWAYS pick the earliest one.
-                    setGradedSubmissionForAssignment(db, userID, assignmentID, baseSubmission);
-                    /*
-                    if (postType === 'major')
-                    {
-                        setGradedSubmissionForAssignment(db, userID, assignmentID, nextSubmission);
-                    }
-                    else if (postType === 'source' || postType === 'minor')
-                    {
-                        setGradedSubmissionForAssignment(db, userID, assignmentID, baseSubmission);
-                    }
-                    else
-                    {
-                        db.throwError('[UNKNOWN_SUBMISSION_TYPE]\t', 'Unknown submission type - cannot evaluate edited post -', postType, '- DUE:', dueDate);
-                        db.throwError('\t\t\t\t\t\t\t\tSubmission:', baseSubmission, '\n=-=-=-=-=-=>\n', nextSubmission);
-                    }
-                    */
-    
-                    // Submission is processed... delete content and mark as resolved.
-                    for(const submission of submissions)
-                    {
-                        delete submission.attributes.content;
-                    }
-                }
-                else
-                {
-                    for(const submission of submissions)
-                    {
-                        db.throwError(ERROR_TAG$7, `Found unassigned assignment '${assignmentID}' with submission '${submission.id}' from user '${userID}'.`, {
-                            id: [userID, assignmentID],
-                            options: [
-                                `The submission header could be ill-formatted. We could not deduce its appropriate assignment automatically. Please verify the submitted content and header formats. Try submitting a 'change_assignment' review once you figure out its proper assignment.`,
-                                `It could be a non-assignment submission. Try submitting a 'ignore_submission' review.`
-                            ],
-                            more: [
-                                JSON.stringify(submission, null, 4)
-                            ]
-                        });
-                    }
-                }
-            }
-        }
-        else
-        {
-            const submissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
-            let submissionCount = 0;
-            for(const assignmentID of Object.keys(submissions))
-            {
-                submissionCount += submissions[assignmentID].length;
-            }
-            db.throwError(ERROR_TAG$7, `Found ${submissionCount} unowned submissions - cannot find user for owner key '${ownerKey}'.`, {
-                id: [ownerKey],
-                options: [
-                    `There are submissions without a valid user associated with it. Perhaps someone is using a different owner key? Try submitting a 'add_owner' review once you've found who these submissions belong to.`,
-                    `The owner key may be ill-formatted. Instead of fixing the mispelling, try submitting a 'add_owner' review to associate it back to the user.`
-                ],
-                more: [
-                    JSON.stringify(submissions, null, 4)
-                ]
-            });
-        }
-    }
-}
-
-var AssignSubmissionResolver = /*#__PURE__*/Object.freeze({
-    resolve: resolve$2
-});
-
-/**
- * This is the LAST time zone offset from UTC. This means that there does
- * not exist any other place on Earth with an earlier time, therefore the due
- * date MUST be passed for everyone.
- */
-const LATEST_TIMEZONE_OFFSET = 12 * 3600000;
-
-/**
- * Calculates the number of days past the submission, accounting for time zones and partial days.
- * @param {Date} submitDate The date submitted.
- * @param {Date} dueDate The date the something should have been due.
- * @returns {Number} The number of days past the due date from submission. Otherwise, it is 0.
- */
-function calculateSlipDays(submitDate, dueDate)
-{
-    const days = Math.floor((dueDate.getTime() + LATEST_TIMEZONE_OFFSET) / ONE_DAYTIME) - Math.floor(submitDate.getTime() / ONE_DAYTIME);
-    if (days < 0)
-    {
-        return -days;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-/**
- * Calculates the slip days for each user and assignment. This depends on submission
- * already being assigned appropriately.
- * @param {Database} db The database to resolve for.
- */
-async function resolve$3(db)
-{
-    // HACK: There should be a better way to get today's date.
-    const currentDate = db.currentDate;
-
-    // Dependent on accurate assignment resolution for submissions...
-    for(const userID of getUsers(db))
-    {
-        // Progress calculations
-        let missing = 0;
-        let unassigned = 0;
-        let submitted = 0;
-
-        // Slip calculations
-        const submittedSlips = [];
-        let totalSlips = 0;
-        let daySlips = 0;
-        const user = getUserByID(db, userID);
-        const schedule = user.schedule;
-        const maxSlips = schedule.weeks * 3;
-        const assignments = getAssignmentsByUser(db, userID);
-
-        for(const assignmentID of assignments)
-        {
-            const assignment = getAssignmentByID(db, userID, assignmentID);
-
-            // Check if not yet processed... (sometimes already processed by review)
-            if (!('status' in assignment.attributes) || !('slip' in assignment.attributes))
-            {
-                const dueDate = assignment.dueDate;
-                if (compareDates(currentDate, dueDate) < 0)
-                {
-                    assignment.attributes.status = '_';
-                    assignment.attributes.slipDays = 0;
-                }
-                else
-                {
-                    let submitDate;
-                    if (assignment.attributes.submission)
-                    {
-                        assignment.attributes.status = 'Y';
-                        submitDate = assignment.attributes.submission.date;
-                    }
-                    else
-                    {
-                        assignment.attributes.status = 'N';
-                        submitDate = currentDate;
-                    }
-
-                    const slipDays = calculateSlipDays(submitDate, dueDate);
-                    assignment.attributes.slipDays = slipDays;
-                }
-            }
-
-            // Update assignment info...
-            const slipDays = assignment.attributes.slipDays;
-            if (slipDays > 0)
-            {
-                submittedSlips.push(slipDays);
-                totalSlips += slipDays;
-                ++daySlips;
-            }
-
-            switch(assignment.attributes.status)
-            {
-                case 'Y': ++submitted; break;
-                case 'N': ++missing; break;
-                case '_': ++unassigned; break;
-                // Don't recognize the status...
-                default: ++unassigned;
-            }
-        }
-
-        let mean = 0;
-        let median = 0;
-        if (daySlips > 0)
-        {
-            // Calculate mean...
-            mean = totalSlips / daySlips;
-            
-            // Calculate median...
-            if (submittedSlips.length % 2 === 0)
-            {
-                const left = Math.floor(submittedSlips.length / 2);
-                const right = left + 1;
-                median = left + right / 2;
-            }
-            else
-            {
-                median = Math.floor(submittedSlips.length / 2);
-            }
-        }
-
-        user.attributes.slips = {
-            used: totalSlips,
-            remaining: maxSlips - totalSlips,
-            max: maxSlips,
-            mean,
-            median,
-        };
-        
-        user.attributes.progress = {
-            submitted,
-            missing,
-            unassigned,
-        };
-    }
-}
-
-var SlipDayResolver = /*#__PURE__*/Object.freeze({
-    resolve: resolve$3
-});
-
-const SCHEME_NAME = 'piazza';
-
-// Order does NOT matter!
-const REVIEWERS$1 = [
-    NullReviewer,
-    UserAddOwnerKeyReviewer,
-    SubmissionChangeAssignmentReviewer,
-    SubmissionIgnoreOwnerReviewer,
-    SubmissionIgnoreReviewer,
-    SubmissionAddReviewer,
-    AssignmentChangeStatusReviewer
-];
-
-// Order DOES matter!
-const RESOLVERS$1 = [
-    AssignSubmissionByPostIDResolver,
-    AssignSubmissionByIntroResolver,
-    AssignSubmissionResolver,
-    SlipDayResolver,
-];
-
-async function setup(db, config)
-{
-    for(const reviewer of REVIEWERS$1)
-    {
-        registerReviewer(reviewer);
-    }
-
-    for(const resolver of RESOLVERS$1)
-    {
-        registerResolver(resolver);
-    }
-}
-
-async function prepareScheme(db, config)
-{
-    const schemeName = config.scheme;
-    if (!schemeName) throw new Error('Missing \'scheme\' name from config.');
-    switch(schemeName)
-    {
-        case SCHEME_NAME:
-            setup();
-            break;
-        default:
-            throw new Error(`Unknown scheme by name '${schemeName}'.`);
-    }
-}
-
-async function reviewDatabase(db, config)
-{
-    console.log('...Reviewing our work...');
-    // Review data...
-    for(const reviewID of getReviews(db))
-    {
-        const review = getReviewByID(db, reviewID);
-        const reviewType = review.type;
-        const reviewParams = review.params;
-
-        const reviewer = getReviewerByType(reviewType);
-        await reviewer.review(db, reviewID, reviewType, reviewParams);
-    }
-
-    console.log('...Helping you resolve a few things...');
-    // Resolve data...
-    const resolvers = getResolvers();
-    for(const resolver of resolvers)
-    {
-        await resolver.resolve(db);
-    }
-}
-
-async function saveReviewsToFile(db, config, reviews)
-{
-    const path = require('path');
-    
-    const reviewTableHeader = [
-        'Review ID',
-        'Date',
-        'Comment',
-        'Type',
-        'Param[0]',
-        'Param[1]',
-        'Param[2]',
-        'Param[3]',
-        '...'
-    ];
-    const reviewTable = [reviewTableHeader];
-    for(const review of reviews)
-    {
-        const reviewEntry = [];
-        // ID
-        reviewEntry.push(review[0]);
-        // Date
-        reviewEntry.push(review[1]);
-        // Comment
-        reviewEntry.push(review[2]);
-        // Type
-        reviewEntry.push(review[3]);
-        // Params
-        reviewEntry.push(...review[4]);
-        reviewTable.push(reviewEntry);
-    }
-    await writeTableToCSV(path.resolve(config.outputPath, `reviews-${db.currentDate.toISOString()}.csv`), reviewTable);
 }
 
 const path$8 = require('path');
@@ -50001,9 +50028,6 @@ async function onSetup(db, config)
      * in the processing stage.
      */
 
-    // Prepare registries from scheme...
-    await prepareScheme(db, config);
-
     println("Date:", db.currentDate.toDateString());
     println();
 }
@@ -50021,20 +50045,6 @@ async function onPreProcess(db, config)
      * which processes all user-created reviews, is computed before
      * the resolution. This is a frequent debug loop.
      */
-    
-    await runProcessors(db, config, false);
-    
-    // Review resolution loop
-    const reviews = await run$1(db, config, runProcessors);
-
-    if (await askWhetherToSaveNewReviews(db, config, reviews))
-    {
-        await saveReviewsToFile(db, config, reviews);
-    }
-    else
-    {
-        println("Dumping reviews...");
-    }
 }
 
 async function onPostProcess(db, config)
@@ -50061,19 +50071,6 @@ async function onError(db, config, error)
 async function onStop(db, config)
 {
 
-}
-
-async function runProcessors(db, config, populate = true)
-{
-    if (populate)
-    {
-        println("...Processing...");
-        println("Parsing databases...");
-        await populateDatabaseWithInputs(db, config);
-    }
-
-    await reviewDatabase(db);
-    println();
 }
 
 // TODO: This should be it's own bundled file for plugins to use. But for now, it's a global.
