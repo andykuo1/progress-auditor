@@ -47410,6 +47410,7 @@ async function loadDefaultConfig(directory)
         scheme: 'piazza',
         inputPath: '.',
         outputPath: './out/',
+        assignmnets: [],
         inputs: [],
         outputs: [],
     };
@@ -49474,44 +49475,16 @@ var AssignmentChangeStatusReviewer = /*#__PURE__*/Object.freeze({
     review: review$6
 });
 
-const PROCESSORS = new Map();
-registerEvent('post');
+const RESOLVERS = new Set();
 
-function registerEvent(event)
+function registerResolver(resolver)
 {
-    if (!PROCESSORS.has(event))
-    {
-        PROCESSORS.set(event, []);
-    }
-    else
-    {
-        throw new Error('Event already registered.');
-    }
+    RESOLVERS.add(resolver);
 }
 
-function addProcessor(event, processor)
+function getResolvers()
 {
-    if (PROCESSORS.has(event))
-    {
-        const processors = PROCESSORS.get(event);
-        processors.push(processor);
-    }
-    else
-    {
-        throw new Error(`Unknown processor event '${event}'.`);
-    }
-}
-
-function getProcessors(event)
-{
-    if (PROCESSORS.has(event))
-    {
-        return PROCESSORS.get(event);
-    }
-    else
-    {
-        throw new Error(`Unknown processor event '${event}'.`);
-    }
+    return RESOLVERS;
 }
 
 /**
@@ -49893,7 +49866,7 @@ const REVIEWERS$1 = [
 ];
 
 // Order DOES matter!
-const RESOLVERS = [
+const RESOLVERS$1 = [
     AssignSubmissionByPostIDResolver,
     AssignSubmissionByIntroResolver,
     AssignSubmissionResolver,
@@ -49907,9 +49880,9 @@ async function setup(db, config)
         registerReviewer(reviewer);
     }
 
-    for(const resolver of RESOLVERS)
+    for(const resolver of RESOLVERS$1)
     {
-        addProcessor('post', resolver);
+        registerResolver(resolver);
     }
 }
 
@@ -49943,10 +49916,10 @@ async function reviewDatabase(db, config)
 
     console.log('...Helping you resolve a few things...');
     // Resolve data...
-    const processors = getProcessors('post');
-    for(const processor of processors)
+    const resolvers = getResolvers();
+    for(const resolver of resolvers)
     {
-        await processor.resolve(db);
+        await resolver.resolve(db);
     }
 }
 

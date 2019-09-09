@@ -2,7 +2,7 @@ import * as ReviewRegistry from '../../review/ReviewRegistry.js';
 import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 import * as FileUtil from '../../util/FileUtil.js';
 
-import * as ProcessorPipeline from '../../review/ProcessorPipeline.js';
+import * as ResolverRegistry from '../../review/ResolverRegistry.js';
 
 export async function reviewDatabase(db, config)
 {
@@ -20,10 +20,10 @@ export async function reviewDatabase(db, config)
 
     console.log('...Helping you resolve a few things...');
     // Resolve data...
-    const processors = ProcessorPipeline.getProcessors('post');
-    for(const processor of processors)
+    const resolvers = ResolverRegistry.getResolvers();
+    for(const resolver of resolvers)
     {
-        await processor.resolve(db);
+        await resolver.resolve(db);
     }
 }
 

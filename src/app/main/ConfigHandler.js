@@ -24,6 +24,7 @@ export async function loadDefaultConfig(directory)
         scheme: 'piazza',
         inputPath: '.',
         outputPath: './out/',
+        assignmnets: [],
         inputs: [],
         outputs: [],
     };
