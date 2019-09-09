@@ -67,6 +67,7 @@ export function offsetDate(date, offset = 0)
     return result;
 }
 
+/** This should be the OFFICIAL way to parse dates. */
 export function parse(dateString)
 {
     const yearIndex = 0;
@@ -105,6 +106,7 @@ export function parse(dateString)
     return result;
 }
 
+/** This should be the OFFICIAL way to stringify dates. */
 export function stringify(date)
 {
     const year = date.getUTCFullYear();

@@ -56,7 +56,7 @@ export async function onOutput(db, config)
 
 export async function onError(db, config, error)
 {
-    Menu.printlnError(error, config.debug || false);
+    Menu.printlnError(error, (config && config.debug) || false);
 }
 
 export async function onStop(db, config)

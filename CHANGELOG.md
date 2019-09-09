@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved more info to before the error review
 - Added submission date change review type
 - PDF exporting for student reports
+- Disabled default config
 
 ### Fixed
 - Duplicate reviews should not crash

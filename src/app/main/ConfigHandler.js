@@ -20,6 +20,8 @@ export async function requestConfigFile(directory)
 export async function loadDefaultConfig(directory)
 {
     console.log("...Load default config...");
+    // No default config allowed.
+    /*
     return {
         scheme: 'piazza',
         inputPath: '.',
@@ -28,4 +30,6 @@ export async function loadDefaultConfig(directory)
         inputs: [],
         outputs: [],
     };
+    */
+    return null;
 }

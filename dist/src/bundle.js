@@ -467,6 +467,7 @@ function offsetDate(date, offset = 0)
     return result;
 }
 
+/** This should be the OFFICIAL way to parse dates. */
 function parse(dateString)
 {
     const yearIndex = 0;
@@ -505,6 +506,7 @@ function parse(dateString)
     return result;
 }
 
+/** This should be the OFFICIAL way to stringify dates. */
 function stringify(date)
 {
     const year = date.getUTCFullYear();
@@ -47543,6 +47545,8 @@ async function requestConfigFile(directory)
 async function loadDefaultConfig(directory)
 {
     console.log("...Load default config...");
+    // No default config allowed.
+    /*
     return {
         scheme: 'piazza',
         inputPath: '.',
@@ -47551,6 +47555,8 @@ async function loadDefaultConfig(directory)
         inputs: [],
         outputs: [],
     };
+    */
+    return null;
 }
 
 const REVIEWERS = new Map();
@@ -47777,7 +47783,7 @@ async function review$5(db, config, reviewID, reviewType, reviewParams)
     const assignmentID = reviewParams[1];
     const submissionID = ownerKey + '#proxy_' + stringHash(`${reviewID}:${ownerKey}.${assignmentID}`);
     const submissionDate = reviewParams.length >= 2
-        ? parseAmericanDate(reviewParams[2])
+        ? parse(reviewParams[2])
         : new Date(getAssignmentByID(db, userID, assignmentID).dueDate.getTime() - 1);
     const submissionAttributes = reviewParams.length >= 3
         ? JSON.parse(reviewParams[3])
@@ -48651,8 +48657,8 @@ async function parse$4(db, config, filepath, opts={})
         {
             const vacationID = row[0];
             const ownerKey = parseEmail(row[1]);
-            const startDate = parseAmericanDate(row[2]);
-            const endDate = parseAmericanDate(row[3]);
+            const startDate = parse(row[2]);
+            const endDate = parse(row[3]);
             const padding = row[4];
 
             const vacation = addVacation(db, vacationID, ownerKey, startDate, endDate, padding);
@@ -50303,7 +50309,7 @@ async function onOutput(db, config)
 
 async function onError(db, config, error)
 {
-    printlnError(error, config.debug || false);
+    printlnError(error, (config && config.debug) || false);
 }
 
 async function onStop(db, config)
