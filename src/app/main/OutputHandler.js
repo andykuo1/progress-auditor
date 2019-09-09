@@ -1,6 +1,7 @@
 import * as InstructorReportOutput from '../../output/InstructorReportOutput.js';
 import * as StudentReportOutput from '../../output/StudentReportOutput.js';
 import * as DebugReportOutput from '../../output/DebugReportOutput.js';
+import * as DateUtil from '../../util/DateUtil.js';
 
 const path = require('path');
 
@@ -22,7 +23,8 @@ export async function processOutputEntry(db, config, outputEntry)
     console.log("...Process output entry...");
     const outputPath = config.outputPath;
     const outputName = outputEntry.outputName;
-    const filePath = path.resolve(outputPath, outputName);
+    const outputAutoDate = config.outputAutoDate || false;
+    const filePath = path.resolve(outputPath + (outputAutoDate ? '/' + DateUtil.stringify(db.currentDate) : ''), outputName);
     const formatType = outputEntry.format;
     const customFormatPath = outputEntry.customFormatPath;
     const opts = outputEntry.opts;

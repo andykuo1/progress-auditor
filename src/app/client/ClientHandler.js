@@ -1,4 +1,5 @@
 import * as Menu from './menu/Menu.js';
+const chalk = require('chalk');
 
 export async function askForConfigFilePath(directory)
 {

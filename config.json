@@ -5,6 +5,7 @@
     "scheme": "piazza",
     "inputPath": "./dist/__TEST__/in",
     "outputPath": "./dist/__TEST__/out",
+    "outputAutoDate": true,
     "assignments": [
         {
             "assignmentName": "intro",

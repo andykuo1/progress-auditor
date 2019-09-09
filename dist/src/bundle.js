@@ -421,7 +421,7 @@ function getDaysBetween(fromDate, toDate)
  * @param {Number} offset The number of days to offset from the date before calculations.
  * @returns {Date} The calculated Sunday date.
  */
-function getPastSunday(date, offset=0)
+function getPastSunday(date, offset = 0)
 {
     const result = new Date(date.getTime());
     result.setUTCDate(result.getUTCDate() - result.getUTCDay() + offset);
@@ -434,7 +434,7 @@ function getPastSunday(date, offset=0)
  * @param {Number} offset The number of days to offset from the date before calculations.
  * @returns {Date} The calculated Sunday date.
  */
-function getNextSunday(date, offset=0)
+function getNextSunday(date, offset = 0)
 {
     const result = new Date(date.getTime());
     result.setUTCDate(result.getUTCDate() - result.getUTCDay() + 7 + offset);
@@ -460,11 +460,65 @@ function getNextEffectiveSunday(date, effectiveThreshold = 0)
     }
 }
 
-function offsetDate(date, offset=0)
+function offsetDate(date, offset = 0)
 {
     const result = new Date(date.getTime());
     if (offset) result.setUTCDate(result.getUTCDate() + offset);
     return result;
+}
+
+function parse(dateString)
+{
+    const monthIndex = 0;
+    const dayIndex = dateString.indexOf('-', monthIndex);
+    const yearIndex = dateString.indexOf('-', dayIndex + 1);
+    let hourIndex = dateString.indexOf('-', yearIndex + 1);
+    let minuteIndex = dateString.indexOf(':', hourIndex + 1);
+    let secondIndex = dateString.indexOf(':', minuteIndex + 1);
+
+    let month, day, year, hour, minute, second;
+
+    if (dayIndex < 0 || monthIndex < 0 || yearIndex < 0)
+    {
+        throw new Error('Invalid date format.');
+    }
+
+    if (hourIndex < 0 || minuteIndex < 0 || secondIndex < 0)
+    {
+        hourIndex = dateString.length;
+        hour = 0;
+        minute = 0;
+        second = 0;
+    }
+
+    month = Number(dateString.substring(monthIndex, dayIndex));
+    day = Number(dateString.substring(dayIndex + 1, yearIndex));
+    year = Number(dateString.substring(yearIndex + 1, hourIndex));
+    
+    const result = new Date();
+    result.setUTCFullYear(year);
+    result.setUTCMonth(month);
+    result.setUTCDate(day);
+    result.setUTCHours(hour);
+    result.setUTCMinutes(minute);
+    result.setUTCSeconds(second);
+    return result;
+}
+
+function stringify(date)
+{
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
+    const hour = date.getUTCHours();
+    const minute = date.getUTCMinutes();
+    const second = date.getUTCSeconds();
+    return String(month).padStart(2, '0') + '-'
+        + String(day).padStart(2, '0') + '-'
+        + String(year).padStart(4, '0') + '-'
+        + String(hour).padStart(2, '0') + ':'
+        + String(minute).padStart(2, '0') + ':'
+        + String(second).padStart(2, '0');
 }
 
 var DateUtil = /*#__PURE__*/Object.freeze({
@@ -475,7 +529,9 @@ var DateUtil = /*#__PURE__*/Object.freeze({
     getPastSunday: getPastSunday,
     getNextSunday: getNextSunday,
     getNextEffectiveSunday: getNextEffectiveSunday,
-    offsetDate: offsetDate
+    offsetDate: offsetDate,
+    parse: parse,
+    stringify: stringify
 });
 
 const ONE_DAYTIME$1 = 86400000;
@@ -3337,7 +3393,7 @@ var templates = (chalk, tmp) => {
 	return chunks.join('');
 };
 
-var chalk$1 = createCommonjsModule(function (module) {
+var chalk = createCommonjsModule(function (module) {
 
 
 const stdoutColor = supportsColor_1.stdout;
@@ -3566,7 +3622,7 @@ module.exports = Chalk(); // eslint-disable-line new-cap
 module.exports.supportsColor = stdoutColor;
 module.exports.default = module.exports; // For TypeScript
 });
-var chalk_1 = chalk$1.supportsColor;
+var chalk_1 = chalk.supportsColor;
 
 var figlet_1 = createCommonjsModule(function (module) {
 
@@ -4793,7 +4849,7 @@ var figures_1 = Object.assign(fn, figures);
 class Separator {
   constructor(line) {
     this.type = 'separator';
-    this.line = chalk$1.dim(line || new Array(15).join(figures_1.line));
+    this.line = chalk.dim(line || new Array(15).join(figures_1.line));
   }
 
   /**
@@ -31565,7 +31621,7 @@ class Prompt {
       filter: val => val,
       when: () => true,
       suffix: '',
-      prefix: chalk$1.green('?')
+      prefix: chalk.green('?')
     });
 
     // Make sure name is present
@@ -31667,17 +31723,17 @@ class Prompt {
     var message =
       this.opt.prefix +
       ' ' +
-      chalk$1.bold(this.opt.message) +
+      chalk.bold(this.opt.message) +
       this.opt.suffix +
-      chalk$1.reset(' ');
+      chalk.reset(' ');
 
     // Append the default if available, and if question isn't answered
     if (this.opt.default != null && this.status !== 'answered') {
       // If default password is supplied, hide it
       if (this.opt.type === 'password') {
-        message += chalk$1.italic.dim('[hidden] ');
+        message += chalk.italic.dim('[hidden] ');
       } else {
-        message += chalk$1.dim('(' + this.opt.default + ') ');
+        message += chalk.dim('(' + this.opt.default + ') ');
       }
     }
 
@@ -31785,7 +31841,7 @@ class Paginator {
     var topIndex = Math.max(0, active + lines.length - this.pointer);
 
     var section = infinite.splice(topIndex, pageSize).join('\n');
-    return section + '\n' + chalk$1.dim('(Move up and down to reveal more choices)');
+    return section + '\n' + chalk.dim('(Move up and down to reveal more choices)');
   }
 }
 
@@ -31874,12 +31930,12 @@ class ListPrompt extends base {
     var message = this.getQuestion();
 
     if (this.firstRender) {
-      message += chalk$1.dim('(Use arrow keys)');
+      message += chalk.dim('(Use arrow keys)');
     }
 
     // Render choices or answer depending on the state
     if (this.status === 'answered') {
-      message += chalk$1.cyan(this.opt.choices.getChoice(this.selected).short);
+      message += chalk.cyan(this.opt.choices.getChoice(this.selected).short);
     } else {
       var choicesStr = listRender(this.opt.choices, this.selected);
       var indexPosition = this.opt.choices.indexOf(
@@ -31964,7 +32020,7 @@ function listRender(choices, pointer) {
     var isSelected = i - separatorOffset === pointer;
     var line = (isSelected ? figures_1.pointer + ' ' : '  ') + choice.name;
     if (isSelected) {
-      line = chalk$1.cyan(line);
+      line = chalk.cyan(line);
     }
 
     output += line + ' \n';
@@ -32033,11 +32089,11 @@ class InputPrompt extends base {
     if (transformer) {
       message += transformer(appendContent, this.answers, { isFinal });
     } else {
-      message += isFinal ? chalk$1.cyan(appendContent) : appendContent;
+      message += isFinal ? chalk.cyan(appendContent) : appendContent;
     }
 
     if (error) {
-      bottomContent = chalk$1.red('>> ') + error;
+      bottomContent = chalk.red('>> ') + error;
     }
 
     this.screen.render(message, bottomContent);
@@ -32183,7 +32239,7 @@ class ConfirmPrompt extends base {
     var message = this.getQuestion();
 
     if (typeof answer === 'boolean') {
-      message += chalk$1.cyan(answer ? 'Yes' : 'No');
+      message += chalk.cyan(answer ? 'Yes' : 'No');
     } else {
       message += this.rl.line;
     }
@@ -32308,7 +32364,7 @@ class RawListPrompt extends base {
     var bottomContent = '';
 
     if (this.status === 'answered') {
-      message += chalk$1.cyan(this.answer);
+      message += chalk.cyan(this.answer);
     } else {
       var choicesStr = renderChoices(this.opt.choices, this.selected);
       message +=
@@ -32319,7 +32375,7 @@ class RawListPrompt extends base {
     message += this.rl.line;
 
     if (error) {
-      bottomContent = '\n' + chalk$1.red('>> ') + error;
+      bottomContent = '\n' + chalk.red('>> ') + error;
     }
 
     this.screen.render(message, bottomContent);
@@ -32423,7 +32479,7 @@ function renderChoices(choices, pointer) {
     var index = i - separatorOffset;
     var display = index + 1 + ') ' + choice.name;
     if (index === pointer) {
-      display = chalk$1.cyan(display);
+      display = chalk.cyan(display);
     }
 
     output += display;
@@ -32513,7 +32569,7 @@ class ExpandPrompt extends base {
     var bottomContent = '';
 
     if (this.status === 'answered') {
-      message += chalk$1.cyan(this.answer);
+      message += chalk.cyan(this.answer);
     } else if (this.status === 'expanded') {
       var choicesStr = renderChoices$1(this.opt.choices, this.selectedKey);
       message += this.paginator.paginate(choicesStr, this.selectedKey, this.opt.pageSize);
@@ -32523,11 +32579,11 @@ class ExpandPrompt extends base {
     message += this.rl.line;
 
     if (error) {
-      bottomContent = chalk$1.red('>> ') + error;
+      bottomContent = chalk.red('>> ') + error;
     }
 
     if (hint) {
-      bottomContent = chalk$1.cyan('>> ') + hint;
+      bottomContent = chalk.cyan('>> ') + hint;
     }
 
     this.screen.render(message, bottomContent);
@@ -32564,7 +32620,7 @@ class ExpandPrompt extends base {
 
       var choiceStr = choice.key + ') ' + choice.name;
       if (this.selectedKey === choice.key) {
-        choiceStr = chalk$1.cyan(choiceStr);
+        choiceStr = chalk.cyan(choiceStr);
       }
 
       output += choiceStr;
@@ -32699,7 +32755,7 @@ function renderChoices$1(choices, pointer) {
 
     var choiceStr = choice.key + ') ' + choice.name;
     if (pointer === choice.key) {
-      choiceStr = chalk$1.cyan(choiceStr);
+      choiceStr = chalk.cyan(choiceStr);
     }
 
     output += choiceStr;
@@ -32800,17 +32856,17 @@ class CheckboxPrompt extends base {
     if (!this.spaceKeyPressed) {
       message +=
         '(Press ' +
-        chalk$1.cyan.bold('<space>') +
+        chalk.cyan.bold('<space>') +
         ' to select, ' +
-        chalk$1.cyan.bold('<a>') +
+        chalk.cyan.bold('<a>') +
         ' to toggle all, ' +
-        chalk$1.cyan.bold('<i>') +
+        chalk.cyan.bold('<i>') +
         ' to invert selection)';
     }
 
     // Render choices or answer depending on the state
     if (this.status === 'answered') {
-      message += chalk$1.cyan(this.selection.join(', '));
+      message += chalk.cyan(this.selection.join(', '));
     } else {
       var choicesStr = renderChoices$2(this.opt.choices, this.pointer);
       var indexPosition = this.opt.choices.indexOf(
@@ -32821,7 +32877,7 @@ class CheckboxPrompt extends base {
     }
 
     if (error) {
-      bottomContent = chalk$1.red('>> ') + error;
+      bottomContent = chalk.red('>> ') + error;
     }
 
     this.screen.render(message, bottomContent);
@@ -32940,7 +32996,7 @@ function renderChoices$2(choices, pointer) {
     } else {
       var line = getCheckbox(choice.checked) + ' ' + choice.name;
       if (i - separatorOffset === pointer) {
-        output += chalk$1.cyan(figures_1.pointer + line);
+        output += chalk.cyan(figures_1.pointer + line);
       } else {
         output += ' ' + line;
       }
@@ -32959,7 +33015,7 @@ function renderChoices$2(choices, pointer) {
  */
 
 function getCheckbox(checked) {
-  return checked ? chalk$1.green(figures_1.radioOn) : figures_1.radioOff;
+  return checked ? chalk.green(figures_1.radioOn) : figures_1.radioOff;
 }
 
 var checkbox = CheckboxPrompt;
@@ -33023,16 +33079,16 @@ class PasswordPrompt extends base {
 
     if (this.status === 'answered') {
       message += this.opt.mask
-        ? chalk$1.cyan(mask(this.answer, this.opt.mask))
-        : chalk$1.italic.dim('[hidden]');
+        ? chalk.cyan(mask(this.answer, this.opt.mask))
+        : chalk.italic.dim('[hidden]');
     } else if (this.opt.mask) {
       message += mask(this.rl.line || '', this.opt.mask);
     } else {
-      message += chalk$1.italic.dim('[input is hidden] ');
+      message += chalk.italic.dim('[input is hidden] ');
     }
 
     if (error) {
-      bottomContent = '\n' + chalk$1.red('>> ') + error;
+      bottomContent = '\n' + chalk.red('>> ') + error;
     }
 
     this.screen.render(message, bottomContent);
@@ -47119,13 +47175,13 @@ class EditorPrompt extends base {
     var message = this.getQuestion();
 
     if (this.status === 'answered') {
-      message += chalk$1.dim('Received');
+      message += chalk.dim('Received');
     } else {
-      message += chalk$1.dim('Press <enter> to launch your preferred editor.');
+      message += chalk.dim('Press <enter> to launch your preferred editor.');
     }
 
     if (error) {
-      bottomContent = chalk$1.red('>> ') + error;
+      bottomContent = chalk.red('>> ') + error;
     }
 
     this.screen.render(message, bottomContent);
@@ -47260,7 +47316,7 @@ inquirer.restoreDefaultPrompts = function() {
 
 const version$1 = "0.3.0";
 
-const chalk$2 = require('chalk');
+const chalk$1 = require('chalk');
 
 const TITLE = "Progress Auditor";
 const DIVIDER_LENGTH = TITLE.length * 5;
@@ -47277,7 +47333,7 @@ function printToString(...messages)
 
 function printDivider(token = 'nu')
 {
-    println(chalk$1.gray(
+    println(chalk.gray(
         token.repeat(Math.floor(DIVIDER_LENGTH / token.length))
         + token.substring(0, DIVIDER_LENGTH % token.length)
     ));
@@ -47291,7 +47347,7 @@ function rightAlignString(...messages)
 
 function printTitle()
 {
-    const STYLED_TEXT = chalk$1.green(
+    const STYLED_TEXT = chalk.green(
         nodeFiglet.textSync(TITLE, {
             font: "Big"
         })
@@ -47330,7 +47386,7 @@ function printError(errorMessage, depth = 0)
     }
     else
     {
-        println('  '.repeat(depth), chalk$1.red(((depth <= 0) ? '+' : '-') + ' ' + errorMessage));
+        println('  '.repeat(depth), chalk.red(((depth <= 0) ? '+' : '-') + ' ' + errorMessage));
     }
 }
 
@@ -47343,6 +47399,8 @@ async function askYesNo(message)
     }]);
     return answer.value;
 }
+
+const chalk$2 = require('chalk');
 
 async function askForConfigFilePath(directory)
 {
@@ -47375,7 +47433,7 @@ async function askWhetherToReviewErrors(db, config, errors)
     const result = await askYesNo("Do you want to review them now?");
     if (!result)
     {
-        println(`Skipping errors...${Math.random() > 0.6 ? chalk.gray(`...(I trust you)...`) : ''}`);
+        println(`Skipping errors...${Math.random() > 0.6 ? chalk$2.gray(`...(I trust you)...`) : ''}`);
     }
     return result;
 }
@@ -48134,7 +48192,7 @@ async function prepareScheme(db, config)
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-async function parse(db, config, filepath, opts={ threshold: 2 })
+async function parse$1(db, config, filepath, opts={ threshold: 2 })
 {
     setupDatabase$3(db);
 
@@ -48178,7 +48236,7 @@ async function parse(db, config, filepath, opts={ threshold: 2 })
 }
 
 var CohortParser = /*#__PURE__*/Object.freeze({
-    parse: parse
+    parse: parse$1
 });
 
 function evaluatePostAssignment(headerContent, bodyContent)
@@ -48312,7 +48370,7 @@ Result:
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-async function parse$1(db, config, filepath, opts={})
+async function parse$2(db, config, filepath, opts={})
 {
     setupDatabase$2(db);
 
@@ -48382,7 +48440,7 @@ async function parse$1(db, config, filepath, opts={})
 }
 
 var ContributionsParser = /*#__PURE__*/Object.freeze({
-    parse: parse$1
+    parse: parse$2
 });
 
 /**
@@ -48391,7 +48449,7 @@ var ContributionsParser = /*#__PURE__*/Object.freeze({
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-async function parse$2(db, config, filepath, opts={})
+async function parse$3(db, config, filepath, opts={})
 {
     setupDatabase$1(db);
 
@@ -48433,7 +48491,7 @@ async function parse$2(db, config, filepath, opts={})
 }
 
 var ReviewsParser = /*#__PURE__*/Object.freeze({
-    parse: parse$2
+    parse: parse$3
 });
 
 /**
@@ -48442,7 +48500,7 @@ var ReviewsParser = /*#__PURE__*/Object.freeze({
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-async function parse$3(db, config, filepath, opts={})
+async function parse$4(db, config, filepath, opts={})
 {
     setupDatabase$4(db);
 
@@ -48477,7 +48535,7 @@ async function parse$3(db, config, filepath, opts={})
 }
 
 var VacationsParser = /*#__PURE__*/Object.freeze({
-    parse: parse$3
+    parse: parse$4
 });
 
 function loadParserByType(parserType)
@@ -49196,6 +49254,7 @@ async function chooseReviewType(db, config)
                     // Skip the default null reviewer...
                     if (reviewer.REVIEW_TYPE === 'null') continue;
                     
+                    // Show review type to select...
                     result.push({
                         name: `${reviewer.REVIEW_TYPE} ( ${reviewer.REVIEW_PARAM_TYPES.join(', ')} ) - ${reviewer.REVIEW_DESC}`,
                         value: reviewer.REVIEW_TYPE,
@@ -49794,7 +49853,8 @@ async function processOutputEntry(db, config, outputEntry)
     console.log("...Process output entry...");
     const outputPath = config.outputPath;
     const outputName = outputEntry.outputName;
-    const filePath = path$7.resolve(outputPath, outputName);
+    const outputAutoDate = config.outputAutoDate || false;
+    const filePath = path$7.resolve(outputPath + (outputAutoDate ? '/' + stringify(db.currentDate) : ''), outputName);
     const formatType = outputEntry.format;
     const customFormatPath = outputEntry.customFormatPath;
     const opts = outputEntry.opts;

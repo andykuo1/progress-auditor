@@ -66,3 +66,57 @@ export function offsetDate(date, offset = 0)
     if (offset) result.setUTCDate(result.getUTCDate() + offset);
     return result;
 }
+
+export function parse(dateString)
+{
+    const yearIndex = 0;
+    const monthIndex = dateString.indexOf('-', yearIndex);
+    const dayIndex = dateString.indexOf('-', monthIndex + 1);
+    let hourIndex = dateString.indexOf('-', dayIndex + 1);
+    let minuteIndex = dateString.indexOf(':', hourIndex + 1);
+    let secondIndex = dateString.indexOf(':', minuteIndex + 1);
+
+    let year, month, day, hour, minute, second;
+
+    if (dayIndex < 0 || monthIndex < 0 || yearIndex < 0)
+    {
+        throw new Error('Invalid date format.');
+    }
+
+    if (hourIndex < 0 || minuteIndex < 0 || secondIndex < 0)
+    {
+        hourIndex = dateString.length;
+        hour = 0;
+        minute = 0;
+        second = 0;
+    }
+
+    year = Number(dateString.substring(yearIndex, monthIndex));
+    month = Number(dateString.substring(monthIndex + 1, dayIndex));
+    day = Number(dateString.substring(dayIndex + 1, hourIndex));
+    
+    const result = new Date();
+    result.setUTCFullYear(year);
+    result.setUTCMonth(month);
+    result.setUTCDate(day);
+    result.setUTCHours(hour);
+    result.setUTCMinutes(minute);
+    result.setUTCSeconds(second);
+    return result;
+}
+
+export function stringify(date)
+{
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
+    const hour = date.getUTCHours();
+    const minute = date.getUTCMinutes();
+    const second = date.getUTCSeconds();
+    return String(year).padStart(4, '0') + '-'
+        + String(month).padStart(2, '0') + '-'
+        + String(day).padStart(2, '0') + '-'
+        + String(hour).padStart(2, '0') + ':'
+        + String(minute).padStart(2, '0') + ':'
+        + String(second).padStart(2, '0');
+}
