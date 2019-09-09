@@ -4,8 +4,6 @@ import * as Schedule from '../database/Schedule.js';
 import * as FileUtil from '../util/FileUtil.js';
 import TableBuilder from '../util/TableBuilder.js';
 
-const path = require('path');
-
 /**
     Name: Bob Ross
     PID: A12345678
@@ -73,7 +71,7 @@ function stringifyStatus(status, slipDays = 0)
     return statusString + slipString;
 }
 
-function generateProgressReport(db, userID)
+function generateProgressReport(db, config, userID)
 {
     const user = UserDatabase.getUserByID(db, userID);
     const dst = [];
@@ -82,6 +80,11 @@ function generateProgressReport(db, userID)
     dst.push('PID: ' + user.attributes.pid);
     dst.push('Date: ' + db.currentDate.toDateString());
     dst.push('');
+    if (config.customIntro)
+    {
+        dst.push(config.customIntro);
+        dst.push('');
+    }
     dst.push('Your weekly student report:');
     const assignments = AssignmentDatabase.getAssignmentsByUser(db, userID);
     const inReviewAssignments = [];
@@ -108,8 +111,8 @@ function generateProgressReport(db, userID)
     const totalSlipDays = Schedule.calculateNumberOfSlipDays(schedule);
     // TODO: The issue with this is that assignments != schedule weeks. There can be more than 1 assigment in a week.
     // dst.push('Weeks Remaining:' + (schedule.weeks - (assignments.length - missingAssignments.length)));
-    dst.push('Daily accruing slip days:' + slipRate);
-    dst.push('Remaining slip days available:' + (totalSlipDays - accruedSlips));
+    dst.push('Daily accruing slip days: ' + slipRate);
+    dst.push('Remaining slip days available: ' + (totalSlipDays - accruedSlips));
     dst.push('');
 
     if (missingAssignments.length > 0)
@@ -129,6 +132,12 @@ function generateProgressReport(db, userID)
         dst.push(`Based on the number of slip-days available, you have ${remainingDays} more days until all slip-days are used. To not be deducted points, you must submit the assignments on or before ${finalDueDate}.`);
         */
 
+        dst.push('');
+    }
+
+    if (config.customOutro)
+    {
+        dst.push(config.customOutro);
         dst.push('');
     }
 
@@ -155,7 +164,7 @@ export async function output(db, config, outputPath, opts)
         return UserDatabase.getUserByID(db, userID).name;
     });
     tableBuilder.addColumn('Progress Report', (userID) => {
-        return generateProgressReport(db, userID);
+        return generateProgressReport(db, config, userID);
     });
     tableBuilder.addColumn('Notice Report', (userID) => {
         return generateNoticeReport(db, userID);
@@ -169,4 +178,32 @@ export async function output(db, config, outputPath, opts)
     
     const outputTable = tableBuilder.build();
     FileUtil.writeTableToCSV(outputPath, outputTable);
+
+    // Output as a PDF as well...
+    if (opts.exportPDF)
+    {
+        const fs = require('fs');
+        const path = require('path');
+        const PDFDocument = require('pdfkit');
+    
+        const doc = new PDFDocument();
+        const pdfPath = path.resolve(path.dirname(outputPath), typeof opts.exportPDF === 'string' ? opts.exportPDF : 'reports.pdf');
+        doc.pipe(fs.createWriteStream(pdfPath));
+
+        let headerFlag = true;
+        for(const outputRow of outputTable)
+        {
+            if (headerFlag)
+            {
+                headerFlag = false;
+                continue;
+            }
+            const reportContent = outputRow[2];
+            doc.addPage()
+                .fontSize(16)
+                .text(reportContent.substring(1, reportContent.length - 1));
+        }
+        doc.end();
+        console.log("File saved: " + pdfPath);
+    }
 }

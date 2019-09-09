@@ -22,7 +22,8 @@
     "chalk": "^2.4.2",
     "figlet": "^1.2.3",
     "inquirer": "^6.5.1",
-    "papaparse": "^5.0.0"
+    "papaparse": "^5.0.0",
+    "pdfkit": "^0.10.0"
   },
   "devDependencies": {
     "pkg": "^4.4.0",

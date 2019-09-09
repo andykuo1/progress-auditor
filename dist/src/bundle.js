@@ -4,7 +4,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var os = _interopDefault(require('os'));
 var fs$4 = _interopDefault(require('fs'));
-var path$9 = _interopDefault(require('path'));
+var path$8 = _interopDefault(require('path'));
 var stream = _interopDefault(require('stream'));
 var readline$2 = _interopDefault(require('readline'));
 var assert = _interopDefault(require('assert'));
@@ -4616,7 +4616,7 @@ var figlet = figlet || (function() {
 	Node plugin for figlet.js
 */
 
-var fontDir = path$9.join(__dirname, '/../fonts/');
+var fontDir = path$8.join(__dirname, '/../fonts/');
 
 /*
     Loads a font into the figlet object.
@@ -4631,7 +4631,7 @@ figlet_1.loadFont = function(name, next) {
         return;
     }
 
-    fs$4.readFile( path$9.join(fontDir, name + '.flf'),  {encoding: 'utf-8'}, function(err, fontData) {
+    fs$4.readFile( path$8.join(fontDir, name + '.flf'),  {encoding: 'utf-8'}, function(err, fontData) {
         if (err) {
             return next(err);
         }
@@ -4656,7 +4656,7 @@ figlet_1.loadFontSync = function(name) {
         return figlet_1.figFonts[name].options;
     }
 
-    var fontData = fs$4.readFileSync( path$9.join(fontDir, name + '.flf'),  {encoding: 'utf-8'});
+    var fontData = fs$4.readFileSync( path$8.join(fontDir, name + '.flf'),  {encoding: 'utf-8'});
 
     fontData = fontData + '';
     return figlet_1.parseFont(name, fontData);
@@ -46241,7 +46241,7 @@ function _parseArguments(options, callback) {
  */
 function _generateTmpName(opts) {
   if (opts.name) {
-    return path$9.join(opts.dir || tmpDir, opts.name);
+    return path$8.join(opts.dir || tmpDir, opts.name);
   }
 
   // mkstemps like template
@@ -46257,7 +46257,7 @@ function _generateTmpName(opts) {
     opts.postfix || ''
   ].join('');
 
-  return path$9.join(opts.dir || tmpDir, name);
+  return path$8.join(opts.dir || tmpDir, name);
 }
 
 /**
@@ -46421,7 +46421,7 @@ function _rmdirRecursiveSync(root) {
 
     for (var i = 0, length = files.length; i < length; i++) {
       var
-        file = path$9.join(dir, files[i]),
+        file = path$8.join(dir, files[i]),
         stat = fs$4.lstatSync(file); // lstat so we don't recurse into symlinked directories
 
       if (stat.isDirectory()) {
@@ -49343,8 +49343,6 @@ var InstructorReportOutput = /*#__PURE__*/Object.freeze({
     output: output
 });
 
-const path$5 = require('path');
-
 /**
     Name: Bob Ross
     PID: A12345678
@@ -49412,7 +49410,7 @@ function stringifyStatus(status, slipDays = 0)
     return statusString + slipString;
 }
 
-function generateProgressReport(db, userID)
+function generateProgressReport(db, config, userID)
 {
     const user = getUserByID(db, userID);
     const dst = [];
@@ -49421,6 +49419,11 @@ function generateProgressReport(db, userID)
     dst.push('PID: ' + user.attributes.pid);
     dst.push('Date: ' + db.currentDate.toDateString());
     dst.push('');
+    if (config.customIntro)
+    {
+        dst.push(config.customIntro);
+        dst.push('');
+    }
     dst.push('Your weekly student report:');
     const assignments = getAssignmentsByUser(db, userID);
     const inReviewAssignments = [];
@@ -49471,6 +49474,12 @@ function generateProgressReport(db, userID)
         dst.push('');
     }
 
+    if (config.customOutro)
+    {
+        dst.push(config.customOutro);
+        dst.push('');
+    }
+
     if (inReviewAssignments.length > 0)
     {
         dst.push('*In-Review: Significant difference has been found for the submission for the week past the deadline. A review is being conducted to evaluate number slip days used. Until resolved, it will assume the latest submission time is accurate.');
@@ -49494,7 +49503,7 @@ async function output$1(db, config, outputPath, opts)
         return getUserByID(db, userID).name;
     });
     tableBuilder.addColumn('Progress Report', (userID) => {
-        return generateProgressReport(db, userID);
+        return generateProgressReport(db, config, userID);
     });
     tableBuilder.addColumn('Notice Report', (userID) => {
         return generateNoticeReport();
@@ -49508,13 +49517,41 @@ async function output$1(db, config, outputPath, opts)
     
     const outputTable = tableBuilder.build();
     writeTableToCSV(outputPath, outputTable);
+
+    // Output as a PDF as well...
+    if (opts.exportPDF)
+    {
+        const fs = require('fs');
+        const path = require('path');
+        const PDFDocument = require('pdfkit');
+    
+        const doc = new PDFDocument();
+        const pdfPath = path.resolve(path.dirname(outputPath), typeof opts.exportPDF === 'string' ? opts.exportPDF : 'reports.pdf');
+        doc.pipe(fs.createWriteStream(pdfPath));
+
+        let headerFlag = true;
+        for(const outputRow of outputTable)
+        {
+            if (headerFlag)
+            {
+                headerFlag = false;
+                continue;
+            }
+            const reportContent = outputRow[2];
+            doc.addPage()
+                .fontSize(16)
+                .text(reportContent.substring(1, reportContent.length - 1));
+        }
+        doc.end();
+        console.log("File saved: " + pdfPath);
+    }
 }
 
 var StudentReportOutput = /*#__PURE__*/Object.freeze({
     output: output$1
 });
 
-const path$6 = require('path');
+const path$5 = require('path');
 
 async function output$2(db, config, outputPath, opts)
 {
@@ -49532,7 +49569,7 @@ async function output$2(db, config, outputPath, opts)
     catch(e) { console.error('Failed to output log.'); }
 
     // Output computed config file...
-    writeToFile(path$6.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
+    writeToFile(path$5.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
 
     // Output error list...
     let output;
@@ -49549,14 +49586,14 @@ async function output$2(db, config, outputPath, opts)
         }
         output = "It's okay. We'll get through this.\n\n" + errors.join('\n');
     }
-    writeToFile(path$6.resolve(outputPath, 'errors.txt'), output);
+    writeToFile(path$5.resolve(outputPath, 'errors.txt'), output);
 }
 
 var DebugReportOutput = /*#__PURE__*/Object.freeze({
     output: output$2
 });
 
-const path$7 = require('path');
+const path$6 = require('path');
 
 function findOutputEntries(config)
 {
@@ -49577,7 +49614,7 @@ async function processOutputEntry(db, config, outputEntry)
     const outputPath = config.outputPath;
     const outputName = outputEntry.outputName;
     const outputAutoDate = config.outputAutoDate || false;
-    const filePath = path$7.resolve(outputPath + (outputAutoDate ? '/' + stringify(db.currentDate) : ''), outputName);
+    const filePath = path$6.resolve(outputPath + (outputAutoDate ? '/' + stringify(db.currentDate) : ''), outputName);
     const formatType = outputEntry.format;
     const customFormatPath = outputEntry.customFormatPath;
     const opts = outputEntry.opts;
@@ -50211,14 +50248,14 @@ async function generateOutput(db, config)
     }
 }
 
-const path$8 = require('path');
+const path$7 = require('path');
 
 async function onStart(args)
 {
     printTitle();
     println();
 
-    println("Running from directory:", path$8.resolve('.'));
+    println("Running from directory:", path$7.resolve('.'));
     println();
 }
 

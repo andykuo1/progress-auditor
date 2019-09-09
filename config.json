@@ -50,6 +50,15 @@
         {
             "outputName": "slip-days.csv",
             "format": "instructor"
+        },
+        {
+            "outputName": "reports.csv",
+            "format": "student",
+            "opts": {
+                "exportPDF": "reports.pdf",
+                "customIntro": "",
+                "customOutro": ""
+            }
         }
     ]
 }
