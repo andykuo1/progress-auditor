@@ -139,8 +139,11 @@ async function chooseReviewType(db, config)
                 const result = [];
                 for(const reviewer of reviewers)
                 {
+                    // Skip the default null reviewer...
+                    if (reviewer.REVIEW_TYPE === 'null') continue;
+                    
                     result.push({
-                        name: `${reviewer.REVIEW_TYPE} - ${reviewer.REVIEW_DESC}`,
+                        name: `${reviewer.REVIEW_TYPE} ( ${reviewer.REVIEW_PARAM_TYPES.join(', ')} ) - ${reviewer.REVIEW_DESC}`,
                         value: reviewer.REVIEW_TYPE,
                         short: reviewer.REVIEW_TYPE
                     });
@@ -159,6 +162,7 @@ async function chooseReviewType(db, config)
                         short: "(go back)"
                     }
                 );
+                result.push(new inquirer.Separator("=-=- END -" + "=-".repeat(35)));
                 return result;
             }
         }

@@ -15,11 +15,13 @@ export async function askClientToPickError(errors)
             short: error.id + ': ' + error.message,
         });
     }
+    dst.push(new inquirer.Separator("=-=- END -" + "=-".repeat(35)));
+
     const answer = await inquirer.prompt([
         {
             message: 'Which error do you want to review?',
             name: 'value',
-            type: 'rawlist',
+            type: 'list',
             choices: dst,
             pageSize: 20
         }
