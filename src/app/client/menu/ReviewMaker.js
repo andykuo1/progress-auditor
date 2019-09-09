@@ -1,6 +1,7 @@
 import * as Menu from './Menu.js';
 import * as ReviewRegistry from '../../../input/review/ReviewRegistry.js';
 import * as MathHelper from '../../../util/MathHelper.js';
+import * as DateUtil from '../../../util/DateUtil.js';
 
 const inquirer = require('inquirer');
 const chalk = require('chalk');
@@ -52,7 +53,7 @@ export async function run(db, config, skipFirstCheck = true)
     
             console.log(chalk.cyan('>'), 'Review', chalk.green(`${result[TYPE]} ( ${paramTypes.join(', ')} )`, chalk.gray(`- ${desc}`)));
             console.log(chalk.cyan('>'), 'Comment', chalk.cyan(`${result[COMMENT]}`));
-            console.log(chalk.cyan('>'), 'Date', chalk.cyan(`${result[DATE]}`));
+            console.log(chalk.cyan('>'), 'Date', chalk.cyan(`${DateUtil.stringify(result[DATE])}`));
             console.log(chalk.cyan('>'), 'ID', chalk.cyan(`${result[ID]}`));
             console.log(chalk.cyan('>'), 'Parameters');
             for(let i = 0; i < result[PARAMS].length; ++i)
