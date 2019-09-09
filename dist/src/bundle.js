@@ -48562,14 +48562,7 @@ function validateInputEntry(config, inputEntry)
     }
 
     if (!fs$2.existsSync(inputFilePath))
-    {
-        errors.push([
-            `Cannot find input file '${inputName}':`,
-            '=>',
-            `File does not exist: '${inputFilePath}'.`,
-            '<='
-        ]);
-    }
+    ;
 
     if (!parserType && !customPath)
     {
@@ -48650,7 +48643,7 @@ async function findInputEntries(config)
  */
 async function loadInputEntry(db, config, inputEntry)
 {
-    console.log("...Process input entry...");
+    console.log(`...Process input entry '${inputEntry.inputName}'...`);
     const inputPath = config.inputPath || '.';
     const inputName = inputEntry.inputName;
     const filePath = path$2.resolve(inputPath, inputName);
@@ -48997,14 +48990,24 @@ async function prepareDatabaseForInputs(db, config)
 
 async function populateDatabaseWithInputs(db, config)
 {
+    const fs = require('fs');
     const path = require('path');
 
     // Load input data...
     for(const parser of getParsers())
     {
         const [parserFunction, filePath, parserType, opts] = parser;
-        console.log(`...Parsing '${path.basename(filePath)}' with '${path.basename(parserType)}'...`);
-        await parserFunction.parse(db, config, filePath, opts);
+
+        if (fs.existsSync(filePath))
+        {
+            console.log(`...Parsing '${path.basename(filePath)}' with '${path.basename(parserType)}'...`);
+            await parserFunction.parse(db, config, filePath, opts);
+        }
+        else
+        {
+            console.log(`...Skipping '${path.basename(filePath)}' (cannot find it)...`);
+            continue;
+        }
     }
 
     // Load assignment data...
@@ -49729,15 +49732,15 @@ async function output$2(db, config, outputPath, opts)
     // Output all database logs...
     const outputFunction = writeToFile;
     try { outputLog$3(db, outputFunction, outputPath); }
-    catch(e) { console.error('Failed to output log.', e); }
+    catch(e) { console.error('Failed to output log.'); }
     try { outputLog$2(db, outputFunction, outputPath); }
-    catch(e) { console.error('Failed to output log.', e); }
+    catch(e) { console.error('Failed to output log.'); }
     try { outputLog(db, outputFunction, outputPath); }
-    catch(e) { console.error('Failed to output log.', e); }
+    catch(e) { console.error('Failed to output log.'); }
     try { outputLog$1(db, outputFunction, outputPath); }
-    catch(e) { console.error('Failed to output log.', e); }
+    catch(e) { console.error('Failed to output log.'); }
     try { outputLog$4(db, outputFunction, outputPath); }
-    catch(e) { console.error('Failed to output log.', e); }
+    catch(e) { console.error('Failed to output log.'); }
 
     // Output computed config file...
     writeToFile(path$6.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
@@ -49937,14 +49940,7 @@ async function validateDatabase(db, config)
             // If review was successful...
             if (result)
             {
-                if (Array.isArray(result))
-                {
-                    reviews.push(...result);
-                }
-                else
-                {
-                    reviews.push(result);
-                }
+                reviews.push(result);
 
                 // Restart the database...
                 await clearDatabase$6(db);

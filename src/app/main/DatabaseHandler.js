@@ -61,14 +61,25 @@ export async function prepareDatabaseForInputs(db, config)
 
 export async function populateDatabaseWithInputs(db, config)
 {
+    const fs = require('fs');
     const path = require('path');
 
     // Load input data...
     for(const parser of ParserRegistry.getParsers())
     {
         const [parserFunction, filePath, parserType, opts] = parser;
-        console.log(`...Parsing '${path.basename(filePath)}' with '${path.basename(parserType)}'...`);
-        await parserFunction.parse(db, config, filePath, opts);
+
+        // File path is not GUARANTEED to exist...
+        if (fs.existsSync(filePath))
+        {
+            console.log(`...Parsing '${path.basename(filePath)}' with '${path.basename(parserType)}'...`);
+            await parserFunction.parse(db, config, filePath, opts);
+        }
+        else
+        {
+            console.log(`...Skipping '${path.basename(filePath)}' (cannot find it)...`);
+            continue;
+        }
     }
 
     // Load assignment data...

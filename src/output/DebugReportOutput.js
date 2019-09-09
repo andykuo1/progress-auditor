@@ -12,15 +12,15 @@ export async function output(db, config, outputPath, opts)
     // Output all database logs...
     const outputFunction = FileUtil.writeToFile;
     try { UserDatabase.outputLog(db, outputFunction, outputPath); }
-    catch(e) { console.error('Failed to output log.', e); }
+    catch(e) { console.error('Failed to output log.'); }
     try { SubmissionDatabase.outputLog(db, outputFunction, outputPath); }
-    catch(e) { console.error('Failed to output log.', e); }
+    catch(e) { console.error('Failed to output log.'); }
     try { AssignmentDatabase.outputLog(db, outputFunction, outputPath); }
-    catch(e) { console.error('Failed to output log.', e); }
+    catch(e) { console.error('Failed to output log.'); }
     try { ReviewDatabase.outputLog(db, outputFunction, outputPath); }
-    catch(e) { console.error('Failed to output log.', e); }
+    catch(e) { console.error('Failed to output log.'); }
     try { VacationDatabase.outputLog(db, outputFunction, outputPath); }
-    catch(e) { console.error('Failed to output log.', e); }
+    catch(e) { console.error('Failed to output log.'); }
 
     // Output computed config file...
     FileUtil.writeToFile(path.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));

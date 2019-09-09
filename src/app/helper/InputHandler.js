@@ -26,12 +26,15 @@ function validateInputEntry(config, inputEntry)
 
     if (!fs.existsSync(inputFilePath))
     {
+        // This is not an error, it should simply skip it...
+        /*
         errors.push([
             `Cannot find input file '${inputName}':`,
             '=>',
             `File does not exist: '${inputFilePath}'.`,
             '<='
         ]);
+        */
     }
 
     if (!parserType && !customPath)
@@ -113,7 +116,7 @@ export async function findInputEntries(config)
  */
 export async function loadInputEntry(db, config, inputEntry)
 {
-    console.log("...Process input entry...");
+    console.log(`...Process input entry '${inputEntry.inputName}'...`);
     const inputPath = config.inputPath || '.';
     const inputName = inputEntry.inputName;
     const filePath = path.resolve(inputPath, inputName);

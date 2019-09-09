@@ -106,14 +106,7 @@ export async function validateDatabase(db, config)
             // If review was successful...
             if (result)
             {
-                if (Array.isArray(result))
-                {
-                    reviews.push(...result);
-                }
-                else
-                {
-                    reviews.push(result);
-                }
+                reviews.push(result);
 
                 // Restart the database...
                 await DatabaseSolver.clearDatabase(db, config);
