@@ -2,8 +2,8 @@
     "currentDate": "2019-7-30",
     "include": [],
     "scheme": "piazza",
-    "inputPath": "./dist/__TEST__/in",
-    "outputPath": "./dist/__TEST__/out",
+    "inputPath": "./__TEST__/in",
+    "outputPath": "./__TEST__/out",
     "outputAutoDate": true,
     "debug": false,
     "assignments": [

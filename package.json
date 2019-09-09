@@ -13,7 +13,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "pkg": {
-    "assets": "dist/**/fonts/*.flf"
+    "assets": [
+      "dist/**/fonts/*.flf",
+      "**/node_modules/linebreak/src/classes.trie",
+      "**/node_modules/pdfkit/js/data/Helvetica.afm"
+    ]
   },
   "keywords": [],
   "author": "Andrew Kuo",

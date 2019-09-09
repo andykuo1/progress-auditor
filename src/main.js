@@ -5,7 +5,7 @@ import * as MainApplication from './app/main/MainApplication.js';
 import * as ClientApplication from './app/client/ClientApplication.js';
 
 /** The root project directory */
-const DIRECTORY = process.cwd();
+const DIRECTORY = require('path').resolve(process.execPath, '..');
 
 /**
  * The entry point to the program.
