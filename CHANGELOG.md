@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Inputs and outputs can have custom defined scripts
 - Default implementations for assignment patterns
 - Default implementations for input formats
+- PDF exporting for student reports
 
 ### Changed
 - Revamped API system (again with less clutter)
@@ -26,7 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added ProgressOtter to the battlefront
 - Moved more info to before the error review
 - Added submission date change review type
-- PDF exporting for student reports
 - Disabled default config
 
 ### Fixed
