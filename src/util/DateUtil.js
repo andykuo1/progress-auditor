@@ -1,30 +1,107 @@
 export const ONE_DAYTIME = 86400000;
+export const DAYS_IN_WEEK = 7;
 
+/**
+ * Returns a negative number if a is less than b, a positive
+ * number if a is greature than b, and 0 if they are equal.
+ * This only compares the date; time is not considered.
+ * @param {Date} a The left hand side date.
+ * @param {Date} b The right hand side date.
+ * @returns {Number} A number representing how a compares to b.
+ */
 export function compareDates(a, b)
+{
+    const dayA = new Date(a.getUTCFullYear(), a.getUTCMonth(), a.getUTCDate());
+    const dayB = new Date(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate());
+    return dayA - dayB;
+}
+
+/**
+ * Returns a negative number if a is less than b, a positive
+ * number if a is greature than b, and 0 if they are equal.
+ * This compares BOTH date and time.
+ * @param {Date} a The left hand side date.
+ * @param {Date} b The right hand side date.
+ * @returns {Number} A number representing how a compares to b.
+ */
+export function compareDatesWithTime(a, b)
 {
     return a.getTime() - b.getTime();
 }
 
 export function isWithinDates(date, fromDate, toDate)
 {
-    return compareDates(date, fromDate) >= 0 && compareDates(date, toDate) <= 0;
+    const dayDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+    const dayFrom = new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate());
+    const dayTo = new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate());
+    return compareDatesWithTime(dayDate, dayFrom) >= 0 && compareDatesWithTime(dayDate, dayTo) <= 0;
 }
 
 export function getDaysBetween(fromDate, toDate)
 {
-    return Math.floor(Math.abs(compareDates(toDate, fromDate)) / ONE_DAYTIME);
+    const dayFrom = new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate());
+    const dayTo = new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate());
+    return Math.floor(Math.abs(dayTo.getTime() - dayFrom.getTime()) / ONE_DAYTIME);
+}
+
+export function copyDate(date)
+{
+    return new Date(date.getTime());
 }
 
 /**
- * Gets the date of the Sunday that has most recently passed.
+ * If the date is between Sunday and Tuesday, get past Sunday.
+ * If the date is between Thursday and Saturday, get next Sunday.
+ * If the date is Wednesday, it depends on floorWednesday.
+ * If floorWednesday is true, then it would choose past,
+ * otherwise, it would choose next.
+ * @param {Date} date The date to get nearest Sunday for.
+ */
+export function getNearestSunday(date, floorWednesday = true)
+{
+    const day = date.getUTCDay();
+    if (day < 3 || (floorWednesday && day === 3))
+    {
+        return getPastSunday(date);
+    }
+    else
+    {
+        return getNextSunday(date);
+    }
+}
+
+/**
+ * Gets the date of the Sunday of this week. Usually, this is the one most
+ * recently passed, or today, if today is Sunday.
  * @param {Date} date The date to calculate past Sunday from.
  * @param {Number} offset The number of days to offset from the date before calculations.
  * @returns {Date} The calculated Sunday date.
  */
 export function getPastSunday(date, offset = 0)
 {
-    const result = new Date(date.getTime());
+    const result = copyDate(date);
     result.setUTCDate(result.getUTCDate() - result.getUTCDay() + offset);
+    return result;
+}
+
+/**
+ * Gets the date of the Sunday that has most recently passed. If today is Sunday, it will get the one before.
+ * @param {Date} date The date to calculate past Sunday from.
+ * @param {Number} offset The number of days to offset from the date before calculations.
+ * @returns {Date} The calculated Sunday date.
+ */
+export function getPrevSunday(date, offset = 0)
+{
+    const result = copyDate(date);
+    const day = result.getUTCDay();
+    if (day === 0)
+    {
+        result.setUTCDate(result.getUTCDate() - DAYS_IN_WEEK + offset);
+    }
+    else
+    {
+        result.setUTCDate(result.getUTCDate() - result.getUTCDay() + offset);
+    }
     return result;
 }
 
@@ -37,7 +114,7 @@ export function getPastSunday(date, offset = 0)
 export function getNextSunday(date, offset = 0)
 {
     const result = new Date(date.getTime());
-    result.setUTCDate(result.getUTCDate() - result.getUTCDay() + 7 + offset);
+    result.setUTCDate(result.getUTCDate() - result.getUTCDay() + DAYS_IN_WEEK + offset);
     return result;
 }
 
@@ -52,7 +129,7 @@ export function getNextEffectiveSunday(date, effectiveThreshold = 0)
     // Whether to count the current week as the effective week, or use the next week instead.
     if (date.getUTCDay() > effectiveThreshold)
     {
-        return getNextSunday(new Date(date.getTime() + 7 * ONE_DAYTIME));
+        return getNextSunday(new Date(date.getTime() + DAYS_IN_WEEK * ONE_DAYTIME));
     }
     else
     {
