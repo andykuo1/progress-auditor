@@ -51,10 +51,6 @@
     ],
     "outputs": [
         {
-            "outputName": "debug",
-            "format": "debug"
-        },
-        {
             "outputName": "slip-days.csv",
             "format": "instructor"
         },

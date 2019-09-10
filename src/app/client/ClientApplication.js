@@ -1,4 +1,5 @@
 import * as Menu from './menu/Menu.js';
+import * as DatabaseSolver from '../main/DatabaseSolver.js';
 import * as DateUtil from '../../util/DateUtil.js';
 
 export async function onStart(directory, args)
@@ -55,6 +56,13 @@ export async function onOutput(db, config)
 export async function onError(db, config, error)
 {
     Menu.printlnError(error, (config && config.debug) || false);
+    
+    try
+    {
+        // Last ditch attempt to save progress...
+        DatabaseSolver.outputErrorLog(db, config, [error]);
+    }
+    catch(e) {}
 }
 
 export async function onStop(db, config)

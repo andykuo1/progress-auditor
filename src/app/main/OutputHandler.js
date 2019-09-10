@@ -77,7 +77,7 @@ export async function outputDebugLog(db, config)
     {
         const outputPath = config.outputPath;
         const outputAutoDate = config.outputAutoDate || false;
-        const filePath = outputPath + (outputAutoDate ? '/' + DateUtil.stringify(db.currentDate) : '');
+        const filePath = outputPath + (outputAutoDate ? '/' + DateUtil.stringify(db.currentDate, false) : '');
         await DebugReportOutput.output(db, config, filePath);
     }
     else
