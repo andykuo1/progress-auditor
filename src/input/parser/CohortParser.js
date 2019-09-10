@@ -6,7 +6,7 @@ import * as DateUtil from '../../util/DateUtil.js';
 // TODO: not used yet.
 export const PARSER_OPTIONS = {
     maxEndDates: {
-        type: "Array<{ pattern, date }>",
+        type: "Array<{ pattern, endDate }>",
         description: "An array of max end date entries that, if the specified pattern matched, will limit the user's end date to the specified date."
     }
 };
@@ -61,9 +61,9 @@ export async function parse(db, config, filepath, opts={ maxEndDates: [] })
             {
                 if (maxEndDateEntry.pattern.test(enrollmentQuarter))
                 {
-                    if (DateUtil.compareDates(endDate, maxEndDateEntry.date) > 0)
+                    if (DateUtil.compareDates(endDate, maxEndDateEntry.endDate) > 0)
                     {
-                        endDate.setTime(maxEndDateEntry.date.getTime());
+                        endDate.setTime(maxEndDateEntry.endDate.getTime());
                     }
                 }
             }
@@ -85,7 +85,7 @@ function processMaxEndDateEntries(maxEndDates)
     {
         result.push({
             pattern: new RegExp(maxEndDate.pattern),
-            date: DateUtil.parse(maxEndDate.date),
+            endDate: DateUtil.parse(maxEndDate.endDate),
         });
     }
     return result;
