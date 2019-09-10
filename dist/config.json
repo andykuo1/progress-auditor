@@ -43,7 +43,9 @@
             "inputName": "cohort.csv",
             "parser": "cohort",
             "opts": {
-                "threshold": 3
+                "maxEndDates": [
+                    { "pattern": "Special Summer Session 2019", "endDate": "2019-9-6" }
+                ]
             }
         }
     ],
@@ -61,8 +63,8 @@
             "format": "student",
             "opts": {
                 "exportPDF": "reports.pdf",
-                "_customIntro": "",
-                "_customOutro": ""
+                "customIntro": "",
+                "customOutro": ""
             }
         }
     ]

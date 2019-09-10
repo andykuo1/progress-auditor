@@ -12,7 +12,7 @@ const path = require('path');
 export async function main(args)
 {
     // The root project directory
-    const DIRECTORY = args.length >= 2 ? path.resolve(args[2]) : path.resolve(process.execPath, '..');
+    const DIRECTORY = args.length > 2 ? path.resolve(args[2]) : path.resolve(process.execPath, '..');
 
     await ClientApplication.onStart(DIRECTORY, args);
     
