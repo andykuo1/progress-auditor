@@ -1,3 +1,9 @@
+/*
+// Testing...
+import './util/DateTest.js';
+export async function main() {};
+*/
+
 import { main } from './main.js';
 
 main(process.argv).then(result => {

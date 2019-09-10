@@ -199,6 +199,12 @@ function run()
         assertDateEquals(DateUtil.parse('2019-9-29'), result[2]);
         console.log(`From ${DateUtil.stringify(startDate, false)} to ${DateUtil.stringify(endDate, false)} => ${result.map(date => DateUtil.stringify(date, false))}`);
     }
+    {
+        const startDate = DateUtil.parse('2019-6-17');
+        const endDate = DateUtil.parse('2019-9-6');
+        const result = DateGenerator.generateWeeklySunday(startDate, endDate);
+        console.log(`From ${DateUtil.stringify(startDate, false)} to ${DateUtil.stringify(endDate, false)} => ${result.map(date => DateUtil.stringify(date, false))}`);
+    }
 }
 
 function logDate(date)

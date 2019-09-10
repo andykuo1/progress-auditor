@@ -6,15 +6,12 @@ import * as ClientApplication from './app/client/ClientApplication.js';
 
 const path = require('path');
 
-/** The root project directory */
-const DIRECTORY = path.resolve(process.execPath, '..');
-
 /**
  * The entry point to the program.
  */
 export async function main(args)
 {
-    /** The root project directory */
+    // The root project directory
     const DIRECTORY = args.length >= 2 ? path.resolve(args[2]) : path.resolve(process.execPath, '..');
 
     await ClientApplication.onStart(DIRECTORY, args);

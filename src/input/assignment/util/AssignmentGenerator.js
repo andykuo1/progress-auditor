@@ -2,6 +2,7 @@ import * as UserDatabase from '../../../database/UserDatabase.js';
 import * as AssignmentDatabase from '../../../database/AssignmentDatabase.js';
 import * as VacationDatabase from '../../../database/VacationDatabase.js';
 import * as DateUtil from '../../../util/DateUtil.js';
+import * as DateGenerator from '../../../util/DateGenerator.js';
 
 const DAYS_PER_WEEK = 7;
 const MAX_GENERATED_ASSIGNMENTS = 100;
@@ -15,37 +16,33 @@ export function assign(db, userID, assignmentID, dueDate, attributes = {})
 
 export function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, weekDay = 0, attributes = {})
 {
-    const result = [];
-
-    let weekDate;
-    if (startDate.getUTCDay() < weekDay)
-    {
-        // Week day for this week already passed. Use the next one.
-        weekDate = DateUtil.getNextSunday(startDate);
-    }
-    else
-    {
-        // Week day for this week has yet to pass. Use this one.
-        weekDate = DateUtil.getPastSunday(startDate);
-    }
-    weekDate.setUTCDate(weekDate.getUTCDate() + weekDay);
-
     const ownerKeys = UserDatabase.getOwnerKeysForUserID(db, userID);
-    weekDate = VacationDatabase.offsetDateByVacations(db, ownerKeys, weekDate);
+    const vacations = VacationDatabase.getVacationsByOwnerKeys(db, ownerKeys);
 
-    // Generate assignments...
-    let count = 1;
-    while(DateUtil.compareDates(weekDate, endDate) <= 0)
+    // Convert vacations to work week ranges...
+    const timeOffRanges = [];
+    for(const vacationID of vacations)
     {
-        // Add the current week date to result...
-        const assignment = AssignmentDatabase.addAssignment(db, userID, `${assignmentBaseName}[${count}]`, weekDate, Object.assign({}, attributes));
+        const vacation = VacationDatabase.getVacationByID(db, vacationID);
+        timeOffRanges.push(DateGenerator.createDateRange(vacation.userStartDate, vacation.userEndDate));
+    }
+    DateGenerator.sortDateRanges(timeOffRanges);
+    DateGenerator.mergeDateRangesWithOverlap(timeOffRanges);
+    const validator = DateGenerator.createOffsetDelayValidator(timeOffRanges);
+    const dueDates = DateGenerator.generateWeeklySunday(startDate, endDate, validator);
+
+    // Assign assignments to due date...
+    const result = [];
+    let assignmentCount = 0;
+    for(const date of dueDates)
+    {
+        const assignment = AssignmentDatabase.addAssignment(db, userID, `${assignmentBaseName}[${assignmentCount + 1}]`, date, Object.assign({}, attributes));
         result.push(assignment);
-
-        // Go to next week day...
-        weekDate.setUTCDate(weekDate.getUTCDate() + DAYS_PER_WEEK);
-        weekDate = VacationDatabase.offsetDateByVacations(db, ownerKeys, weekDate);
-
-        if (++count >= MAX_GENERATED_ASSIGNMENTS) break;
+        
+        if (++assignmentCount > MAX_GENERATED_ASSIGNMENTS)
+        {
+            throw new Error('Reached maximum amount of assignments generated.')
+        }
     }
 
     return result;
