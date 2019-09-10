@@ -3,6 +3,14 @@ import * as FileUtil from '../../util/FileUtil.js';
 import * as FieldParser from '../../util/FieldParser.js';
 import * as DateUtil from '../../util/DateUtil.js';
 
+// TODO: not used yet.
+export const PARSER_OPTIONS = {
+    maxEndDates: {
+        type: "Array<{ pattern, date }>",
+        description: "An array of max end date entries that, if the specified pattern matched, will limit the user's end date to the specified date."
+    }
+};
+
 /**
  * Create UserDatabase based on input file.
  * @param {Database} db The database to write to.
@@ -10,7 +18,7 @@ import * as DateUtil from '../../util/DateUtil.js';
  * @param {String} filepath The path to the file to parse.
  * @param {Object} opts Any additional options.
  */
-export async function parse(db, config, filepath, opts={ maxEndDates: [], threshold: 2 })
+export async function parse(db, config, filepath, opts={ maxEndDates: [] })
 {
     UserDatabase.setupDatabase(db);
 

@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Allow absolute paths for config paths
+- maxEndDates option for cohort parsing
 
 ### Changed
 - Auto date for output no longer uses time, only dates
 - Review outputs now save the ENTIRE review database to file
+
+### Fixed
+- Weird month offset for assignments
 
 ## [0.3.1] - 2019-09-09
 ### Fixed
