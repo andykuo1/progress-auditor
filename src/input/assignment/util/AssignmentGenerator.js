@@ -4,7 +4,6 @@ import * as VacationDatabase from '../../../database/VacationDatabase.js';
 import * as DateUtil from '../../../util/DateUtil.js';
 import * as DateGenerator from '../../../util/DateGenerator.js';
 
-const DAYS_PER_WEEK = 7;
 const MAX_GENERATED_ASSIGNMENTS = 100;
 
 export function assign(db, userID, assignmentID, dueDate, attributes = {})
@@ -14,7 +13,7 @@ export function assign(db, userID, assignmentID, dueDate, attributes = {})
     return AssignmentDatabase.addAssignment(db, userID, assignmentID, newDueDate, attributes);
 }
 
-export function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, weekDay = 0, attributes = {})
+export function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, attributes = {})
 {
     const ownerKeys = UserDatabase.getOwnerKeysForUserID(db, userID);
     const vacations = VacationDatabase.getVacationsByOwnerKeys(db, ownerKeys);
