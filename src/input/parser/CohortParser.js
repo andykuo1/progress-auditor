@@ -80,6 +80,9 @@ export async function parse(db, config, filepath, opts={ maxEndDates: [] })
 
 function processMaxEndDateEntries(maxEndDates)
 {
+    if (!Array.isArray(maxEndDates)) return [];
+    if (maxEndDates.length <= 0) return [];
+
     const result = [];
     for(const maxEndDate of maxEndDates)
     {
