@@ -39,8 +39,11 @@ export async function resolveConfig(directory)
                 console.error('Failed to load config.', e);
             }
         }
+
+        // None found. Create one?
+        if (!config) config = await ConfigHandler.createNewConfig(directory);
     
-        // None found. Use the default instead.
+        // None made. Use the default instead.
         if (!config) config = await ConfigHandler.loadDefaultConfig(directory);
     }
 
@@ -65,7 +68,7 @@ export async function resolveDatabase(config)
     const db = await DatabaseHandler.createDatabase(config);
 
     // Prepare registries with scheme...
-    await SchemeHandler.prepareScheme(db, config);
+    await SchemeHandler.prepareScheme(db, config, config.scheme);
 
     // Try to prepare all database entries from config...
     await DatabaseHandler.prepareDatabaseForInputs(db, config);

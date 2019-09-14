@@ -1,9 +1,8 @@
 import * as PiazzaScheme from '../../scheme/piazza/PiazzaScheme.js';
 
-export async function prepareScheme(db, config)
+export async function prepareScheme(db, config, schemeName = config.scheme)
 {
-    const schemeName = config.scheme;
-    if (!schemeName) throw new Error('Missing \'scheme\' name from config.');
+    if (!schemeName) throw new Error('Missing \'scheme\' from config.');
     switch(schemeName)
     {
         case PiazzaScheme.SCHEME_NAME:
@@ -12,4 +11,12 @@ export async function prepareScheme(db, config)
         default:
             throw new Error(`Unknown scheme by name '${schemeName}'.`);
     }
+}
+
+
+export function getSchemeNames()
+{
+    return [
+        PiazzaScheme.SCHEME_NAME
+    ];
 }

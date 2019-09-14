@@ -1,6 +1,6 @@
 {
   "name": "progress-auditor",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "A program that streamlines and tracks the grading and logistics of discussion-based turnin processes.",
   "main": "./src/main.js",
   "bin": "./dist/src/bundle.js",
@@ -10,7 +10,7 @@
     "build": "rollup --config ./rollup.config.js --file ./dist/src/bundle.js --format cjs",
     "build-dist": "pkg . --out-path ./dist/",
     "build-all": "npm run build && npm run build-dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx babel-node ./src/test.js"
   },
   "pkg": {
     "assets": [
@@ -30,6 +30,9 @@
     "pdfkit": "^0.10.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.6.0",
+    "@babel/node": "^7.6.1",
+    "@babel/preset-env": "^7.6.0",
     "pkg": "^4.4.0",
     "rollup": "^1.19.4",
     "rollup-plugin-commonjs": "^10.0.2",

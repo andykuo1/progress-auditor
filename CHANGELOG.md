@@ -6,9 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.3] - 2019-09-10
+## [0.4.0] - 2019-09-14
 ### Added
 - Now has a safety net to log all data when it crashes
+- New testing environment
+- A config maker when there isn't one
 
 ## [0.3.2] - 2019-09-09
 ### Added

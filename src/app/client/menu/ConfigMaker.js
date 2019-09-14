@@ -2,73 +2,115 @@ import * as Menu from './Menu.js';
 import * as ReviewRegistry from '../../../input/review/ReviewRegistry.js';
 import * as MathHelper from '../../../util/MathHelper.js';
 import * as DateUtil from '../../../util/DateUtil.js';
+import * as FileUtil from '../../../util/FileUtil.js';
+import * as ConfigLoader from '../../../config/ConfigLoader.js';
+
+import * as SchemeHandler from '../../main/SchemeHandler.js';
 
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 
+/*
+{
+    "currentDate": "2019-7-30",
+    "include": [],
+    "scheme": "piazza",
+    "inputPath": "./__TEST__/in",
+    "outputPath": "./__TEST__/out",
+    "outputAutoDate": true,
+    "debug": true,
+    "assignments": [
+        {
+            "assignmentName": "intro",
+            "pattern": "intro",
+            "opts": {}
+        },
+        {
+            "assignmentName": "week",
+            "pattern": "sunday",
+            "opts": {}
+        },
+        {
+            "assignmentName": "last",
+            "pattern": "last",
+            "opts": {}
+        }
+    ],
+    "inputs": [
+        {
+            "inputName": "reviews.csv",
+            "parser": "reviews",
+            "opts": {}
+        },
+        {
+            "inputName": "vacations.csv",
+            "parser": "vacations",
+            "opts": {}
+        },
+        {
+            "inputName": "contributions.csv",
+            "parser": "contributions",
+            "opts": {}
+        },
+        {
+            "inputName": "cohort.csv",
+            "parser": "cohort",
+            "opts": {
+                "maxEndDates": [
+                    { "pattern": "Special Summer Session 2019", "endDate": "2019-9-6" }
+                ]
+            }
+        }
+    ],
+    "outputs": [
+        {
+            "outputName": "slip-days.csv",
+            "format": "instructor"
+        },
+        {
+            "outputName": "reports.csv",
+            "format": "student",
+            "opts": {
+                "exportPDF": "reports.pdf",
+                "customIntro": "",
+                "customOutro": ""
+            }
+        }
+    ]
+}
+*/
+
 /**
- * This will run the steps to make a review and save it to file.
+ * This will run the steps to make a config and save it to file.
  */
-export async function run(db, config, skipFirstCheck = true)
+export async function run(directory, skipFirstCheck = true)
 {
     console.log(chalk.gray("Starting Config Maker..."));
     console.log("Welcome to Config Maker");
 
     let result = null;
-    
+
     while(!result)
     {
-        let answer;
-        if (!skipFirstCheck)
-        {
-            answer = await inquirer.prompt([
-                {
-                    message: "Would you like to make a new review?",
-                    name: "value",
-                    type: "confirm",
-                }
-            ]);
-        }
-        else
+        if (skipFirstCheck)
         {
             skipFirstCheck = false;
-            answer = { value: true };
+        }
+        else if (!await Menu.askYesNo('Would you like to make a new config?'))
+        {
+            break;
         }
 
-        if (!answer.value) break;
-
-        result = await makeReview(db, config);
+        result = await makeConfig(directory);
 
         if (result)
         {
-            const ID = 0;
-            const DATE = 1;
-            const COMMENT = 2;
-            const TYPE = 3;
-            const PARAMS = 4;
+            console.log(chalk.cyan('>'), 'Config', chalk.green(JSON.stringify(result, null, 4)));
 
-            const reviewer = ReviewRegistry.getReviewerByType(result[TYPE]);
-            const paramTypes = reviewer.REVIEW_PARAM_TYPES;
-            const desc = reviewer.REVIEW_DESC;
-    
-            console.log(chalk.cyan('>'), 'Review', chalk.green(`${result[TYPE]} ( ${paramTypes.join(', ')} )`, chalk.gray(`- ${desc}`)));
-            console.log(chalk.cyan('>'), 'Comment', chalk.cyan(`${result[COMMENT]}`));
-            console.log(chalk.cyan('>'), 'Date', chalk.cyan(`${DateUtil.stringify(result[DATE])}`));
-            console.log(chalk.cyan('>'), 'ID', chalk.cyan(`${result[ID]}`));
-            console.log(chalk.cyan('>'), 'Parameters');
-            for(let i = 0; i < result[PARAMS].length; ++i)
+            if (!await Menu.askYesNo('Is this correct?'))
             {
-                console.log(chalk.cyan('>'), `- ${paramTypes[i]} = '${chalk.cyan(result[PARAMS][i])}'`);
+                result = null;
             }
-
-            answer = await inquirer.prompt([
-                {
-                    message: 'Is this correct?',
-                    name: 'value',
-                    type: 'confirm'
-                }
-            ]);
-            if (!answer.value) result = null;
         }
         else
         {
@@ -78,6 +120,13 @@ export async function run(db, config, skipFirstCheck = true)
 
     if (result)
     {
+        // Whether to save the config somewhere...
+        if (await Menu.askYesNo("Do you want to save the config to file?"))
+        {
+            console.log("...Saving config file...");
+            FileUtil.writeToFile(path.resolve(directory, ConfigLoader.DEFAULT_CONFIG_FILE_NAME), JSON.stringify(result, null, 4));
+        }
+
         console.log("Nice options! Hope to see you around!");
     }
     
@@ -86,175 +135,157 @@ export async function run(db, config, skipFirstCheck = true)
     return result;
 }
 
-async function makeReview(db, config)
+async function makeConfig(directory)
 {
-    let id = MathHelper.stringHash(MathHelper.uuid());
-    let date = new Date(Date.now());
-    let comment = '';
-    let type;
-    let params;
+    // Required
+    const inputPath = await chooseInputPath(directory);
+    if (!inputPath) return null;
+    const outputPath = await chooseOutputPath(directory);
+    if (!outputPath) return null;
+    const scheme = await chooseScheme();
+    if (!scheme) return null;
 
-    // Resolve type...
-    type = await chooseReviewType(db, config);
-    if (!type) return null;
+    // Optional
+    const currentDate = await chooseCurrentDate();
+    if (!currentDate) return null;
+    const outputAutoDate = await chooseOutputAutoDate();
+    if (!outputAutoDate) return null;
+    const debug = await chooseDebug();
+    if (!debug) return null;
 
-    // Resolve params...
-    params = await chooseReviewParameters(db, config, type);
-    if (!params) return null;
-
-    // (Optionally) Resolve comment...
-    if ((await inquirer.prompt([
+    // TODO: Find configs to include
+    // Create Assignemnt Entry
+    const assignments = [
         {
-            message: 'Do you want to add a comment?',
-            name: 'value',
-            type: 'confirm'
+            "assignmentName": "intro",
+            "pattern": "intro",
+            "opts": {}
+        },
+        {
+            "assignmentName": "week",
+            "pattern": "sunday",
+            "opts": {}
+        },
+        {
+            "assignmentName": "last",
+            "pattern": "last",
+            "opts": {}
         }
-    ])).value)
-    {
-        comment = (await inquirer.prompt([
-            {
-                message: 'What is the comment? (By default, it is blank.)',
-                name: 'value',
-                type: 'input',
-            }
-        ])).value;
-    }
-
-    // (Optionally) Resolve id...
-    // TODO: Not yet implemented.
-
-    return [id, date, comment, type, params];
-}
-
-async function chooseReviewType(db, config)
-{
-    const reviewers = ReviewRegistry.getReviewers();
-    let answer;
-
-    answer = await inquirer.prompt([
+    ];
+    // Create Input Entry
+    const inputs = [
         {
-            message: "What type of review do you want to make?",
-            name: "value",
-            type: "list",
-            choices: (session) => {
-                const result = [];
-                for(const reviewer of reviewers)
-                {
-                    // Skip the default null reviewer...
-                    if (reviewer.REVIEW_TYPE === 'null') continue;
-                    
-                    // Show review type to select...
-                    result.push({
-                        name: `${reviewer.REVIEW_TYPE} ( ${reviewer.REVIEW_PARAM_TYPES.join(', ')} ) - ${reviewer.REVIEW_DESC}`,
-                        value: reviewer.REVIEW_TYPE,
-                        short: reviewer.REVIEW_TYPE
-                    });
-                }
-                result.push(
-                    {
-                        name: "...or a custom type?",
-                        value: "__custom",
-                        short: "(custom type)"
-                    }
-                );
-                result.push(
-                    {
-                        name: "...or go back?",
-                        value: "__cancel",
-                        short: "(go back)"
-                    }
-                );
-                result.push(new inquirer.Separator("=-=- END -" + "=-".repeat(35)));
-                return result;
+            "inputName": "reviews.csv",
+            "parser": "reviews",
+            "opts": {}
+        },
+        {
+            "inputName": "vacations.csv",
+            "parser": "vacations",
+            "opts": {}
+        },
+        {
+            "inputName": "contributions.csv",
+            "parser": "contributions",
+            "opts": {}
+        },
+        {
+            "inputName": "cohort.csv",
+            "parser": "cohort",
+            "opts": {
+                "maxEndDates": [
+                    { "pattern": "Special Summer Session 2019", "endDate": "2019-9-6" }
+                ]
             }
         }
-    ]);
-
-    if (answer.value === '__custom')
-    {
-        answer = await inquirer.prompt([
-            {
-                message: "What is the custom review type?",
-                name: "value",
-                type: "input",
-                validate: (input) => {
-                    if (input.length === 0) return "Cannot be empty.";
-                    if (input.trim().length < input.length) return "Cannot have leading or trailing whitespace.";
-                    if (/^\S*$/.test(input)) return "Cannot have whitespaces.";
-                    if (reviewTypes.has(input)) return "Review type already exists.";
-                    return true;
-                }
+    ];
+    // Create Output Entry
+    const outputs = [
+        {
+            "outputName": "slip-days.csv",
+            "format": "instructor"
+        },
+        {
+            "outputName": "reports.csv",
+            "format": "student",
+            "opts": {
+                "exportPDF": "reports.pdf",
+                "customIntro": "",
+                "customOutro": ""
             }
-        ]);
-    }
-    else if (answer.value === '__cancel')
-    {
-        return null;
-    }
+        }
+    ];
 
-    return await confirmLoop(answer.value, async (reviewType) => {
-        const reviewer = ReviewRegistry.getReviewerByType(reviewType);
-        const paramTypes = reviewer.REVIEW_PARAM_TYPES;
-        const desc = reviewer.REVIEW_DESC;
-
-        console.log(chalk.cyan('>'), chalk.green(`${reviewType} ( ${paramTypes.join(', ')} )`, chalk.gray(`- ${desc}`)));
-        const answer = await inquirer.prompt([
-            {
-                name: 'value',
-                message: `Is this correct?`,
-                type: 'confirm'
-            }
-        ]);
-
-        return answer.value;
-    }, async () => await chooseReviewType(db, config));
+    return {
+        currentDate,
+        outputAutoDate,
+        debug,
+        inputPath,
+        outputPath,
+        scheme,
+        assignments,
+        inputs,
+        outputs,
+    };
 }
 
-async function chooseReviewParameter(db, config, paramType)
+async function chooseInputPath(directory)
 {
-    let answer;
-
-    answer = await inquirer.prompt([
+    // TODO: this should be a file explorer...
+    return (await inquirer.prompt([
         {
-            message: `What is the value for '${paramType}'?`,
+            message: 'Where is the input directory?',
             name: 'value',
             type: 'input',
+            default: directory
         }
-    ]);
-
-    return answer.value;
+    ])).value;
 }
 
-async function chooseReviewParameters(db, config, reviewType)
+async function chooseOutputPath(directory)
 {
-    const result = [];
-    const reviewer = ReviewRegistry.getReviewerByType(reviewType);
-    const paramTypes = reviewer.REVIEW_PARAM_TYPES;
-    for(const paramType of paramTypes)
-    {
-        const paramValue = await chooseReviewParameter(db, config, paramType);
-        if (paramValue !== null)
+    // TODO: this should be a file explorer...
+    return (await inquirer.prompt([
         {
-            result.push(paramValue);
+            message: 'Where is the output directory?',
+            name: 'value',
+            type: 'input',
+            default: directory
         }
-        else
-        {
-            break;
-        }
-    }
-
-    return result;
+    ])).value;
 }
 
-async function confirmLoop(value, confirmCallback, loopCallback)
+async function chooseScheme()
 {
-    const result = await confirmCallback(value);
-    if (result)
-    {
-        return value;
-    }
-    else
-    {
-        return await loopCallback();
-    }
+    return Menu.askChoose('Which scheme will you be using?', SchemeHandler.getSchemeNames());
+}
+
+async function chooseCurrentDate()
+{
+    return DateUtil.stringify(new Date(Date.now()));
+}
+
+async function chooseOutputAutoDate()
+{
+    return true;
+}
+
+async function chooseDebug()
+{
+    return false;
+}
+
+async function makeAssignmentEntry()
+{
+
+}
+
+async function makeInputEntry()
+{
+    
+}
+
+async function makeOutputEntry()
+{
+
 }
