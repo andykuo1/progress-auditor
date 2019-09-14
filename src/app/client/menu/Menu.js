@@ -35,11 +35,7 @@ export function rightAlignString(...messages)
 
 export function printTitle()
 {
-    const STYLED_TEXT = chalk.green(
-        figlet.textSync(TITLE, {
-            font: "Big"
-        })
-    );
+    const STYLED_TEXT = chalk.green(figlet.textSync(TITLE, { font: 'Big' }));
     printDivider();
     println(STYLED_TEXT);
     println(rightAlignString('Version', version));

@@ -2,7 +2,6 @@ import * as ConfigLoader from '../../config/ConfigLoader.js';
 import * as ConfigMaker from '../../app/client/menu/ConfigMaker.js';
 
 import * as ClientHandler from '../client/ClientHandler.js';
-import * as Menu from '../client/menu/Menu.js';
 
 /** If unable to load config file, null is returned. */
 export async function loadConfigFile(filepath)
@@ -38,7 +37,7 @@ export async function loadDefaultConfig(directory)
 
 export async function createNewConfig(directory)
 {
-    if (await Menu.askYesNo('Make a new config?'))
+    if (await ClientHandler.askWhetherToMakeNewConfig())
     {
         return ConfigMaker.run(directory, true);
     }

@@ -48,3 +48,12 @@ export async function showSkippingDebugLog()
 {
     Menu.println('...Skipping debug logs...');
 }
+
+export async function celebrateNoErrors()
+{
+    Menu.println("== No errors! Hooray! ==");
+}
+export async function askWhetherToMakeNewConfig()
+{
+    return await Menu.askYesNo('Make a new config?');
+}

@@ -6,17 +6,17 @@ import * as DateUtil from '../../util/DateUtil.js';
 
 import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 
-import * as ErrorReviewer from './ErrorReviewer.js';
-import * as Menu from '../client/menu/Menu.js';
+import * as ErrorReviewer from '../client/menu/ErrorReviewer.js';
 
 /** If unable to find errors, an empty array is returned. */
 export async function findDatabaseErrors(db, config)
 {
     console.log("...Finding database errors...");
+
     const result = db.getErrors();
     if (!result || result.length <= 0)
     {
-        Menu.println("== No errors! Hooray! ==");
+        await ClientHandler.celebrateNoErrors();
         return null;
     }
     else
@@ -62,7 +62,10 @@ export async function shouldSaveNewReviewsForClient(db, config, reviews)
     if (!reviews || reviews.length <= 0) return false;
 
     const result = await ClientHandler.askWhetherToSaveNewReviews(db, config, reviews);
-    if (!result) Menu.println("Dumping reviews...");
+    if (!result)
+    {
+        console.log('...Dumping reviews...');
+    }
     return result;
 }
 
