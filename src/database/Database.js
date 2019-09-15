@@ -12,6 +12,7 @@ export function createDatabase()
         _errors: new Map(),
         throwError(tag, message, opts = {})
         {
+            // Try to deterministically generate an id for the error.
             let id;
             if (typeof opts === 'object' && 'id' in opts)
             {
@@ -30,6 +31,7 @@ export function createDatabase()
             }
             else
             {
+                // If all else fails, I hope the program is mostly deterministic...
                 id = this._errors.size;
             }
             
@@ -77,6 +79,15 @@ export function createDatabase()
             }
 
             this._errors.set(id, dst);
+        },
+        removeErrorByID(id)
+        {
+            if (this._errors.has(id))
+            {
+                this._errors.delete(id);
+                return true;
+            }
+            return false;
         },
         getErrorByID(id)
         {

@@ -1,9 +1,44 @@
 import Enquirer from 'enquirer';
 import * as DateUtil from '../util/DateUtil.js';
+import chalk from 'chalk';
+import figlet from 'figlet';
+
+export const DIVIDER_LENGTH = 80;
+export const CHOICE_SEPARATOR = { role: 'separator' };
 
 export function log(message)
 {
     console.log(message);
+}
+
+export function debug(message)
+{
+    console.log(chalk.gray(message));
+}
+
+export async function wait(seconds, message = undefined)
+{
+    if (message) console.log(message);
+    await new Promise(resolve => setTimeout(resolve, 1000 * seconds));
+}
+
+export function divider(token = 'nu')
+{
+    console.log(chalk.gray(
+        token.repeat(Math.floor(DIVIDER_LENGTH / token.length))
+        + token.substring(0, DIVIDER_LENGTH % token.length)
+    ));
+}
+
+export function doTheBigTitleThing(title = 'Progress Auditor', subtitle = 'Version v?.?.?')
+{
+    divider();
+    console.log(chalk.green(figlet.textSync(title, { font: 'Big' })));
+    if (subtitle)
+    {
+        console.log(subtitle.padStart(DIVIDER_LENGTH, ' '));
+    }
+    divider();
 }
 
 export async function prompt(question)
@@ -28,6 +63,17 @@ export async function ask(message)
         type: 'confirm',
         name: 'answer',
         message,
+    });
+    return answer;
+}
+
+export async function askChoose(message, choices)
+{
+    const { answer } =  await Enquirer.prompt({
+        type: 'select',
+        name: 'answer',
+        message,
+        choices,
     });
     return answer;
 }

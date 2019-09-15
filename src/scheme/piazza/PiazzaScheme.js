@@ -1,5 +1,4 @@
 import * as ReviewRegistry from '../../input/review/ReviewRegistry.js';
-import * as NullReviewer from './reviewer/NullReviewer.js';
 import * as SubmissionChangeAssignmentReviewer from './reviewer/SubmissionChangeAssignmentReviewer.js';
 import * as SubmissionChangeDateReviewer from './reviewer/SubmissionChangeDateReviewer.js';
 import * as SubmissionIgnoreOwnerReviewer from './reviewer/SubmissionIgnoreOwnerReviewer.js';
@@ -14,11 +13,12 @@ import * as AssignSubmissionByIntroResolver from './resolver/AssignSubmissionByI
 import * as AssignSubmissionResolver from './resolver/AssignSubmissionResolver.js';
 import * as SlipDayResolver from './resolver/SlipDayResolver.js';
 
+import * as BaseScheme from '../base/BaseScheme.js';
+
 export const SCHEME_NAME = 'piazza';
 
 // Order does NOT matter!
 export const REVIEWERS = [
-    NullReviewer,
     UserAddOwnerKeyReviewer,
     SubmissionChangeAssignmentReviewer,
     SubmissionChangeDateReviewer,
@@ -38,6 +38,8 @@ export const RESOLVERS = [
 
 export async function setup(db, config)
 {
+    BaseScheme.setup(db, config);
+    
     for(const reviewer of REVIEWERS)
     {
         ReviewRegistry.registerReviewer(reviewer);
