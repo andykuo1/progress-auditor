@@ -24,9 +24,11 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^2.4.2",
+    "cli-spinners": "^2.2.0",
+    "enquirer": "^2.3.1",
     "figlet": "^1.2.3",
     "inquirer": "^6.5.1",
-    "ora": "^3.4.0",
+    "inquirer-file-tree-selection-prompt": "^1.0.2",
     "papaparse": "^5.0.0",
     "pdfkit": "^0.10.0"
   },

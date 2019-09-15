@@ -214,7 +214,7 @@ export function parse(dateString)
 
     if (dayIndex < 0 || monthIndex < 0 || yearIndex < 0)
     {
-        throw new Error('Invalid date format - Expected YYYY-MM-DD-HH:MM:SS');
+        throw new Error('Invalid date format - Expected YYYY-MM-DD-hh:mm:ss');
     }
 
     if (hourIndex < 0 || minuteIndex < 0 || secondIndex < 0)
@@ -231,7 +231,7 @@ export function parse(dateString)
 
     if (year === NaN || month === NaN || day === NaN || hour === NaN || minute === NaN || second === NaN)
     {
-        throw new Error('Invalid date format - Expected YYYY-MM-DD-HH:MM:SS');
+        throw new Error('Invalid date format - Expected YYYY-MM-DD-hh:mm:ss');
     }
     
     const result = new Date(0);
