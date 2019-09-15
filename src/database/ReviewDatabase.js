@@ -32,6 +32,11 @@ export function clearDatabase(db)
     return db;
 }
 
+export function forEach(db, callback)
+{
+    return db[REVIEW_KEY].forEach(callback);
+}
+
 /**
  * Adds a review, by id, with the specified attributes.
  * @param {Database} db The current database to add to.
