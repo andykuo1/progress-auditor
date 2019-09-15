@@ -1,3 +1,5 @@
+import { createBuilder } from './helper/ReviewBuilder.js';
+
 /**
  * Every reviewer is expected to have at least a unique TYPE and a review function.
  * The build function is optional and only if users can change the review.
@@ -24,4 +26,8 @@ export async function review(db, config, reviewDatabase)
 export async function build(db, config)
 {
     console.log("Just a placeholder, if you need it.");
+    return await createBuilder()
+        .type(TYPE)
+        .param(0, 'Comment', 'Anything you want to say about this placeholder.')
+        .build();
 }
