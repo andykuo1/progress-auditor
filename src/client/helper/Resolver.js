@@ -1,4 +1,4 @@
-import { ask } from './Client.js';
+import { ask } from '../Client.js';
 
 export function ifFailAndAgain(message, expected = true)
 {
