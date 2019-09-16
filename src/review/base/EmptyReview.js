@@ -1,5 +1,7 @@
 import { createBuilder } from '../helper/ReviewBuilder.js';
 
+const ERROR_TAG = 'REVIEW';
+
 /**
  * Every reviewer is expected to have at least a unique TYPE and a review function.
  * The build function is optional and only if users can change the review.
@@ -22,6 +24,16 @@ export async function review(db, config)
  * @param {Array<Error>} [errors=[]] The errors this review build is in response to.
  */
 export async function build(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep(error));
+    }
+    return result;
+}
+
+async function buildStep(error)
 {
     // console.log("Just a placeholder, if you need it.");
     return await createBuilder()

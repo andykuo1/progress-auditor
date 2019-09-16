@@ -76,7 +76,17 @@ export async function review(db, config)
     }
 }
 
-export async function build()
+export async function build(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep(error));
+    }
+    return result;
+}
+
+async function buildStep(error)
 {
     return await createBuilder()
         .type(TYPE)

@@ -218,6 +218,7 @@ function createDatabase()
                 message,
                 options: [],
                 more: [],
+                context: {},
                 toString() { return `${id} [${tag}] ${message}`; }
             };
 
@@ -245,6 +246,11 @@ function createDatabase()
                 if ('more' in opts)
                 {
                     dst.more = opts.more;
+                }
+
+                if ('context' in opts)
+                {
+                    dst.context = { ...opts.context };
                 }
             }
 
@@ -11104,6 +11110,8 @@ function createBuilder()
                 {
                     return {
                         name: value.type,
+                        message: value.type,
+                        value: value.type,
                         hint: value.description,
                         initial: String(value.defaultValue),
                     };
@@ -11121,7 +11129,7 @@ function createBuilder()
     }
 }
 
-const ERROR_TAG$1 = 'REVIEW';
+const ERROR_TAG = 'REVIEW';
 
 const TYPE = 'ignore_review';
 const DESCRIPTION = 'Ignore another review (cannot ignore another ignore_review).';
@@ -11152,11 +11160,21 @@ async function review(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$1, e);
+        db.throwError(ERROR_TAG, e);
     }
 }
 
-async function build()
+async function build(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep());
+    }
+    return result;
+}
+
+async function buildStep(error)
 {
     return await createBuilder()
         .type(TYPE)
@@ -11171,7 +11189,7 @@ var IgnoreReview = /*#__PURE__*/Object.freeze({
     build: build
 });
 
-const ERROR_TAG$2 = 'REVIEW';
+const ERROR_TAG$1 = 'REVIEW';
 
 const TYPE$1 = 'add_vacation';
 const DESCRIPTION$1 = 'Add a vacation to the user\'s schedule';
@@ -11234,11 +11252,21 @@ async function review$1(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$2, e);
+        db.throwError(ERROR_TAG$1, e);
     }
 }
 
-async function build$1()
+async function build$1(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep$1());
+    }
+    return result;
+}
+
+async function buildStep$1(error)
 {
     return await createBuilder()
         .type(TYPE$1)
@@ -11809,16 +11837,18 @@ async function askChooseError(message, errors)
     for(const error of errors)
     {
         choices.push({
-            message: `${chalk.gray(error.id + ': ')} ${error.message}`,
+            name: error.id,
+            message: `\n${chalk.gray(error.id + ': ')}\n${error.message}`,
             value: error.id,
         });
     }
     choices.push(CHOICE_SEPARATOR);
 
     return await askPrompt(message, 'autocomplete', {
-        multiple: false, // TODO: This will allow batch processing in the future.
-        limit: 10,
-        choices
+        multiple: true,
+        limit: 5,
+        choices,
+        validate: result => result.length <= 0 ? "Must select at least one error (use 'space' to select)." : true
     });
 }
 
@@ -11846,14 +11876,18 @@ async function run(errors, cache = {})
      * Return anything we have.
      */
 
-    // NOTE: Temporary implementation
-    const errorID = await askChooseError("What error do you want to review?", errors);
-
-    const error = errorMapping.get(errorID);
-    if (await askClientToReviewError(error))
+    const chosenErrorIDs = await askChooseError("What error do you want to review?", errors);
+    const chosenErrors = [];
+    for(const errorID of chosenErrorIDs)
     {
-        const reviewResult = await doReviewSession(INSTANCE, [error]);
-        cache.reviews.push(reviewResult);
+        const error = errorMapping.get(errorID);
+        chosenErrors.push(error);
+    }
+
+    if (await askClientToReviewErrors(chosenErrors))
+    {
+        const reviewResult = await doReviewSession(INSTANCE, chosenErrors);
+        cache.reviews.push(...reviewResult);
     }
 }
 
@@ -11871,33 +11905,50 @@ async function showErrorInfo(error)
     }
 }
 
-async function askClientToReviewError(error)
+async function askClientToReviewErrors(errors)
 {
-    await showErrorInfo(error);
+    for(const error of errors)
+    {
+        await showErrorInfo(error);
+    }
     return await ask("Continue to review?");
 }
 
+/**
+ * @returns {Array<Review>} The reviews generated for the list of errors.
+ * If none were created, it will be an array of length 0.
+ */
 async function doReviewSession(reviewRegistry, errors)
 {
+    if (errors.length <= 0) throw new Error('Cannot review empty error list.');
+
     const reviewType = await chooseReviewType(reviewRegistry);
     const review = reviewRegistry.getReviewByType(reviewType);
-    if (review.build)
+
+    if (!review || typeof review.build !== 'function')
     {
-        return await review.build(errors);
+        throw new Error('Cannot build review with review-only review type.');
     }
-    else
-    {
-        return null;
-    }
+
+    return await review.build(errors);
 }
 
 async function chooseReviewType(reviewRegistry)
 {
-    const reviewTypes = reviewRegistry.getReviewTypes();
-    return await askPrompt("What type of review do you want to make?", "autocomplete", {
+    const buildableReviewTypes = [];
+    for(const reviewType of reviewRegistry.getReviewTypes())
+    {
+        const review = reviewRegistry.getReviewByType(reviewType);
+        if ('build' in review && typeof review.build === 'function')
+        {
+            buildableReviewTypes.push(reviewType);
+        }
+    }
+    const result = await askPrompt("What type of review do you want to make?", "autocomplete", {
         limit: 10,
-        choices: Array.from(reviewTypes)
+        choices: buildableReviewTypes,
     });
+    return result;
 }
 
 async function resolveErrors(errors)
@@ -11966,6 +12017,8 @@ async function outputErrorLog(db, config, errors)
     await outputDebugLog(db, config);
 }
 
+const ERROR_TAG$2 = 'REVIEW';
+
 /**
  * Every reviewer is expected to have at least a unique TYPE and a review function.
  * The build function is optional and only if users can change the review.
@@ -11996,7 +12049,7 @@ async function review$2(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG, e);
+        db.throwError(ERROR_TAG$2, e);
     }
 }
 
@@ -12006,9 +12059,19 @@ async function review$2(db, config)
  */
 async function build$2(errors = [])
 {
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep$2(error));
+    }
+    return result;
+}
+
+async function buildStep$2(error)
+{
     return await createBuilder()
         .type(TYPE$2)
-        .param(0, 'Error ID', 'Anything you want to say about this placeholder.', errors.length >= 1 ? errors[0].id : '')
+        .param(0, 'Error ID', 'The id of the error to skip.', error.id)
         .build();
 }
 
@@ -12572,7 +12635,17 @@ async function review$8(db, config)
     }
 }
 
-async function build$8()
+async function build$8(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep$3());
+    }
+    return result;
+}
+
+async function buildStep$3(error)
 {
     return await createBuilder()
         .type(TYPE$8)
@@ -12640,7 +12713,17 @@ async function review$9(db, config)
     }
 }
 
-async function build$9()
+async function build$9(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep$4());
+    }
+    return result;
+}
+
+async function buildStep$4(error)
 {
     return await createBuilder()
         .type(TYPE$9)
@@ -12696,7 +12779,17 @@ async function review$a(db, config)
     }
 }
 
-async function build$a()
+async function build$a(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep$5());
+    }
+    return result;
+}
+
+async function buildStep$5(error)
 {
     return await createBuilder()
         .type(TYPE$a)
@@ -12750,7 +12843,17 @@ async function review$b(db, config)
     }
 }
 
-async function build$b()
+async function build$b(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep$6());
+    }
+    return result;
+}
+
+async function buildStep$6(error)
 {
     return await createBuilder()
         .type(TYPE$b)
@@ -12791,7 +12894,17 @@ async function review$c(db, config)
     }
 }
 
-async function build$c()
+async function build$c(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep$7());
+    }
+    return result;
+}
+
+async function buildStep$7(error)
 {
     return await createBuilder()
         .type(TYPE$c)
@@ -12858,7 +12971,17 @@ async function review$d(db, config)
     }
 }
 
-async function build$d()
+async function build$d(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep$8());
+    }
+    return result;
+}
+
+async function buildStep$8(error)
 {
     return await createBuilder()
         .type(TYPE$d)
@@ -12928,7 +13051,17 @@ async function review$e(db, config)
     }
 }
 
-async function build$e()
+async function build$e(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep$9());
+    }
+    return result;
+}
+
+async function buildStep$9(error)
 {
     return await createBuilder()
         .type(TYPE$e)
@@ -13005,6 +13138,16 @@ async function review$g(db, config)
  * @param {Array<Error>} [errors=[]] The errors this review build is in response to.
  */
 async function build$g(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep$a());
+    }
+    return result;
+}
+
+async function buildStep$a(error)
 {
     // console.log("Just a placeholder, if you need it.");
     return await createBuilder()

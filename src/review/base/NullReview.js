@@ -11,7 +11,7 @@ export async function review(db, config)
     {
         await createReviewer()
             .type(TYPE)
-            .forEach((value, key) =>
+            .forEach(value =>
             {
                 const { id, type } = value;
                 db.throwError(ERROR_TAG, `Unhandled review type ${type} for review '${id}'.`, {

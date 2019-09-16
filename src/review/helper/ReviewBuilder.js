@@ -39,6 +39,8 @@ export function createBuilder()
                 {
                     return {
                         name: value.type,
+                        message: value.type,
+                        value: value.type,
                         hint: value.description,
                         initial: String(value.defaultValue),
                     };

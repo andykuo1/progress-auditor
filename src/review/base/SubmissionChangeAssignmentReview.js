@@ -1,4 +1,5 @@
 import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
+import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
 
 import { createReviewer } from '../helper/Reviewer.js';
 import { createBuilder } from '../helper/ReviewBuilder.js';
@@ -41,7 +42,17 @@ export async function review(db, config)
     }
 }
 
-export async function build()
+export async function build(errors = [])
+{
+    const result = [];
+    for(const error of errors)
+    {
+        result.push(await buildStep(error));
+    }
+    return result;
+}
+
+async function buildStep(error)
 {
     return await createBuilder()
         .type(TYPE)

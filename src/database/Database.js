@@ -48,6 +48,7 @@ export function createDatabase()
                 message,
                 options: [],
                 more: [],
+                context: {},
                 toString() { return `${id} [${tag}] ${message}`; }
             };
 
@@ -76,6 +77,11 @@ export function createDatabase()
                 {
                     dst.more = opts.more;
                 }
+
+                if ('context' in opts)
+                {
+                    dst.context = { ...opts.context };
+                }
             }
 
             this._errors.set(id, dst);
@@ -84,7 +90,7 @@ export function createDatabase()
         {
             if (typeof id !== 'number') throw new Error('Error id must be a number.');
 
-            if (this._errors.has(key))
+            if (this._errors.has(id))
             {
                 this._errors.delete(id);
                 return true;

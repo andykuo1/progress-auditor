@@ -12,16 +12,18 @@ async function askChooseError(message, errors)
     for(const error of errors)
     {
         choices.push({
-            message: `${chalk.gray(error.id + ': ')} ${error.message}`,
+            name: error.id,
+            message: `\n${chalk.gray(error.id + ': ')}\n${error.message}`,
             value: error.id,
         });
     }
     choices.push(CHOICE_SEPARATOR);
 
     return await askPrompt(message, 'autocomplete', {
-        multiple: false, // TODO: This will allow batch processing in the future.
-        limit: 10,
-        choices
+        multiple: true,
+        limit: 5,
+        choices,
+        validate: result => result.length <= 0 ? "Must select at least one error (use 'space' to select)." : true
     });
 }
 
@@ -49,14 +51,18 @@ export async function run(errors, cache = {})
      * Return anything we have.
      */
 
-    // NOTE: Temporary implementation
-    const errorID = await askChooseError("What error do you want to review?", errors);
-
-    const error = errorMapping.get(errorID);
-    if (await askClientToReviewError(error))
+    const chosenErrorIDs = await askChooseError("What error do you want to review?", errors);
+    const chosenErrors = [];
+    for(const errorID of chosenErrorIDs)
     {
-        const reviewResult = await doReviewSession(ReviewRegistry, [error]);
-        cache.reviews.push(reviewResult);
+        const error = errorMapping.get(errorID);
+        chosenErrors.push(error);
+    }
+
+    if (await askClientToReviewErrors(chosenErrors))
+    {
+        const reviewResult = await doReviewSession(ReviewRegistry, chosenErrors);
+        cache.reviews.push(...reviewResult);
     }
 }
 
@@ -74,31 +80,48 @@ async function showErrorInfo(error)
     }
 }
 
-async function askClientToReviewError(error)
+async function askClientToReviewErrors(errors)
 {
-    await showErrorInfo(error);
+    for(const error of errors)
+    {
+        await showErrorInfo(error);
+    }
     return await ask("Continue to review?");
 }
 
+/**
+ * @returns {Array<Review>} The reviews generated for the list of errors.
+ * If none were created, it will be an array of length 0.
+ */
 async function doReviewSession(reviewRegistry, errors)
 {
+    if (errors.length <= 0) throw new Error('Cannot review empty error list.');
+
     const reviewType = await chooseReviewType(reviewRegistry);
     const review = reviewRegistry.getReviewByType(reviewType);
-    if (review.build)
+
+    if (!review || typeof review.build !== 'function')
     {
-        return await review.build(errors);
+        throw new Error('Cannot build review with review-only review type.');
     }
-    else
-    {
-        return null;
-    }
+
+    return await review.build(errors);
 }
 
 async function chooseReviewType(reviewRegistry)
 {
-    const reviewTypes = reviewRegistry.getReviewTypes();
-    return await askPrompt("What type of review do you want to make?", "autocomplete", {
+    const buildableReviewTypes = [];
+    for(const reviewType of reviewRegistry.getReviewTypes())
+    {
+        const review = reviewRegistry.getReviewByType(reviewType);
+        if ('build' in review && typeof review.build === 'function')
+        {
+            buildableReviewTypes.push(reviewType);
+        }
+    }
+    const result = await askPrompt("What type of review do you want to make?", "autocomplete", {
         limit: 10,
-        choices: Array.from(reviewTypes)
+        choices: buildableReviewTypes,
     });
+    return result;
 }
