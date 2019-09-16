@@ -82,7 +82,9 @@ export function createDatabase()
         },
         removeErrorByID(id)
         {
-            if (this._errors.has(id))
+            if (typeof id !== 'number') throw new Error('Error id must be a number.');
+
+            if (this._errors.has(key))
             {
                 this._errors.delete(id);
                 return true;
@@ -91,6 +93,8 @@ export function createDatabase()
         },
         getErrorByID(id)
         {
+            if (typeof id !== 'number') throw new Error('Error id must be a number.');
+
             return this._errors.get(id);
         },
         clearErrors()

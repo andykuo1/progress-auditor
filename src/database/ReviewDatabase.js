@@ -58,17 +58,18 @@ export function addReview(db, reviewID, reviewDate, comment, type, params)
     else
     {
         const review = Review.createReview(reviewID, reviewDate, comment, type, params);
-        reviewMapping.set(reviewID, review);
+        reviewMapping.set(String(reviewID), review);
         return review;
     }
 }
 
 export function removeReviewByID(db, reviewID)
 {
+    const key = String(reviewID);
     const reviewMapping = db[REVIEW_KEY];
-    if (reviewMapping.has(reviewID))
+    if (reviewMapping.has(key))
     {
-        reviewMapping.delete(reviewID);
+        reviewMapping.delete(key);
         return true;
     }
     else
@@ -84,7 +85,7 @@ export function getReviews(db)
 
 export function getReviewByID(db, reviewID)
 {
-    return db[REVIEW_KEY].get(reviewID);
+    return db[REVIEW_KEY].get(String(reviewID));
 }
 
 export function getReviewTypes(db)

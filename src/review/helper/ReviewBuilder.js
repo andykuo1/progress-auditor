@@ -13,7 +13,7 @@ export function createBuilder()
             this._type = type;
             return this;
         },
-        param(index, type, description)
+        param(index, type, description, defaultValue = '')
         {
             while (index >= this._params.length)
             {
@@ -27,7 +27,8 @@ export function createBuilder()
 
             this._params[index] = {
                 type,
-                description
+                description,
+                defaultValue,
             };
             return this;
         },
@@ -39,6 +40,7 @@ export function createBuilder()
                     return {
                         name: value.type,
                         hint: value.description,
+                        initial: String(value.defaultValue),
                     };
                 })
             });

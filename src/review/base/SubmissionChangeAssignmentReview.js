@@ -8,11 +8,11 @@ const ERROR_TAG = 'REVIEW';
 export const TYPE = 'change_assignment';
 export const DESCRIPTION = 'Change assignment for submission.';
 
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
+        await createReviewer()
             .type(TYPE)
             .paramLength(2)
             .forEach(value =>
@@ -33,7 +33,7 @@ export async function review(db, config, reviewDatabase)
 
                 SubmissionDatabase.changeSubmissionAssignment(db, submission, params[0]);
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {

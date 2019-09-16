@@ -19,9 +19,8 @@ export const DESCRIPTION = 'Calculates the number of slip days for assigned subm
  * already being assigned appropriately.
  * @param {Database} db The database.
  * @param {Config} config The config.
- * @param {Database} reviewDatabase The review database.
  */
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {

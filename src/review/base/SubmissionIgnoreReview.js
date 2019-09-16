@@ -8,11 +8,11 @@ const ERROR_TAG = 'REVIEW';
 export const TYPE = 'ignore_submission';
 export const DESCRIPTION = 'Ignore specific submission by id.';
 
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
+        await createReviewer()
             .type(TYPE)
             .paramLength(1)
             .forEach(value =>
@@ -47,7 +47,7 @@ export async function review(db, config, reviewDatabase)
                     SubmissionDatabase.removeSubmissionByID(db, submissionID);
                 }
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {

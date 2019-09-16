@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New review maker that can be customized for every review
 - New UI system
 - New interactive review build system
+- New review form completion
 - New base scheme that handles generic reviews
 - Allow empty reviews (for type 'empty')
 - Error skipping

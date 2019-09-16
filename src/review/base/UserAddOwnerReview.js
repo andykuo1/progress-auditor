@@ -8,11 +8,11 @@ const ERROR_TAG = 'REVIEW';
 export const TYPE = 'add_owner_key';
 export const DESCRIPTION = 'Add additional owner key for user.';
 
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
+        await createReviewer()
             .type(TYPE)
             .paramLength(2)
             .forEach(value =>
@@ -50,7 +50,7 @@ export async function review(db, config, reviewDatabase)
                     user.ownerKey = [user.ownerKey, ownerKey];
                 }
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {

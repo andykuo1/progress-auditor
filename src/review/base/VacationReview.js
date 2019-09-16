@@ -1,3 +1,4 @@
+import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 import * as VacationDatabase from '../../database/VacationDatabase.js';
 import * as DateUtil from '../../util/DateUtil.js';
 import * as FieldParser from '../../util/FieldParser.js';
@@ -18,11 +19,11 @@ export const DESCRIPTION = 'Add a vacation to the user\'s schedule';
  * Since data loading is processed BEFORE all reviews, it makes it first. This causes issues with
  * other reflection reviews, therefore all reflection reviews are also processed here.
  */
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
+        await createReviewer()
             .type(TYPE)
             .paramLength(3)
             .forEach(value =>
@@ -37,9 +38,9 @@ export async function review(db, config, reviewDatabase)
 
                 // NOTE: So far, only IgnoreReview requires this.
                 let ignore = false;
-                for(const reviewID of reviewDatabase.getReviews())
+                for(const reviewID of ReviewDatabase.getReviews(db))
                 {
-                    const review = reviewDatabase.getReviewByID(reviewID);
+                    const review = ReviewDatabase.getReviewByID(db, reviewID);
                     if (review.type === IgnoreReview.TYPE && review.params.length >= 1 && review.params[0] == id)
                     {
                         // This vacation review is ignored.
@@ -67,7 +68,7 @@ export async function review(db, config, reviewDatabase)
                 // TODO: Vacation padding should be specified at top level or by assignment
                 VacationDatabase.addVacation(db, vacationID, ownerKey, startDate, endDate, 'week');
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {

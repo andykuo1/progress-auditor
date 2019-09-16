@@ -1,4 +1,4 @@
-import { log, askPrompt, ask, askPath, askDate, askChoose, CHOICE_SEPARATOR } from './Client.js';
+import { log, askPrompt, ask, askPath, askDate, askChoose, CHOICE_SEPARATOR, askInput } from './Client.js';
 import { createResolver, ifFailOrAgain, ifFailAndAgain } from './helper/Resolver.js';
 import * as ReviewMaker from './ReviewMaker.js';
 import ReviewRegistry from '../review/ReviewRegistry.js';
@@ -52,9 +52,10 @@ export async function run(errors, cache = {})
     // NOTE: Temporary implementation
     const errorID = await askChooseError("What error do you want to review?", errors);
 
-    if (await askClientToReviewError(errorMapping.get(errorID)))
+    const error = errorMapping.get(errorID);
+    if (await askClientToReviewError(error))
     {
-        const reviewResult = await doReviewSession(ReviewRegistry);
+        const reviewResult = await doReviewSession(ReviewRegistry, [error]);
         cache.reviews.push(reviewResult);
     }
 }
@@ -79,13 +80,13 @@ async function askClientToReviewError(error)
     return await ask("Continue to review?");
 }
 
-async function doReviewSession(reviewRegistry)
+async function doReviewSession(reviewRegistry, errors)
 {
     const reviewType = await chooseReviewType(reviewRegistry);
     const review = reviewRegistry.getReviewByType(reviewType);
     if (review.build)
     {
-        return await review.build();
+        return await review.build(errors);
     }
     else
     {
@@ -95,7 +96,9 @@ async function doReviewSession(reviewRegistry)
 
 async function chooseReviewType(reviewRegistry)
 {
-    // return 'add_owner_key';
     const reviewTypes = reviewRegistry.getReviewTypes();
-    return await askChoose("What type of review do you want to make?", Array.from(reviewTypes));
+    return await askPrompt("What type of review do you want to make?", "autocomplete", {
+        limit: 10,
+        choices: Array.from(reviewTypes)
+    });
 }

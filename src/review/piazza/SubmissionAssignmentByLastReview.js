@@ -13,9 +13,8 @@ const WEEK_PATTERN = /week ?([0-9]+)/i;
  * Searches all unassigned submissions to check if they could also be 'intro' assignments.
  * @param {Database} db The database.
  * @param {Config} config The config.
- * @param {Database} reviewDatabase The review database.
  */
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {

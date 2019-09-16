@@ -1,16 +1,17 @@
-export function createReviewer(reviewDatabase)
+import * as ReviewDatabase from '../../database/ReviewDatabase.js';
+
+export function createReviewer()
 {
     return {
-        _reviews: reviewDatabase,
         _type: null,
         _paramLength: -1,
         _callback: null,
         _async: false,
-        async review()
+        async review(db, config)
         {
             const errors = [];
             const results = [];
-            this._reviews.forEach((value, key) =>
+            ReviewDatabase.forEach(db, (value, key) =>
             {
                 if (!this._type || value.type !== this._type) return;
                 if (value.params.length < this._paramLength)

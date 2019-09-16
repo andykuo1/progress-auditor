@@ -8,11 +8,11 @@ const ERROR_TAG = 'REVIEW';
 export const TYPE = 'ignore_owner';
 export const DESCRIPTION = 'Ignore all submissions for owner.';
 
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
+        await createReviewer()
             .type(TYPE)
             .paramLength(1)
             .forEach(value =>
@@ -20,7 +20,7 @@ export async function review(db, config, reviewDatabase)
                 const { params } = value;
                 SubmissionDatabase.clearSubmissionsByOwner(db, params[0]);
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {

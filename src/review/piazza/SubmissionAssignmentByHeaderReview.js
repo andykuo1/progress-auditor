@@ -17,9 +17,8 @@ export const DESCRIPTION = 'Assigns submission by matching post headers.';
  * Searches through all submissions and assigns them to the appropriate assignment.
  * @param {Database} db The database.
  * @param {Config} config The config.
- * @param {Database} reviewDatabase The review database.
  */
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {

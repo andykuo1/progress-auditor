@@ -6,11 +6,11 @@ const ERROR_TAG = 'REVIEW';
 export const TYPE = 'change_assignment_status';
 export const DESCRIPTION = 'Changes the assignment status and slips for an owner.';
 
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
+        await createReviewer()
             .type(TYPE)
             .paramLength(3)
             .forEach((value, key) =>
@@ -30,7 +30,7 @@ export async function review(db, config, reviewDatabase)
                 assignment.attributes.status = status;
                 assignment.attributes.slipDays = slipDays;
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {

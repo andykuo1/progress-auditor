@@ -307,3 +307,41 @@ export async function askDate(message)
         }
     });
 }
+
+export async function askInput(message, choices = null, opts = {})
+{
+    if (Array.isArray(choices))
+    {
+        const prompt = new Enquirer.AutoComplete({
+            name: 'answer',
+            message,
+            limit: 10,
+            choices,
+            suggest: (input, choices) =>
+            {
+                let str = input.toLowerCase();
+                const result = choices.filter(ch => ch.message.toLowerCase().includes(str));
+    
+                // Add the current input as a selectable option...
+                result.push({ message: input });
+    
+                return result;
+            },
+            ...opts
+        });
+
+        const { answer } = await prompt.run();
+        return answer;
+    }
+    else
+    {
+        const prompt = new Enquirer.Input({
+            name: 'answer',
+            message,
+            ...opts
+        });
+
+        const { answer } = await prompt.run();
+        return answer;
+    }
+}

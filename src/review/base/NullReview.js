@@ -5,11 +5,11 @@ const ERROR_TAG = 'REVIEW';
 export const TYPE = 'null';
 export const DESCRIPTION = 'Unknown review type.';
 
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
+        await createReviewer()
             .type(TYPE)
             .forEach((value, key) =>
             {
@@ -22,7 +22,7 @@ export async function review(db, config, reviewDatabase)
                     ]
                 });
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {

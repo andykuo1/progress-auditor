@@ -21,26 +21,30 @@ class ReviewRegistry
     }
     
     /** The order in which the reviewer is registered is the order they execute. */
-    register(review)
+    register(review, manualExecute = false)
     {
         if (!review) throw new Error('Cannot register null reviews.');
         if (!('TYPE' in review) || !review.TYPE) throw new Error(`Not a valid review type - missing type. ${review}`)
 
         this.reviewMap.set(review.TYPE, review);
-        this.priorityList.push(review.TYPE);
+        
+        if (!manualExecute)
+        {
+            this.priorityList.push(review.TYPE);
+        }
         
         return this;
     }
 
     /** Will apply the reviews to the database. */
-    async applyReviews(db, config, reviewDatabase)
+    async applyReviews(db, config)
     {
         for(const reviewType of this.priorityList)
         {
             const review = this.reviewMap.get(reviewType);
             try
             {
-                await review.review(db, config, reviewDatabase);
+                await review.review(db, config);
             }
             catch(e)
             {

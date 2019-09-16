@@ -10,9 +10,8 @@ export const DESCRIPTION = 'Assigns submission by matching intro headers.';
  * Searches all unassigned submissions to check if they could also be 'intro' assignments.
  * @param {Database} db The database.
  * @param {Config} config The config.
- * @param {Database} reviewDatabase The review database.
  */
-export async function review(db, config, reviewDatabase)
+export async function review(db, config)
 {
     try
     {

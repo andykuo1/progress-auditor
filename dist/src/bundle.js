@@ -252,7 +252,9 @@ function createDatabase()
         },
         removeErrorByID(id)
         {
-            if (this._errors.has(id))
+            if (typeof id !== 'number') throw new Error('Error id must be a number.');
+
+            if (this._errors.has(key))
             {
                 this._errors.delete(id);
                 return true;
@@ -261,6 +263,8 @@ function createDatabase()
         },
         getErrorByID(id)
         {
+            if (typeof id !== 'number') throw new Error('Error id must be a number.');
+
             return this._errors.get(id);
         },
         clearErrors()
@@ -351,17 +355,18 @@ function addReview(db, reviewID, reviewDate, comment, type, params)
     else
     {
         const review = createReview(reviewID, reviewDate, comment, type, params);
-        reviewMapping.set(reviewID, review);
+        reviewMapping.set(String(reviewID), review);
         return review;
     }
 }
 
 function removeReviewByID(db, reviewID)
 {
+    const key = String(reviewID);
     const reviewMapping = db[REVIEW_KEY];
-    if (reviewMapping.has(reviewID))
+    if (reviewMapping.has(key))
     {
-        reviewMapping.delete(reviewID);
+        reviewMapping.delete(key);
         return true;
     }
     else
@@ -377,7 +382,7 @@ function getReviews(db)
 
 function getReviewByID(db, reviewID)
 {
-    return db[REVIEW_KEY].get(reviewID);
+    return db[REVIEW_KEY].get(String(reviewID));
 }
 
 function getReviewTypes(db)
@@ -436,9 +441,9 @@ const DAYS_IN_WEEK = 7;
  */
 function compareDates(a, b)
 {
-    const dayA = new Date(a.getUTCFullYear(), a.getUTCMonth(), a.getUTCDate());
-    const dayB = new Date(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate());
-    return dayA - dayB;
+    const dayA = new Date(a.getUTCFullYear(), a.getUTCMonth(), a.getUTCDate()).getTime();
+    const dayB = new Date(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate()).getTime();
+    return Math.ceil((dayA - dayB) / ONE_DAYTIME);
 }
 
 /**
@@ -1643,7 +1648,7 @@ function sortDateRanges(dateRanges)
 /**
  * Merge date ranges that overlap. This assumes the ranges are in order of start date.
  */
-function mergeDateRangesWithOverlap(dateRanges)
+function mergeDateRangesWithOverlap(dateRanges, contiguous = true)
 {
     let prevDateRange = null;
     for(let i = 0; i < dateRanges.length; ++i)
@@ -1653,7 +1658,9 @@ function mergeDateRangesWithOverlap(dateRanges)
         {
             prevDateRange = dateRange;
         }
-        else if (compareDates(prevDateRange[1], dateRange[0]) >= 0)
+        // If date ranges overlap if the end date is past the other start date,
+        // OR if they are continguous (optional).
+        else if (compareDates(prevDateRange[1], dateRange[0]) >= (contiguous ? -1 : 0))
         {
             // Merge the two ranges...
             prevDateRange[1].setTime(dateRange[1].getTime());
@@ -9712,7 +9719,7 @@ figlet_1.fontsSync = function() {
 var nodeFiglet = figlet_1;
 
 const DIVIDER_LENGTH = 80;
-const CHOICE_SEPARATOR = { role: 'separator' };
+const CHOICE_SEPARATOR = { message: "=-=-= END " + "=-".repeat(35), role: 'separator' };
 
 function log(message)
 {
@@ -9813,17 +9820,6 @@ async function ask(message, defaultValue = false)
         name: 'answer',
         message,
         initial: Boolean(defaultValue),
-    });
-    return answer;
-}
-
-async function askChoose(message, choices)
-{
-    const { answer } =  await enquirer.prompt({
-        type: 'select',
-        name: 'answer',
-        message,
-        choices,
     });
     return answer;
 }
@@ -10203,7 +10199,7 @@ function evaluatePostAssignment(headerContent, bodyContent)
     }
     // Last Assignment
     {
-        if (/last/i.test(headerContent))
+        if (/last/i.test(headerContent) || /final/i.test(headerContent))
         {
             return 'last';
         }
@@ -10998,19 +10994,18 @@ async function clearDatabase$5(db, config)
     return db;
 }
 
-function createReviewer(reviewDatabase)
+function createReviewer()
 {
     return {
-        _reviews: reviewDatabase,
         _type: null,
         _paramLength: -1,
         _callback: null,
         _async: false,
-        async review()
+        async review(db, config)
         {
             const errors = [];
             const results = [];
-            this._reviews.forEach((value, key) =>
+            forEach(db, (value, key) =>
             {
                 if (!this._type || value.type !== this._type) return;
                 if (value.params.length < this._paramLength)
@@ -11083,7 +11078,7 @@ function createBuilder()
             this._type = type;
             return this;
         },
-        param(index, type, description)
+        param(index, type, description, defaultValue = '')
         {
             while (index >= this._params.length)
             {
@@ -11097,7 +11092,8 @@ function createBuilder()
 
             this._params[index] = {
                 type,
-                description
+                description,
+                defaultValue,
             };
             return this;
         },
@@ -11109,6 +11105,7 @@ function createBuilder()
                     return {
                         name: value.type,
                         hint: value.description,
+                        initial: String(value.defaultValue),
                     };
                 })
             });
@@ -11124,7 +11121,7 @@ function createBuilder()
     }
 }
 
-const ERROR_TAG = 'REVIEW';
+const ERROR_TAG$1 = 'REVIEW';
 
 const TYPE = 'ignore_review';
 const DESCRIPTION = 'Ignore another review (cannot ignore another ignore_review).';
@@ -11133,29 +11130,29 @@ const DESCRIPTION = 'Ignore another review (cannot ignore another ignore_review)
  * This is a reflection review, as in it reviews (action) reviews (object).
  * Therefore, it must run first. Please refer to VacationReview for specifics.
  */
-async function review(db, config, reviewDatabase)
+async function review(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
+        await createReviewer()
             .type(TYPE)
             .paramLength(1)
             .forEach(value =>
             {
                 const { id, type, params } = value;
                 const reviewID = params[0];
-                const review = reviewDatabase.getReviewByID(db, reviewID);
+                const review = getReviewByID(db, reviewID);
                 if (review.type === TYPE)
                 {
                     throw new Error(`Invalid review target '${reviewID}' - cannot ignore another ignore_review type.`);
                 }
-                reviewDatabase.removeReviewByID(db, reviewID);
+                removeReviewByID(db, reviewID);
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG, e);
+        db.throwError(ERROR_TAG$1, e);
     }
 }
 
@@ -11163,10 +11160,7 @@ async function build()
 {
     return await createBuilder()
         .type(TYPE)
-        .param(0, 'Owner Key', 'The target owner to add the submission for.')
-        .param(1, 'Assignment ID', 'The submission\'s assignment ID.')
-        .param(2, '[Submission Date]', 'An optional parameter for the date of the new submission.')
-        .param(3, '[Submission Attributes]', 'An optional parameter object for additional attributes.')
+        .param(0, 'Review ID', 'The target review to ignore.')
         .build();
 }
 
@@ -11177,20 +11171,21 @@ var IgnoreReview = /*#__PURE__*/Object.freeze({
     build: build
 });
 
-const ERROR_TAG$1 = 'REVIEW';
+const ERROR_TAG$2 = 'REVIEW';
 
 const TYPE$1 = 'add_vacation';
+const DESCRIPTION$1 = 'Add a vacation to the user\'s schedule';
 
 /**
  * Although this is not a "reflection" review, it does require to be BEFORE assignment data loading.
  * Since data loading is processed BEFORE all reviews, it makes it first. This causes issues with
  * other reflection reviews, therefore all reflection reviews are also processed here.
  */
-async function review$1(db, config, reviewDatabase)
+async function review$1(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
+        await createReviewer()
             .type(TYPE$1)
             .paramLength(3)
             .forEach(value =>
@@ -11205,9 +11200,9 @@ async function review$1(db, config, reviewDatabase)
 
                 // NOTE: So far, only IgnoreReview requires this.
                 let ignore = false;
-                for(const reviewID of reviewDatabase.getReviews())
+                for(const reviewID of getReviews(db))
                 {
-                    const review = reviewDatabase.getReviewByID(reviewID);
+                    const review = getReviewByID(db, reviewID);
                     if (review.type === TYPE && review.params.length >= 1 && review.params[0] == id)
                     {
                         // This vacation review is ignored.
@@ -11235,13 +11230,31 @@ async function review$1(db, config, reviewDatabase)
                 // TODO: Vacation padding should be specified at top level or by assignment
                 addVacation(db, vacationID, ownerKey, startDate, endDate, 'week');
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$1, e);
+        db.throwError(ERROR_TAG$2, e);
     }
 }
+
+async function build$1()
+{
+    return await createBuilder()
+        .type(TYPE$1)
+        .param(0, 'Owner Key', 'The target owner to have the vacation.')
+        .param(1, 'Start Date', 'The start date of the vacation.')
+        .param(2, 'End Date', 'The end date of the vacation.')
+        .param(3, '[Vacation ID]', 'The globally-unique id for the vacation. By default, this will be auto-generated.')
+        .build();
+}
+
+var VacationReview = /*#__PURE__*/Object.freeze({
+    TYPE: TYPE$1,
+    DESCRIPTION: DESCRIPTION$1,
+    review: review$1,
+    build: build$1
+});
 
 /**
  * This needs to load and populate the VacationDatabase BEFORE assigners are loaded.
@@ -11744,26 +11757,30 @@ class ReviewRegistry
     }
     
     /** The order in which the reviewer is registered is the order they execute. */
-    register(review)
+    register(review, manualExecute = false)
     {
         if (!review) throw new Error('Cannot register null reviews.');
         if (!('TYPE' in review) || !review.TYPE) throw new Error(`Not a valid review type - missing type. ${review}`)
 
         this.reviewMap.set(review.TYPE, review);
-        this.priorityList.push(review.TYPE);
+        
+        if (!manualExecute)
+        {
+            this.priorityList.push(review.TYPE);
+        }
         
         return this;
     }
 
     /** Will apply the reviews to the database. */
-    async applyReviews(db, config, reviewDatabase)
+    async applyReviews(db, config)
     {
         for(const reviewType of this.priorityList)
         {
             const review = this.reviewMap.get(reviewType);
             try
             {
-                await review.review(db, config, reviewDatabase);
+                await review.review(db, config);
             }
             catch(e)
             {
@@ -11832,9 +11849,10 @@ async function run(errors, cache = {})
     // NOTE: Temporary implementation
     const errorID = await askChooseError("What error do you want to review?", errors);
 
-    if (await askClientToReviewError(errorMapping.get(errorID)))
+    const error = errorMapping.get(errorID);
+    if (await askClientToReviewError(error))
     {
-        const reviewResult = await doReviewSession(INSTANCE);
+        const reviewResult = await doReviewSession(INSTANCE, [error]);
         cache.reviews.push(reviewResult);
     }
 }
@@ -11859,13 +11877,13 @@ async function askClientToReviewError(error)
     return await ask("Continue to review?");
 }
 
-async function doReviewSession(reviewRegistry)
+async function doReviewSession(reviewRegistry, errors)
 {
     const reviewType = await chooseReviewType(reviewRegistry);
     const review = reviewRegistry.getReviewByType(reviewType);
     if (review.build)
     {
-        return await review.build();
+        return await review.build(errors);
     }
     else
     {
@@ -11875,9 +11893,11 @@ async function doReviewSession(reviewRegistry)
 
 async function chooseReviewType(reviewRegistry)
 {
-    // return 'add_owner_key';
     const reviewTypes = reviewRegistry.getReviewTypes();
-    return await askChoose("What type of review do you want to make?", Array.from(reviewTypes));
+    return await askPrompt("What type of review do you want to make?", "autocomplete", {
+        limit: 10,
+        choices: Array.from(reviewTypes)
+    });
 }
 
 async function resolveErrors(errors)
@@ -11938,87 +11958,6 @@ async function verifyErrorsWithClient(db, config, errors)
     return await askWhetherToIgnoreErrors(db, config, errors);
 }
 
-async function shouldSaveNewReviewsForClient(db, config, reviews)
-{
-    if (!reviews || reviews.length <= 0) return false;
-
-    const result = await askWhetherToSaveNewReviews(db, config, reviews);
-    if (!result)
-    {
-        console.log('...Dumping reviews...');
-    }
-    return result;
-}
-
-/**
- * Writes the reviews to file. If no reviews are passed-in, it will output the entire reviews database.
- * @param {Database} db The database.
- * @param {Config} config The config.
- * @param {Array<Array>} [reviews] An array of new reviews.
- */
-async function outputNewReviewsToFile(db, config, reviews = null)
-{
-    const path = require('path');
-    
-    const reviewTableHeader = [
-        'Review ID',
-        'Date',
-        'Comment',
-        'Type',
-        'Param[0]',
-        'Param[1]',
-        'Param[2]',
-        'Param[3]',
-        '...'
-    ];
-    const reviewTable = [reviewTableHeader];
-
-    if (reviews)
-    {
-        // Append ALL reviews (including new ones)
-        for(const reviewID of getReviews(db))
-        {
-            const review = getReviewByID(db, reviewID);
-            const reviewEntry = [];
-            if (review.type === '__temp__') continue;
-
-            // ID
-            reviewEntry.push(reviewID);
-            // Date
-            reviewEntry.push(stringify(review.date));
-            // Comment
-            reviewEntry.push(review.comment);
-            // Type
-            reviewEntry.push(review.type);
-            // Params
-            reviewEntry.push(...review.params);
-            reviewTable.push(reviewEntry);
-        }
-    }
-    else
-    {
-        // Append only NEW reviews
-        for(const review of reviews)
-        {
-            const reviewEntry = [];
-            // ID
-            reviewEntry.push(review[0]);
-            // Date
-            reviewEntry.push(review[1]);
-            // Comment
-            reviewEntry.push(review[2]);
-            // Type
-            reviewEntry.push(review[3]);
-            // Params
-            reviewEntry.push(...review[4]);
-            reviewTable.push(reviewEntry);
-        }
-    }
-
-    const outputFilePath = path.resolve(config.outputPath, `reviews-${stringify(new Date(Date.now()), false)}.csv`);
-    await writeTableToCSV(outputFilePath, reviewTable);
-}
-
 async function outputErrorLog(db, config, errors)
 {
     console.log("...Outputting database errors...");
@@ -12027,23 +11966,75 @@ async function outputErrorLog(db, config, errors)
     await outputDebugLog(db, config);
 }
 
-const ERROR_TAG$2 = 'REVIEW';
+/**
+ * Every reviewer is expected to have at least a unique TYPE and a review function.
+ * The build function is optional and only if users can change the review.
+ */
+const TYPE$2 = 'skip_error';
+const DESCRIPTION$2 = 'Skip a specific error.';
+
+/**
+ * Applies the review to the database.
+ * @param {Database} db The database.
+ * @param {Config} config The config.
+ */
+async function review$2(db, config)
+{
+    try
+    {
+        await createReviewer()
+            .type(TYPE$2)
+            .paramLength(1)
+            .forEach((value, key) =>
+            {
+                const { params } = value;
+                const errorID = Number(params[0]);
+                console.log(`...Skipping error ${errorID} by review...`);
+                db.removeErrorByID(errorID);
+            })
+            .review(db, config);
+    }
+    catch(e)
+    {
+        db.throwError(ERROR_TAG, e);
+    }
+}
+
+/**
+ * Builds a review instance for the database, interactively.
+ * @param {Array<Error>} [errors=[]] The errors this review build is in response to.
+ */
+async function build$2(errors = [])
+{
+    return await createBuilder()
+        .type(TYPE$2)
+        .param(0, 'Error ID', 'Anything you want to say about this placeholder.', errors.length >= 1 ? errors[0].id : '')
+        .build();
+}
+
+var SkipErrorReview = /*#__PURE__*/Object.freeze({
+    TYPE: TYPE$2,
+    DESCRIPTION: DESCRIPTION$2,
+    review: review$2,
+    build: build$2
+});
+
+const ERROR_TAG$3 = 'REVIEW';
 
 const SUBMISSION_TYPE_UNKNOWN = 'unknown';
 const SUBMISSION_TYPE_SOURCE = 'source';
 const SUBMISSION_TYPE_MINOR_EDIT = 'minor';
 const SUBMISSION_TYPE_MAJOR_EDIT = 'major';
 
-const TYPE$2 = 'assignment_by_header';
-const DESCRIPTION$1 = 'Assigns submission by matching post headers.';
+const TYPE$3 = 'assignment_by_header';
+const DESCRIPTION$3 = 'Assigns submission by matching post headers.';
 
 /**
  * Searches through all submissions and assigns them to the appropriate assignment.
  * @param {Database} db The database.
  * @param {Config} config The config.
- * @param {Database} reviewDatabase The review database.
  */
-async function review$2(db, config, reviewDatabase)
+async function review$3(db, config)
 {
     try
     {
@@ -12086,18 +12077,12 @@ async function review$2(db, config, reviewDatabase)
                             db.throwError('\t\t\t\t\t\t\t\tSubmission:', baseSubmission, '\n=-=-=-=-=-=>\n', nextSubmission);
                         }
                         */
-        
-                        // Submission is processed... delete content and mark as resolved.
-                        for(const submission of submissions)
-                        {
-                            delete submission.attributes.content;
-                        }
                     }
                     else
                     {
                         for(const submission of submissions)
                         {
-                            db.throwError(ERROR_TAG$2, `Found unassigned assignment '${assignmentID}' with submission '${submission.id}' from user '${userID}'.`, {
+                            db.throwError(ERROR_TAG$3, `Found unassigned assignment '${assignmentID}' with submission '${submission.id}' from user '${userID}'.`, {
                                 id: [userID, assignmentID],
                                 options: [
                                     `The submission header could be ill-formatted. We could not deduce its appropriate assignment automatically. Please verify the submitted content and header formats. Try submitting a 'change_assignment' review once you figure out its proper assignment.`,
@@ -12119,7 +12104,7 @@ async function review$2(db, config, reviewDatabase)
                 {
                     submissionCount += submissions[assignmentID].length;
                 }
-                db.throwError(ERROR_TAG$2, `Found ${submissionCount} unowned submissions - cannot find user for owner key '${ownerKey}'.`, {
+                db.throwError(ERROR_TAG$3, `Found ${submissionCount} unowned submissions - cannot find user for owner key '${ownerKey}'.`, {
                     id: [ownerKey],
                     options: [
                         `There are submissions without a valid user associated with it. Perhaps someone is using a different owner key? Try submitting a 'add_owner' review once you've found who these submissions belong to.`,
@@ -12134,12 +12119,12 @@ async function review$2(db, config, reviewDatabase)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$2, e);
+        db.throwError(ERROR_TAG$3, e);
     }
 }
 
 // No build mode for this review...
-const build$1 = undefined;
+const build$3 = undefined;
 
 function evaluatePostType(submission, baseSubmission)
 {
@@ -12184,24 +12169,158 @@ function getNearestSubmission(submissions, targetDate)
 }
 
 var SubmissionAssignmentByHeaderReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$2,
-    DESCRIPTION: DESCRIPTION$1,
-    review: review$2,
-    build: build$1
+    TYPE: TYPE$3,
+    DESCRIPTION: DESCRIPTION$3,
+    review: review$3,
+    build: build$3
 });
 
-const ERROR_TAG$3 = 'REVIEW';
+const ERROR_TAG$4 = 'REVIEW';
 
-const TYPE$3 = 'assignment_by_post';
-const DESCRIPTION$2 = 'Assigns submission by matching post id.';
+const TYPE$4 = 'assignment_by_intro';
+const DESCRIPTION$4 = 'Assigns submission by matching intro headers.';
+
+/**
+ * Searches all unassigned submissions to check if they could also be 'intro' assignments.
+ * @param {Database} db The database.
+ * @param {Config} config The config.
+ */
+async function review$4(db, config)
+{
+    try
+    {
+        for(const ownerKey of getOwners(db))
+        {
+            const userID = getUserByOwnerKey(db, ownerKey);
+            if (userID)
+            {
+                const userName = getUserByID(db, userID).name;
+        
+                const assignedSubmissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
+                if ('null' in assignedSubmissions)
+                {
+                    const unassignedSubmissions = assignedSubmissions['null'].slice();
+                    for(const unassignedSubmission of unassignedSubmissions)
+                    {
+                        if (unassignedSubmission.attributes.content.head.trim() === userName)
+                        {
+                            changeSubmissionAssignment(db, unassignedSubmission, 'intro');
+                        }
+                    }
+                }
+            }
+        }
+    }
+    catch(e)
+    {
+        db.throwError(ERROR_TAG$4, e);
+    }
+}
+
+// No build mode for this review...
+const build$4 = undefined;
+
+var SubmissionAssignmentByIntroReview = /*#__PURE__*/Object.freeze({
+    TYPE: TYPE$4,
+    DESCRIPTION: DESCRIPTION$4,
+    review: review$4,
+    build: build$4
+});
+
+const ERROR_TAG$5 = 'REVIEW';
+
+const TYPE$5 = 'assignment_by_intro';
+const DESCRIPTION$5 = 'Assigns submission by matching intro headers.';
+
+const WEEK_PATTERN = /week ?([0-9]+)/i;
+
+/**
+ * Searches all unassigned submissions to check if they could also be 'intro' assignments.
+ * @param {Database} db The database.
+ * @param {Config} config The config.
+ */
+async function review$5(db, config)
+{
+    try
+    {
+        for(const ownerKey of getOwners(db))
+        {
+            const userID = getUserByOwnerKey(db, ownerKey);
+            if (userID)
+            {
+                const userName = getUserByID(db, userID).name;
+
+                // Find the last week's assignment number...
+                const assignments = getAssignmentsByUser(db, userID);
+                let maxAssignmentNumber = 0;
+                for(const assignmentID of assignments)
+                {
+                    const result = WEEK_PATTERN.exec(assignmentID);
+                    if (result && result.length >= 2)
+                    {
+                        try
+                        {
+                            const assignmentNumber = Number.parseInt(result[1]);
+                            if (assignmentNumber > maxAssignmentNumber)
+                            {
+                                maxAssignmentNumber = assignmentNumber;
+                            }
+                        }
+                        catch(e)
+                        {
+                            // Ignore it.
+                        }
+                    }
+                }
+                const lastWeekNumber = maxAssignmentNumber + 1;
+        
+                const assignedSubmissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
+                if ('null' in assignedSubmissions)
+                {
+                    const unassignedSubmissions = assignedSubmissions['null'].slice();
+                    for(const unassignedSubmission of unassignedSubmissions)
+                    {
+                        const headerContent = unassignedSubmission.attributes.content.head;
+                        const result = WEEK_PATTERN.exec(headerContent);
+                        if (result && result.length >= 2)
+                        {
+                            if (result[1] == lastWeekNumber)
+                            {
+                                changeSubmissionAssignment(db, unassignedSubmission, 'last');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    catch(e)
+    {
+        db.throwError(ERROR_TAG$5, e);
+    }
+}
+
+// No build mode for this review...
+const build$5 = undefined;
+
+var SubmissionAssignmentByLastReview = /*#__PURE__*/Object.freeze({
+    TYPE: TYPE$5,
+    DESCRIPTION: DESCRIPTION$5,
+    review: review$5,
+    build: build$5
+});
+
+const ERROR_TAG$6 = 'REVIEW';
+
+const TYPE$6 = 'assignment_by_post';
+const DESCRIPTION$6 = 'Assigns submission by matching post id.';
 
 /**
  * Searches through all submissions and tries to assign them by post id.
  * @param {Database} db The database.
  * @param {Config} config The config.
- * @param {Database} reviewDatabase The review database.
  */
-async function review$3(db, config, reviewDatabase)
+async function review$6(db, config)
 {
     try
     {
@@ -12239,74 +12358,21 @@ async function review$3(db, config, reviewDatabase)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$3, e);
+        db.throwError(ERROR_TAG$6, e);
     }
 }
 
 // No build mode for this review...
-const build$2 = undefined;
+const build$6 = undefined;
 
-var SubmissionAssignmentByIntroReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$3,
-    DESCRIPTION: DESCRIPTION$2,
-    review: review$3,
-    build: build$2
+var SubmissionAssignmentByPostNumberReview = /*#__PURE__*/Object.freeze({
+    TYPE: TYPE$6,
+    DESCRIPTION: DESCRIPTION$6,
+    review: review$6,
+    build: build$6
 });
 
-const ERROR_TAG$4 = 'REVIEW';
-
-const TYPE$4 = 'assignment_by_intro';
-const DESCRIPTION$3 = 'Assigns submission by matching intro headers.';
-
-/**
- * Searches all unassigned submissions to check if they could also be 'intro' assignments.
- * @param {Database} db The database.
- * @param {Config} config The config.
- * @param {Database} reviewDatabase The review database.
- */
-async function review$4(db, config, reviewDatabase)
-{
-    try
-    {
-        for(const ownerKey of getOwners(db))
-        {
-            const userID = getUserByOwnerKey(db, ownerKey);
-            if (userID)
-            {
-                const userName = getUserByID(db, userID).name;
-        
-                const assignedSubmissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
-                if ('null' in assignedSubmissions)
-                {
-                    const unassignedSubmissions = assignedSubmissions['null'].slice();
-                    for(const unassignedSubmission of unassignedSubmissions)
-                    {
-                        if (unassignedSubmission.attributes.content.head.trim() === userName)
-                        {
-                            changeSubmissionAssignment(db, unassignedSubmission, 'intro');
-                        }
-                    }
-                }
-            }
-        }
-    }
-    catch(e)
-    {
-        db.throwError(ERROR_TAG$4, e);
-    }
-}
-
-// No build mode for this review...
-const build$3 = undefined;
-
-var SubmissionAssignmentByPostIDReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$4,
-    DESCRIPTION: DESCRIPTION$3,
-    review: review$4,
-    build: build$3
-});
-
-const ERROR_TAG$5 = 'REVIEW';
+const ERROR_TAG$7 = 'REVIEW';
 
 /**
  * This is the LAST time zone offset from UTC. This means that there does
@@ -12315,17 +12381,16 @@ const ERROR_TAG$5 = 'REVIEW';
  */
 const LATEST_TIMEZONE_OFFSET = 12 * 3600000;
 
-const TYPE$5 = 'submission_slip_days';
-const DESCRIPTION$4 = 'Calculates the number of slip days for assigned submissions.';
+const TYPE$7 = 'submission_slip_days';
+const DESCRIPTION$7 = 'Calculates the number of slip days for assigned submissions.';
 
 /**
  * Calculates the slip days for each user and assignment. This depends on submission
  * already being assigned appropriately.
  * @param {Database} db The database.
  * @param {Config} config The config.
- * @param {Database} reviewDatabase The review database.
  */
-async function review$5(db, config, reviewDatabase)
+async function review$7(db, config)
 {
     try
     {
@@ -12437,12 +12502,12 @@ async function review$5(db, config, reviewDatabase)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$5, e);
+        db.throwError(ERROR_TAG$7, e);
     }
 }
 
 // No build mode for this review...
-const build$4 = undefined;
+const build$7 = undefined;
 
 /**
  * Calculates the number of days past the submission, accounting for time zones and partial days.
@@ -12464,53 +12529,53 @@ function calculateSlipDays(submitDate, dueDate)
 }
 
 var SubmissionSlipDaysReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$5,
-    DESCRIPTION: DESCRIPTION$4,
-    review: review$5,
-    build: build$4
+    TYPE: TYPE$7,
+    DESCRIPTION: DESCRIPTION$7,
+    review: review$7,
+    build: build$7
 });
 
-const ERROR_TAG$6 = 'REVIEW';
+const ERROR_TAG$8 = 'REVIEW';
 
-const TYPE$6 = 'change_assignment_status';
-const DESCRIPTION$5 = 'Changes the assignment status and slips for an owner.';
+const TYPE$8 = 'change_assignment_status';
+const DESCRIPTION$8 = 'Changes the assignment status and slips for an owner.';
 
-async function review$6(db, config, reviewDatabase)
+async function review$8(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
-            .type(TYPE$6)
+        await createReviewer()
+            .type(TYPE$8)
             .paramLength(3)
             .forEach((value, key) =>
             {
                 const { id, type, params } = value;
                 const ownerKey = params[0];
                 const userID = UserDatabase.getUserByOwnerKey(db, ownerKey);
-                if (!userID) db.throwError(ERROR_TAG$6, `Cannot find user for owner key ${ownerKey}`, { id: [id, type], options: [`Add missing owner key '${ownerKey}' to a user.`] });
+                if (!userID) db.throwError(ERROR_TAG$8, `Cannot find user for owner key ${ownerKey}`, { id: [id, type], options: [`Add missing owner key '${ownerKey}' to a user.`] });
             
                 const assignmentID = params[1];
                 const status = params[2];
             
                 const slipDays = params.length > 3 ? Number(params[3]) : 0;
                 const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
-                if (!assignment) db.throwError(ERROR_TAG$6, `Cannot find assignment for id ${assignmentID}`, { id: [id, type], options: [`User may not be assigned this assignment.`, `Assignment id may not exist.`] });
+                if (!assignment) db.throwError(ERROR_TAG$8, `Cannot find assignment for id ${assignmentID}`, { id: [id, type], options: [`User may not be assigned this assignment.`, `Assignment id may not exist.`] });
             
                 assignment.attributes.status = status;
                 assignment.attributes.slipDays = slipDays;
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$6, e);
+        db.throwError(ERROR_TAG$8, e);
     }
 }
 
-async function build$5()
+async function build$8()
 {
     return await createBuilder()
-        .type(TYPE$6)
+        .type(TYPE$8)
         .param(0, 'Owner Key', 'The target owner with the target assignment')
         .param(1, 'Assignment ID', 'The target assignment ID')
         .param(2, 'Status', 'The new status for the assignment')
@@ -12519,23 +12584,23 @@ async function build$5()
 }
 
 var AssignmentChangeStatusReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$6,
-    DESCRIPTION: DESCRIPTION$5,
-    review: review$6,
-    build: build$5
+    TYPE: TYPE$8,
+    DESCRIPTION: DESCRIPTION$8,
+    review: review$8,
+    build: build$8
 });
 
-const ERROR_TAG$7 = 'REVIEW';
+const ERROR_TAG$9 = 'REVIEW';
 
-const TYPE$7 = 'add_submission';
-const DESCRIPTION$6 = 'Add submission (with assignment) for owner.';
+const TYPE$9 = 'add_submission';
+const DESCRIPTION$9 = 'Add submission (with assignment) for owner.';
 
-async function review$7(db, config, reviewDatabase)
+async function review$9(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
-            .type(TYPE$7)
+        await createReviewer()
+            .type(TYPE$9)
             .paramLength(2)
             .forEach(value =>
             {
@@ -12544,7 +12609,7 @@ async function review$7(db, config, reviewDatabase)
                 const userID = getUserByOwnerKey(db, ownerKey);
                 if (!userID)
                 {
-                    db.throwError(ERROR_TAG$7, `Cannot find user for owner key ${ownerKey}`, {
+                    db.throwError(ERROR_TAG$9, `Cannot find user for owner key ${ownerKey}`, {
                         id: [id, type],
                         options: [`Add missing owner key '${ownerKey}' to a user.`]
                     });
@@ -12567,18 +12632,18 @@ async function review$7(db, config, reviewDatabase)
 
                 addSubmission(db, submissionID, ownerKey, assignmentID, submissionDate, submissionAttributes);
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$7, e);
+        db.throwError(ERROR_TAG$9, e);
     }
 }
 
-async function build$6()
+async function build$9()
 {
     return await createBuilder()
-        .type(TYPE$7)
+        .type(TYPE$9)
         .param(0, 'Owner Key', 'The target owner to add the submission for.')
         .param(1, 'Assignment ID', 'The submission\'s assignment ID.')
         .param(2, '[Submission Date]', 'An optional parameter for the date of the new submission.')
@@ -12587,23 +12652,23 @@ async function build$6()
 }
 
 var SubmissionAddReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$7,
-    DESCRIPTION: DESCRIPTION$6,
-    review: review$7,
-    build: build$6
+    TYPE: TYPE$9,
+    DESCRIPTION: DESCRIPTION$9,
+    review: review$9,
+    build: build$9
 });
 
-const ERROR_TAG$8 = 'REVIEW';
+const ERROR_TAG$a = 'REVIEW';
 
-const TYPE$8 = 'change_assignment';
-const DESCRIPTION$7 = 'Change assignment for submission.';
+const TYPE$a = 'change_assignment';
+const DESCRIPTION$a = 'Change assignment for submission.';
 
-async function review$8(db, config, reviewDatabase)
+async function review$a(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
-            .type(TYPE$8)
+        await createReviewer()
+            .type(TYPE$a)
             .paramLength(2)
             .forEach(value =>
             {
@@ -12611,7 +12676,7 @@ async function review$8(db, config, reviewDatabase)
                 const submission = getSubmissionByID(db, params[1]);
                 if (!submission)
                 {
-                    db.throwError(ERROR_TAG$8, `Invalid review param - unable to find submission for id '${params[1]}'.`, {
+                    db.throwError(ERROR_TAG$a, `Invalid review param - unable to find submission for id '${params[1]}'.`, {
                         id: [id, type],
                         options: [
                             'The submission for that id is missing from the database.',
@@ -12623,41 +12688,41 @@ async function review$8(db, config, reviewDatabase)
 
                 changeSubmissionAssignment(db, submission, params[0]);
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$8, e);
+        db.throwError(ERROR_TAG$a, e);
     }
 }
 
-async function build$7()
+async function build$a()
 {
     return await createBuilder()
-        .type(TYPE$8)
+        .type(TYPE$a)
         .param(0, 'Assignment ID', 'The new assignment id to change to.')
         .param(1, 'Submission ID', 'The id for the target submission.')
         .build();
 }
 
 var SubmissionChangeAssignmentReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$8,
-    DESCRIPTION: DESCRIPTION$7,
-    review: review$8,
-    build: build$7
+    TYPE: TYPE$a,
+    DESCRIPTION: DESCRIPTION$a,
+    review: review$a,
+    build: build$a
 });
 
-const ERROR_TAG$9 = 'REVIEW';
+const ERROR_TAG$b = 'REVIEW';
 
-const TYPE$9 = 'change_submission_date';
-const DESCRIPTION$8 = 'Change date for submission.';
+const TYPE$b = 'change_submission_date';
+const DESCRIPTION$b = 'Change date for submission.';
 
-async function review$9(db, config, reviewDatabase)
+async function review$b(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
-            .type(TYPE$9)
+        await createReviewer()
+            .type(TYPE$b)
             .paramLength(2)
             .forEach(value =>
             {
@@ -12665,7 +12730,7 @@ async function review$9(db, config, reviewDatabase)
                 const submission = getSubmissionByID(db, params[0]);
                 if (!submission)
                 {
-                    db.throwError(ERROR_TAG$9, `Invalid review param - unable to find submission for id '${params[0]}'.`, {
+                    db.throwError(ERROR_TAG$b, `Invalid review param - unable to find submission for id '${params[0]}'.`, {
                         id: [id, type],
                         options: [
                             'The submission for that id is missing from the database.',
@@ -12677,81 +12742,81 @@ async function review$9(db, config, reviewDatabase)
             
                 submission.date = parseDate(params[1]);
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$9, e);
+        db.throwError(ERROR_TAG$b, e);
     }
 }
 
-async function build$8()
+async function build$b()
 {
     return await createBuilder()
-        .type(TYPE$9)
+        .type(TYPE$b)
         .param(0, 'Submission ID', 'The target submission to change.')
         .param(1, 'Submission Date', 'The target date to change to.')
         .build();
 }
 
 var SubmissionChangeDateReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$9,
-    DESCRIPTION: DESCRIPTION$8,
-    review: review$9,
-    build: build$8
+    TYPE: TYPE$b,
+    DESCRIPTION: DESCRIPTION$b,
+    review: review$b,
+    build: build$b
 });
 
-const ERROR_TAG$a = 'REVIEW';
+const ERROR_TAG$c = 'REVIEW';
 
-const TYPE$a = 'ignore_owner';
-const DESCRIPTION$9 = 'Ignore all submissions for owner.';
+const TYPE$c = 'ignore_owner';
+const DESCRIPTION$c = 'Ignore all submissions for owner.';
 
-async function review$a(db, config, reviewDatabase)
+async function review$c(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
-            .type(TYPE$a)
+        await createReviewer()
+            .type(TYPE$c)
             .paramLength(1)
             .forEach(value =>
             {
                 const { params } = value;
                 clearSubmissionsByOwner(db, params[0]);
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$a, e);
+        db.throwError(ERROR_TAG$c, e);
     }
 }
 
-async function build$9()
+async function build$c()
 {
     return await createBuilder()
-        .type(TYPE$a)
+        .type(TYPE$c)
         .param(0, 'Owner Key', 'The target owner to ignore.')
         .build();
 }
 
 var SubmissionIgnoreOwnerReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$a,
-    DESCRIPTION: DESCRIPTION$9,
-    review: review$a,
-    build: build$9
+    TYPE: TYPE$c,
+    DESCRIPTION: DESCRIPTION$c,
+    review: review$c,
+    build: build$c
 });
 
-const ERROR_TAG$b = 'REVIEW';
+const ERROR_TAG$d = 'REVIEW';
 
-const TYPE$b = 'ignore_submission';
-const DESCRIPTION$a = 'Ignore specific submission by id.';
+const TYPE$d = 'ignore_submission';
+const DESCRIPTION$d = 'Ignore specific submission by id.';
 
-async function review$b(db, config, reviewDatabase)
+async function review$d(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
-            .type(TYPE$b)
+        await createReviewer()
+            .type(TYPE$d)
             .paramLength(1)
             .forEach(value =>
             {
@@ -12759,7 +12824,7 @@ async function review$b(db, config, reviewDatabase)
                 const targetSubmission = getSubmissionByID(db, params[0]);
                 if (!targetSubmission)
                 {
-                    db.throwError(ERROR_TAG$b, `Invalid review param - Cannot find submission for id '${params[0]}'.`, {
+                    db.throwError(ERROR_TAG$d, `Invalid review param - Cannot find submission for id '${params[0]}'.`, {
                         id: [id, type],
                         options: [
                             `Submission with this id has probably already been removed.`,
@@ -12785,40 +12850,40 @@ async function review$b(db, config, reviewDatabase)
                     removeSubmissionByID(db, submissionID);
                 }
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$b, e);
+        db.throwError(ERROR_TAG$d, e);
     }
 }
 
-async function build$a()
+async function build$d()
 {
     return await createBuilder()
-        .type(TYPE$b)
+        .type(TYPE$d)
         .param(0, 'Submission ID', 'The target submission id.')
         .build();
 }
 
 var SubmissionIgnoreReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$b,
-    DESCRIPTION: DESCRIPTION$a,
-    review: review$b,
-    build: build$a
+    TYPE: TYPE$d,
+    DESCRIPTION: DESCRIPTION$d,
+    review: review$d,
+    build: build$d
 });
 
-const ERROR_TAG$c = 'REVIEW';
+const ERROR_TAG$e = 'REVIEW';
 
-const TYPE$c = 'add_owner_key';
-const DESCRIPTION$b = 'Add additional owner key for user.';
+const TYPE$e = 'add_owner_key';
+const DESCRIPTION$e = 'Add additional owner key for user.';
 
-async function review$c(db, config, reviewDatabase)
+async function review$e(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
-            .type(TYPE$c)
+        await createReviewer()
+            .type(TYPE$e)
             .paramLength(2)
             .forEach(value =>
             {
@@ -12826,7 +12891,7 @@ async function review$c(db, config, reviewDatabase)
                 const user = getUserByID(db, params[0]);
                 if (!user)
                 {
-                    db.throwError(ERROR_TAG$c, `Invalid review param - Cannot find user for id '${params[0]}'.`, {
+                    db.throwError(ERROR_TAG$e, `Invalid review param - Cannot find user for id '${params[0]}'.`, {
                         id: [id, type],
                         options: [
                             `User with this id has probably already been removed.`,
@@ -12839,7 +12904,7 @@ async function review$c(db, config, reviewDatabase)
                 const ownerKey = params[1];
                 if (user.ownerKey.includes(ownerKey))
                 {
-                    db.throwError(ERROR_TAG$c, `Invalid review param - Duplicate owner key '${ownerKey}' for user.`, {
+                    db.throwError(ERROR_TAG$e, `Invalid review param - Duplicate owner key '${ownerKey}' for user.`, {
                         id: [id, type],
                         options: [`The user already has this owner key.`]
                     });
@@ -12855,45 +12920,45 @@ async function review$c(db, config, reviewDatabase)
                     user.ownerKey = [user.ownerKey, ownerKey];
                 }
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$c, e);
+        db.throwError(ERROR_TAG$e, e);
     }
 }
 
-async function build$b()
+async function build$e()
 {
     return await createBuilder()
-        .type(TYPE$c)
+        .type(TYPE$e)
         .param(0, 'User ID', 'The target user id to add the owner for.')
         .param(1, 'Ownewr Key', 'The new owner key to add for the user.')
         .build();
 }
 
 var UserAddOwnerReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$c,
-    DESCRIPTION: DESCRIPTION$b,
-    review: review$c,
-    build: build$b
+    TYPE: TYPE$e,
+    DESCRIPTION: DESCRIPTION$e,
+    review: review$e,
+    build: build$e
 });
 
-const ERROR_TAG$d = 'REVIEW';
+const ERROR_TAG$f = 'REVIEW';
 
-const TYPE$d = 'null';
-const DESCRIPTION$c = 'Unknown review type.';
+const TYPE$f = 'null';
+const DESCRIPTION$f = 'Unknown review type.';
 
-async function review$d(db, config, reviewDatabase)
+async function review$f(db, config)
 {
     try
     {
-        await createReviewer(reviewDatabase)
-            .type(TYPE$d)
+        await createReviewer()
+            .type(TYPE$f)
             .forEach((value, key) =>
             {
                 const { id, type } = value;
-                db.throwError(ERROR_TAG$d, `Unhandled review type ${type} for review '${id}'.`, {
+                db.throwError(ERROR_TAG$f, `Unhandled review type ${type} for review '${id}'.`, {
                     id: [id, type],
                     options: [
                         `You probably misspelled the review type.`,
@@ -12901,71 +12966,71 @@ async function review$d(db, config, reviewDatabase)
                     ]
                 });
             })
-            .review();
+            .review(db, config);
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$d, e);
+        db.throwError(ERROR_TAG$f, e);
     }
 }
 
-const build$c = undefined;
+const build$f = undefined;
 
 var NullReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$d,
-    DESCRIPTION: DESCRIPTION$c,
-    review: review$d,
-    build: build$c
+    TYPE: TYPE$f,
+    DESCRIPTION: DESCRIPTION$f,
+    review: review$f,
+    build: build$f
 });
 
 /**
  * Every reviewer is expected to have at least a unique TYPE and a review function.
  * The build function is optional and only if users can change the review.
  */
-const TYPE$e = 'empty';
-const DESCRIPTION$d = 'A placeholder review if you need one.';
+const TYPE$g = 'empty';
+const DESCRIPTION$g = 'A placeholder review if you need one.';
 
 /**
  * Applies the review to the database.
  * @param {Database} db The database.
  * @param {Config} config The config.
- * @param {Database} reviewDatabase The review database of all review instances to be applied.
  */
-async function review$e(db, config, reviewDatabase)
+async function review$g(db, config)
 {
     // console.log("Nice to meet you. I'm empty :D");
 }
 
 /**
  * Builds a review instance for the database, interactively.
- * @param {Database} db The database.
- * @param {Config} config The config.
+ * @param {Array<Error>} [errors=[]] The errors this review build is in response to.
  */
-async function build$d()
+async function build$g(errors = [])
 {
-    console.log("Just a placeholder, if you need it.");
+    // console.log("Just a placeholder, if you need it.");
     return await createBuilder()
-        .type(TYPE$e)
+        .type(TYPE$g)
         .param(0, 'Comment', 'Anything you want to say about this placeholder.')
         .build();
 }
 
 var EmptyReview = /*#__PURE__*/Object.freeze({
-    TYPE: TYPE$e,
-    DESCRIPTION: DESCRIPTION$d,
-    review: review$e,
-    build: build$d
+    TYPE: TYPE$g,
+    DESCRIPTION: DESCRIPTION$g,
+    review: review$g,
+    build: build$g
 });
-
-// import * as VacationReview from './VacationReview.js';
 
 async function setup(db, config, reviewRegistry)
 {
     reviewRegistry
         // NOTE: Must be first. (however, this won't apply for vacation reviews, look at VacationReview for solution)
         .register(IgnoreReview)
+        // NOTE: The 2nd argument is an execution override. We don't want it to execute normally.
+        .register(VacationReview, true)
+        .register(SkipErrorReview, true)
         // NOTE: Order determines execution order, but these
         // reviews shouldn't care about that.
+        .register(NullReview)
         .register(EmptyReview)
         .register(UserAddOwnerReview)
         .register(SubmissionChangeAssignmentReview)
@@ -12973,8 +13038,7 @@ async function setup(db, config, reviewRegistry)
         .register(SubmissionIgnoreOwnerReview)
         .register(SubmissionIgnoreReview)
         .register(SubmissionAddReview)
-        .register(AssignmentChangeStatusReview)
-        .register(NullReview);
+        .register(AssignmentChangeStatusReview);
     
     // NOTE: VacationReview is handled externally at data population by DatabaseHandler.
     // This is due to a dependency that we cannot get rid of if we want
@@ -12988,10 +13052,13 @@ async function setup$1(db, config, reviewRegistry)
     await setup(db, config, reviewRegistry);
     
     reviewRegistry
-        /** Order matters here... */
-        .register(SubmissionAssignmentByPostIDReview)
+        // Order matters here...
         .register(SubmissionAssignmentByIntroReview)
+        .register(SubmissionAssignmentByLastReview)
         .register(SubmissionAssignmentByHeaderReview)
+        // This must go after all assignment resolution reviews.
+        .register(SubmissionAssignmentByPostNumberReview)
+        // This must go LAST.
         .register(SubmissionSlipDaysReview);
 }
 
@@ -13022,6 +13089,93 @@ async function fixDatabaseWithReviews(db, config)
 {
     console.log('...Reviewing our work...');
     await INSTANCE.applyReviews(db, config, db[REVIEW_KEY]);
+    
+    // NOTE: This needs to be ALWAYS applied last, because errors can be generated
+    // from other reviews. This let's you skip them.
+    await review$2(db, config, db[REVIEW_KEY]);
+}
+
+async function shouldSaveNewReviewsForClient(db, config, reviews)
+{
+    if (!reviews || reviews.length <= 0) return false;
+
+    const result = await askWhetherToSaveNewReviews(db, config, reviews);
+    if (!result)
+    {
+        console.log('...Dumping reviews...');
+    }
+    return result;
+}
+
+/**
+ * Writes the reviews to file. If no reviews are passed-in, it will output the entire reviews database.
+ * @param {Database} db The database.
+ * @param {Config} config The config.
+ * @param {Array<Array>} [reviews] An array of new reviews.
+ */
+async function outputNewReviewsToFile(db, config, reviews = null)
+{
+    const path = require('path');
+    
+    const reviewTableHeader = [
+        'Review ID',
+        'Date',
+        'Comment',
+        'Type',
+        'Param[0]',
+        'Param[1]',
+        'Param[2]',
+        'Param[3]',
+        '...'
+    ];
+    const reviewTable = [reviewTableHeader];
+
+    if (!reviews)
+    {
+        // Append ALL reviews (including new ones)
+        for(const reviewID of getReviews(db))
+        {
+            const review = getReviewByID(db, reviewID);
+            const reviewEntry = [];
+
+            // Don't save skip errors...
+            if (review.type === TYPE$2) continue;
+
+            // ID
+            reviewEntry.push(reviewID);
+            // Date
+            reviewEntry.push(stringify(review.date));
+            // Comment
+            reviewEntry.push(review.comment);
+            // Type
+            reviewEntry.push(review.type);
+            // Params
+            reviewEntry.push(...review.params);
+            reviewTable.push(reviewEntry);
+        }
+    }
+    else
+    {
+        // Append only NEW reviews
+        for(const review of reviews)
+        {
+            const reviewEntry = [];
+            // ID
+            reviewEntry.push(review[0]);
+            // Date
+            reviewEntry.push(review[1]);
+            // Comment
+            reviewEntry.push(review[2]);
+            // Type
+            reviewEntry.push(review[3]);
+            // Params
+            reviewEntry.push(...review[4]);
+            reviewTable.push(reviewEntry);
+        }
+    }
+
+    const outputFilePath = path.resolve(config.outputPath, `reviews-${stringify(new Date(Date.now()), false)}.csv`);
+    await writeTableToCSV(outputFilePath, reviewTable);
 }
 
 /**
