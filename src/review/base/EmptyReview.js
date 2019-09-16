@@ -23,7 +23,7 @@ export async function review(db, config, reviewDatabase)
  * @param {Database} db The database.
  * @param {Config} config The config.
  */
-export async function build(db, config)
+export async function build()
 {
     console.log("Just a placeholder, if you need it.");
     return await createBuilder()

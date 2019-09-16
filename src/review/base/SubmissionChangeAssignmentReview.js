@@ -41,9 +41,9 @@ export async function review(db, config, reviewDatabase)
     }
 }
 
-export async function build(db, config)
+export async function build()
 {
-    await createBuilder()
+    return await createBuilder()
         .type(TYPE)
         .param(0, 'Assignment ID', 'The new assignment id to change to.')
         .param(1, 'Submission ID', 'The id for the target submission.')

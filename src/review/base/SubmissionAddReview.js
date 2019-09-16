@@ -57,9 +57,9 @@ export async function review(db, config, reviewDatabase)
     }
 }
 
-export async function build(db, config)
+export async function build()
 {
-    await createBuilder()
+    return await createBuilder()
         .type(TYPE)
         .param(0, 'Owner Key', 'The target owner to add the submission for.')
         .param(1, 'Assignment ID', 'The submission\'s assignment ID.')

@@ -28,9 +28,9 @@ export async function review(db, config, reviewDatabase)
     }
 }
 
-export async function build(db, config)
+export async function build()
 {
-    await createBuilder()
+    return await createBuilder()
         .type(TYPE)
         .param(0, 'Owner Key', 'The target owner to ignore.')
         .build();

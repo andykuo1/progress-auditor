@@ -27,7 +27,8 @@ export async function populateDatabaseWithAdditionalReviews(db, config, reviews)
 {
     for(const review of reviews)
     {
-        ReviewDatabase.addReview(db, ...review);
+        const { id, date, comment, type, params } = review;
+        ReviewDatabase.addReview(db, id, date, comment, type, params);
     }
 }
 
@@ -36,26 +37,4 @@ export async function fixDatabaseWithReviews(db, config)
 {
     console.log('...Reviewing our work...');
     await ReviewRegistry.applyReviews(db, config, db[ReviewDatabase.REVIEW_KEY]);
-
-    /*
-    // Review data...
-    for(const reviewID of ReviewDatabase.getReviews(db))
-    {
-        const review = ReviewDatabase.getReviewByID(db, reviewID);
-        const reviewType = review.type;
-        const reviewParams = review.params;
-
-        const reviewer = ReviewRegistry.getReviewerByType(reviewType);
-        await reviewer.review(db, config, reviewID, reviewType, reviewParams);
-    }
-
-    console.log('...Helping you resolve a few things...');
-    
-    // Resolve data...
-    const resolvers = ResolverRegistry.getResolvers();
-    for(const resolver of resolvers)
-    {
-        await resolver.resolve(db, config);
-    }
-    */
 }

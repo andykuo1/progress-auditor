@@ -58,9 +58,9 @@ export async function review(db, config, reviewDatabase)
     }
 }
 
-export async function build(db, config)
+export async function build()
 {
-    await createBuilder()
+    return await createBuilder()
         .type(TYPE)
         .param(0, 'User ID', 'The target user id to add the owner for.')
         .param(1, 'Ownewr Key', 'The new owner key to add for the user.')

@@ -25,13 +25,9 @@
     ],
     "inputs": [
         {
-            "inputName": "reviews.csv",
+            "__comment": "FIXME!",
+            "inputName": "_reviews.csv",
             "parser": "reviews",
-            "opts": {}
-        },
-        {
-            "inputName": "vacations.csv",
-            "parser": "vacations",
             "opts": {}
         },
         {

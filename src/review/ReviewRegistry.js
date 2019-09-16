@@ -16,7 +16,7 @@ class ReviewRegistry
 {
     constructor()
     {
-        this.reviews = new Map();
+        this.reviewMap = new Map();
         this.priorityList = [];
     }
     
@@ -25,8 +25,10 @@ class ReviewRegistry
     {
         if (!review) throw new Error('Cannot register null reviews.');
         if (!('TYPE' in review) || !review.TYPE) throw new Error(`Not a valid review type - missing type. ${review}`)
-        this.reviews.set(review.TYPE, review);
+
+        this.reviewMap.set(review.TYPE, review);
         this.priorityList.push(review.TYPE);
+        
         return this;
     }
 
@@ -35,7 +37,7 @@ class ReviewRegistry
     {
         for(const reviewType of this.priorityList)
         {
-            const review = this.reviews.get(reviewType);
+            const review = this.reviewMap.get(reviewType);
             try
             {
                 await review.review(db, config, reviewDatabase);
@@ -49,7 +51,12 @@ class ReviewRegistry
 
     getReviewByType(type)
     {
-        return this.reviews.get(type);
+        return this.reviewMap.get(type);
+    }
+
+    getReviewTypes()
+    {
+        return this.reviewMap.keys();
     }
 }
 

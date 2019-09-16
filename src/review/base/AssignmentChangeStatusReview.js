@@ -38,7 +38,7 @@ export async function review(db, config, reviewDatabase)
     }
 }
 
-export async function build(db, config)
+export async function build()
 {
     return await createBuilder()
         .type(TYPE)
