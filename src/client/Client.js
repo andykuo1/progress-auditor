@@ -1,5 +1,6 @@
 import Enquirer from 'enquirer';
 import * as DateUtil from '../util/DateUtil.js';
+import * as MathHelper from '../util/MathHelper.js';
 import chalk from 'chalk';
 import figlet from 'figlet';
 
@@ -16,20 +17,67 @@ export function debug(message)
     console.log(chalk.gray(message));
 }
 
-export function skippedError(message, error)
+export function error(message)
 {
-    console.error(message + " - " + error.message + "...skipping error...");
+    console.error(chalk.redBright(message));
+}
+
+const MAX_SKIPPED_ERRORS = 100;
+const SKIPPED_ERRORS = new Set();
+const NO_SKIP_ERRORS = new Set();
+const FORCE_SKIP_ERRORS = new Set();
+export async function skippedError(message, reason = undefined)
+{
+    const errorMessage = message + " - " + (reason instanceof Error ? reason.message : reason);
+    error(errorMessage);
+
+    const errorHash = MathHelper.stringHash(errorMessage);
+    if (FORCE_SKIP_ERRORS.has(errorHash))
+    {
+        debug("...Auto-skipping error...");
+    }
+    else if (!(await ask("...Skip the error?", true).catch(e => false)))
+    {
+        throw new Error("Failed error. Aborting...");
+    }
+    else if (SKIPPED_ERRORS.has(errorHash))
+    {
+        try
+        {
+            if (await ask("...Skip this error in the future?"))
+            {
+                FORCE_SKIP_ERRORS.add(errorHash);
+            }
+            else
+            {
+                NO_SKIP_ERRORS.add(errorHash);
+            }
+        }
+        catch(e)
+        {
+            // Just ignore it.
+        }
+    }
+    else
+    {
+        if (SKIPPED_ERRORS.size > MAX_SKIPPED_ERRORS)
+        {
+            SKIPPED_ERRORS.clear();
+        }
+
+        SKIPPED_ERRORS.add(errorHash);
+    }
 }
 
 export async function wait(seconds, message = undefined)
 {
-    if (message) console.log(message);
+    if (message) log(message);
     await new Promise(resolve => setTimeout(resolve, 1000 * seconds));
 }
 
 export function divider(token = 'nu')
 {
-    console.log(chalk.gray(
+    log(chalk.gray(
         token.repeat(Math.floor(DIVIDER_LENGTH / token.length))
         + token.substring(0, DIVIDER_LENGTH % token.length)
     ));
@@ -38,10 +86,10 @@ export function divider(token = 'nu')
 export function doTheBigTitleThing(title = 'Progress Auditor', subtitle = 'Version v?.?.?')
 {
     divider();
-    console.log(chalk.green(figlet.textSync(title, { font: 'Big' })));
+    log(chalk.green(figlet.textSync(title, { font: 'Big' })));
     if (subtitle)
     {
-        console.log(subtitle.padStart(DIVIDER_LENGTH, ' '));
+        log(subtitle.padStart(DIVIDER_LENGTH, ' '));
     }
     divider();
 }
@@ -62,12 +110,13 @@ export async function askPrompt(message, type, opts = {})
     return answer;
 }
 
-export async function ask(message)
+export async function ask(message, defaultValue = false)
 {
     const { answer } =  await Enquirer.prompt({
         type: 'confirm',
         name: 'answer',
         message,
+        initial: Boolean(defaultValue),
     });
     return answer;
 }

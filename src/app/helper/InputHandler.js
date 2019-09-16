@@ -1,5 +1,6 @@
 import * as InputLoader from './loader/InputLoader.js';
 import * as ParserRegistry from '../../input/parser/ParserRegistry.js';
+import * as Client from '../../client/Client.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -14,12 +15,7 @@ export async function loadInputsFromConfig(db, config)
         }
         catch(e)
         {
-            // TODO: What to output if input file is missing?
-            // TODO: What to output if input file cannot be parsed?
-            // TODO: What to output if custom parser file is missing?
-            // TODO: What to output if custom parser file is invalid?
-            // TODO: What to output if parser type is missing?
-            console.error('Failed to load input entry.', e);
+            await Client.skippedError(`Failed to load input entry '${inputEntry.inputName}'`, e);
         }
     }
 }
@@ -38,8 +34,7 @@ export async function applyParsersToDatabase(db, config)
         }
         else
         {
-            console.log(`...Skipping '${path.basename(filePath)}' (cannot find it)...`);
-            continue;
+            await Client.skippedError(`Failed to find file '${path.basename(filePath)}' for parser`, new Error('File does not exist.'));
         }
     }
 }

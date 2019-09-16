@@ -44,7 +44,7 @@ class ReviewRegistry
             }
             catch(e)
             {
-                Client.skippedError('Failed to apply reviewer.', e);
+                await Client.skippedError(`Failed to apply review '${reviewType}'.`, e);
             }
         }
     }
