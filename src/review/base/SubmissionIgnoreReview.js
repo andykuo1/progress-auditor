@@ -69,6 +69,6 @@ async function buildStep(error)
 {
     return await createBuilder()
         .type(TYPE)
-        .param(0, 'Submission ID', 'The target submission id.')
+        .param(0, 'Submission ID', 'The target submission id.', error.context.submissionID || '')
         .build();
 }

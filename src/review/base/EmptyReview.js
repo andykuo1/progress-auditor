@@ -21,7 +21,7 @@ export async function review(db, config)
 
 /**
  * Builds a review instance for the database, interactively.
- * @param {Array<Error>} [errors=[]] The errors this review build is in response to.
+ * @param {Array<Error>} [errors=[]] The errors (of the same error type) this review build is in response to.
  */
 export async function build(errors = [])
 {

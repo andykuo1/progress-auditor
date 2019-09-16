@@ -67,14 +67,19 @@ export async function review(db, config)
                         for(const submission of submissions)
                         {
                             db.throwError(ERROR_TAG, `Found unassigned assignment '${assignmentID}' with submission '${submission.id}' from user '${userID}'.`, {
+                                type: 'unassigned_submission',
                                 id: [userID, assignmentID],
+                                info: submission.attributes.content.head,
                                 options: [
                                     `The submission header could be ill-formatted. We could not deduce its appropriate assignment automatically. Please verify the submitted content and header formats. Try submitting a 'change_assignment' review once you figure out its proper assignment.`,
                                     `It could be a non-assignment submission. Try submitting a 'ignore_submission' review.`
                                 ],
                                 more: [
                                     JSON.stringify(submission, null, 4)
-                                ]
+                                ],
+                                context: {
+                                    submissionID: submission.id
+                                }
                             });
                         }
                     }
@@ -89,6 +94,7 @@ export async function review(db, config)
                     submissionCount += submissions[assignmentID].length;
                 }
                 db.throwError(ERROR_TAG, `Found ${submissionCount} unowned submissions - cannot find user for owner key '${ownerKey}'.`, {
+                    type: 'unowned_submission',
                     id: [ownerKey],
                     options: [
                         `There are submissions without a valid user associated with it. Perhaps someone is using a different owner key? Try submitting a 'add_owner' review once you've found who these submissions belong to.`,
@@ -96,7 +102,10 @@ export async function review(db, config)
                     ],
                     more: [
                         JSON.stringify(submissions, null, 4)
-                    ]
+                    ],
+                    context: {
+                        ownerKey
+                    }
                 });
             }
         }

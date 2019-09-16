@@ -31,7 +31,7 @@ export async function resolveDatabaseErrors(db, config, errors)
     console.log("...Resolving database errors...");
 
     // TODO: This should be directed to ReviewResolver in the future.
-    return await ErrorReviewer.resolveErrors(errors);
+    return await ErrorReviewer.resolveErrors(db, config, errors);
 }
 
 export async function clearDatabase(db, config)

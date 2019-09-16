@@ -9,6 +9,7 @@ export function createDatabase()
 {
     return {
         _registry: {},
+        _cache: {},
         _errors: new Map(),
         throwError(tag, message, opts = {})
         {
@@ -46,6 +47,8 @@ export function createDatabase()
                 id,
                 tag,
                 message,
+                info: '',
+                type: String(id),
                 options: [],
                 more: [],
                 context: {},
@@ -82,6 +85,16 @@ export function createDatabase()
                 {
                     dst.context = { ...opts.context };
                 }
+
+                if ('info' in opts)
+                {
+                    dst.info = String(opts.info);
+                }
+
+                if ('type' in opts)
+                {
+                    dst.type = String(opts.type);
+                }
             }
 
             this._errors.set(id, dst);
@@ -110,6 +123,10 @@ export function createDatabase()
         getErrors()
         {
             return Array.from(this._errors.values());
+        },
+        getCache()
+        {
+            return this._cache;
         }
     };
 }

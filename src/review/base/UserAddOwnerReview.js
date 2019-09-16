@@ -73,6 +73,6 @@ async function buildStep(error)
     return await createBuilder()
         .type(TYPE)
         .param(0, 'User ID', 'The target user id to add the owner for.')
-        .param(1, 'Ownewr Key', 'The new owner key to add for the user.')
+        .param(1, 'Owner Key', 'The new owner key to add for the user.', error.context.ownerKey || '')
         .build();
 }

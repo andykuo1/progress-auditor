@@ -103,9 +103,9 @@ export async function validateDatabase(db, config)
             const result = await DatabaseSolver.resolveDatabaseErrors(db, config, errors);
 
             // If review was successful...
-            if (result)
+            if (result.length > 0)
             {
-                reviews.push(result);
+                reviews.push(...result);
 
                 // Restart the database...
                 await DatabaseSolver.clearDatabase(db, config);

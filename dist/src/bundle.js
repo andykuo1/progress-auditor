@@ -179,6 +179,7 @@ function createDatabase()
 {
     return {
         _registry: {},
+        _cache: {},
         _errors: new Map(),
         throwError(tag, message, opts = {})
         {
@@ -216,6 +217,8 @@ function createDatabase()
                 id,
                 tag,
                 message,
+                info: '',
+                type: String(id),
                 options: [],
                 more: [],
                 context: {},
@@ -252,6 +255,16 @@ function createDatabase()
                 {
                     dst.context = { ...opts.context };
                 }
+
+                if ('info' in opts)
+                {
+                    dst.info = String(opts.info);
+                }
+
+                if ('type' in opts)
+                {
+                    dst.type = String(opts.type);
+                }
             }
 
             this._errors.set(id, dst);
@@ -260,7 +273,7 @@ function createDatabase()
         {
             if (typeof id !== 'number') throw new Error('Error id must be a number.');
 
-            if (this._errors.has(key))
+            if (this._errors.has(id))
             {
                 this._errors.delete(id);
                 return true;
@@ -280,6 +293,10 @@ function createDatabase()
         getErrors()
         {
             return Array.from(this._errors.values());
+        },
+        getCache()
+        {
+            return this._cache;
         }
     };
 }
@@ -9725,7 +9742,7 @@ figlet_1.fontsSync = function() {
 var nodeFiglet = figlet_1;
 
 const DIVIDER_LENGTH = 80;
-const CHOICE_SEPARATOR = { message: "=-=-= END " + "=-".repeat(35), role: 'separator' };
+const CHOICE_SEPARATOR = { message: "\n=-=-= END " + "=-".repeat(35) + "\n", role: 'separator' };
 
 function log(message)
 {
@@ -11659,24 +11676,37 @@ async function output$2(db, config, outputPath, opts)
     catch(e) { console.error('Failed to output log.'); }
 
     // Output computed config file...
-    writeToFile(path$3.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4));
+    try { writeToFile(path$3.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4)); }
+    catch(e) {}
 
     // Output error list...
-    let output;
-    if (db.getErrors().length <= 0)
+    try
     {
-        output = "HOORAY! No errors!";
-    }
-    else
-    {
-        let errors = [];
-        for(const error of db.getErrors())
+        let output;
+        if (db.getErrors().length <= 0)
         {
-            errors.push(`${error.id}: [${error.tag}] ${error.message}\n=== SOLUTIONS: ===\n => ${error.options.join('\n => ')}\n=== MOREINFO: ===\n${error.more.join('\n')}\n`);
+            output = "HOORAY! No errors!";
         }
-        output = "It's okay. We'll get through this.\n\n" + errors.join('\n');
+        else
+        {
+            let errors = [];
+            for(const error of db.getErrors())
+            {
+                errors.push(`${error.id}: [${error.tag}] ${error.message}\n=== SOLUTIONS: ===\n => ${error.options.join('\n => ')}\n=== MOREINFO: ===\n${error.more.join('\n')}\n`);
+            }
+            output = "It's okay. We'll get through this.\n\n" + errors.join('\n');
+        }
+        writeToFile(path$3.resolve(outputPath, 'errors.txt'), output);
     }
-    writeToFile(path$3.resolve(outputPath, 'errors.txt'), output);
+    catch(e) {}
+
+    // Output database cache...
+    try
+    {
+        const output = JSON.stringify(db.getCache(), null, 4);
+        writeToFile(path$3.resolve(outputPath, 'cache.txt'), output);
+    }
+    catch(e) {}
 }
 
 var DebugReportOutput = /*#__PURE__*/Object.freeze({
@@ -11830,15 +11860,16 @@ class ReviewRegistry
 
 const INSTANCE = new ReviewRegistry();
 
-async function askChooseError(message, errors)
+async function askChooseError(message, errors, errorMapping)
 {
     const choices = [];
 
     for(const error of errors)
     {
+        if (!errorMapping.has(error.id)) throw new Error('Error map does not match error list.');
         choices.push({
             name: error.id,
-            message: `\n${chalk.gray(error.id + ': ')}\n${error.message}`,
+            message: formatErrorAsChoice(error),
             value: error.id,
         });
     }
@@ -11846,19 +11877,45 @@ async function askChooseError(message, errors)
 
     return await askPrompt(message, 'autocomplete', {
         multiple: true,
-        limit: 5,
+        limit: 4,
         choices,
-        validate: result => result.length <= 0 ? "Must select at least one error (use 'space' to select)." : true
+        validate: result => {
+            if (result.length <= 0) return "Must select at least one error (use 'space' to select).";
+            const type = errorMapping.get(result[0]).type;
+            for(const errorID of result)
+            {
+                const error = errorMapping.get(errorID);
+                if (error.type !== type)
+                {
+                    return `Cannot batch process errors of different type (${type} != ${error.type})`;
+                }
+            }
+            return true;
+        }
     });
 }
 
+function formatErrorAsChoice(error)
+{
+    const first = ``;
+    const second = `${chalk.gray(error.id + ': ')} ${error.message}`;
+    let third;
+    if (error.info && error.info.length > 70)
+    {
+        third = chalk.italic.gray(error.info.substring(0, 70));
+    }
+    else
+    {
+        third = chalk.italic.gray(error.info) || '';
+    }
+    return [first, second, third].join('\n');
+}
 
 /** Tries to resolve the errors with reviews. */
 async function run(errors, cache = {})
 {
     cache.errors = errors;
     cache.reviews = [];
-    cache.reviewMaker = {};
 
     const errorMapping = new Map();
     for(const error of errors)
@@ -11876,42 +11933,71 @@ async function run(errors, cache = {})
      * Return anything we have.
      */
 
-    const chosenErrorIDs = await askChooseError("What error do you want to review?", errors);
-    const chosenErrors = [];
-    for(const errorID of chosenErrorIDs)
+    try
     {
-        const error = errorMapping.get(errorID);
-        chosenErrors.push(error);
+        const chosenErrorIDs = await askChooseError("What error do you want to review?", errors, errorMapping);
+        const chosenErrors = [];
+        for(const errorID of chosenErrorIDs)
+        {
+            const error = errorMapping.get(errorID);
+            chosenErrors.push(error);
+        }
+    
+        if (await askClientToReviewErrors(chosenErrors))
+        {
+            const reviewResult = await doReviewSession(INSTANCE, chosenErrors);
+            cache.reviews.push(...reviewResult);
+        }
+    }
+    catch(e)
+    {
+        if (e && e.message && e.message.length > 0)
+        {
+            throw e;
+        }
+        else
+        {
+            error("Review interrupted. Restarting review session...");
+        }
+    }
+}
+
+async function askClientToReviewErrors(errors)
+{
+    // Show all solutions
+    const solutions = new Set();
+    for(const error of errors)
+    {
+        for(const option of error.options)
+        {
+            solutions.add(option);
+        }
+    }
+    const errorSolutions = `${chalk.green(`${chalk.bold(`= Solutions: ${'='.repeat(67)}`)}\n => ${Array.from(solutions).join('\n => ')}\n${chalk.bold('='.repeat(80))}`)}`;
+    log(errorSolutions);
+
+    // Show more info for each one...
+    if (await ask("Show more info?"))
+    {
+        for(const error of errors)
+        {
+            await showErrorInfo(error);
+        }
     }
 
-    if (await askClientToReviewErrors(chosenErrors))
-    {
-        const reviewResult = await doReviewSession(INSTANCE, chosenErrors);
-        cache.reviews.push(...reviewResult);
-    }
+    return await ask("Continue to review?");
 }
 
 async function showErrorInfo(error)
 {
     const errorMessage = `${chalk.gray(error.id + ':')} ${error.message}`;
     printError(errorMessage);
+
     const errorSolutions = `${chalk.green(`${chalk.bold(`= Solutions: ${'='.repeat(67)}`)}\n => ${error.options.join('\n => ')}\n${chalk.bold('='.repeat(80))}`)}`;
-    println(errorSolutions);
+    log(errorSolutions);
 
-    if (await ask("Show more info?"))
-    {
-        const errorInfo = `${chalk.yellow(`${chalk.bold(`= More Info: ${'='.repeat(67)}`)}\n | ${error.more.join('\n')}\n${'='.repeat(80)}`)}`;
-        println(errorInfo);
-    }
-}
-
-async function askClientToReviewErrors(errors)
-{
-    for(const error of errors)
-    {
-        await showErrorInfo(error);
-    }
-    return await ask("Continue to review?");
+    const errorInfo = `${chalk.yellow(`${chalk.bold(`= More Info: ${'='.repeat(67)}`)}\n | ${error.more.join('\n')}\n${'='.repeat(80)}`)}`;
+    log(errorInfo);
 }
 
 /**
@@ -11951,14 +12037,14 @@ async function chooseReviewType(reviewRegistry)
     return result;
 }
 
-async function resolveErrors(errors)
+async function resolveErrors(db, config, errors)
 {
-    const cache = {};
+    const cache = db.getCache().reviewSession = {};
     await run(errors, cache);
     if (cache.reviews && cache.reviews.length > 0)
     {
         // FIXME: this only accepts the first one. We should let them send multiple for batching.
-        return cache.reviews[0];
+        return cache.reviews;
     }
     else
     {
@@ -11993,7 +12079,7 @@ async function resolveDatabaseErrors(db, config, errors)
     console.log("...Resolving database errors...");
 
     // TODO: This should be directed to ReviewResolver in the future.
-    return await resolveErrors(errors);
+    return await resolveErrors(db, config, errors);
 }
 
 async function clearDatabase$6(db, config)
@@ -12038,7 +12124,7 @@ async function review$2(db, config)
         await createReviewer()
             .type(TYPE$2)
             .paramLength(1)
-            .forEach((value, key) =>
+            .forEach(value =>
             {
                 const { params } = value;
                 const errorID = Number(params[0]);
@@ -12146,14 +12232,19 @@ async function review$3(db, config)
                         for(const submission of submissions)
                         {
                             db.throwError(ERROR_TAG$3, `Found unassigned assignment '${assignmentID}' with submission '${submission.id}' from user '${userID}'.`, {
+                                type: 'unassigned_submission',
                                 id: [userID, assignmentID],
+                                info: submission.attributes.content.head,
                                 options: [
                                     `The submission header could be ill-formatted. We could not deduce its appropriate assignment automatically. Please verify the submitted content and header formats. Try submitting a 'change_assignment' review once you figure out its proper assignment.`,
                                     `It could be a non-assignment submission. Try submitting a 'ignore_submission' review.`
                                 ],
                                 more: [
                                     JSON.stringify(submission, null, 4)
-                                ]
+                                ],
+                                context: {
+                                    submissionID: submission.id
+                                }
                             });
                         }
                     }
@@ -12168,6 +12259,7 @@ async function review$3(db, config)
                     submissionCount += submissions[assignmentID].length;
                 }
                 db.throwError(ERROR_TAG$3, `Found ${submissionCount} unowned submissions - cannot find user for owner key '${ownerKey}'.`, {
+                    type: 'unowned_submission',
                     id: [ownerKey],
                     options: [
                         `There are submissions without a valid user associated with it. Perhaps someone is using a different owner key? Try submitting a 'add_owner' review once you've found who these submissions belong to.`,
@@ -12175,7 +12267,10 @@ async function review$3(db, config)
                     ],
                     more: [
                         JSON.stringify(submissions, null, 4)
-                    ]
+                    ],
+                    context: {
+                        ownerKey
+                    }
                 });
             }
         }
@@ -12610,7 +12705,7 @@ async function review$8(db, config)
         await createReviewer()
             .type(TYPE$8)
             .paramLength(3)
-            .forEach((value, key) =>
+            .forEach(value =>
             {
                 const { id, type, params } = value;
                 const ownerKey = params[0];
@@ -12784,7 +12879,7 @@ async function build$a(errors = [])
     const result = [];
     for(const error of errors)
     {
-        result.push(await buildStep$5());
+        result.push(await buildStep$5(error));
     }
     return result;
 }
@@ -12794,7 +12889,7 @@ async function buildStep$5(error)
     return await createBuilder()
         .type(TYPE$a)
         .param(0, 'Assignment ID', 'The new assignment id to change to.')
-        .param(1, 'Submission ID', 'The id for the target submission.')
+        .param(1, 'Submission ID', 'The id for the target submission.', error.context.submissionID || '')
         .build();
 }
 
@@ -12976,7 +13071,7 @@ async function build$d(errors = [])
     const result = [];
     for(const error of errors)
     {
-        result.push(await buildStep$8());
+        result.push(await buildStep$8(error));
     }
     return result;
 }
@@ -12985,7 +13080,7 @@ async function buildStep$8(error)
 {
     return await createBuilder()
         .type(TYPE$d)
-        .param(0, 'Submission ID', 'The target submission id.')
+        .param(0, 'Submission ID', 'The target submission id.', error.context.submissionID || '')
         .build();
 }
 
@@ -13056,7 +13151,7 @@ async function build$e(errors = [])
     const result = [];
     for(const error of errors)
     {
-        result.push(await buildStep$9());
+        result.push(await buildStep$9(error));
     }
     return result;
 }
@@ -13066,7 +13161,7 @@ async function buildStep$9(error)
     return await createBuilder()
         .type(TYPE$e)
         .param(0, 'User ID', 'The target user id to add the owner for.')
-        .param(1, 'Ownewr Key', 'The new owner key to add for the user.')
+        .param(1, 'Owner Key', 'The new owner key to add for the user.', error.context.ownerKey || '')
         .build();
 }
 
@@ -13088,7 +13183,7 @@ async function review$f(db, config)
     {
         await createReviewer()
             .type(TYPE$f)
-            .forEach((value, key) =>
+            .forEach(value =>
             {
                 const { id, type } = value;
                 db.throwError(ERROR_TAG$f, `Unhandled review type ${type} for review '${id}'.`, {
@@ -13135,7 +13230,7 @@ async function review$g(db, config)
 
 /**
  * Builds a review instance for the database, interactively.
- * @param {Array<Error>} [errors=[]] The errors this review build is in response to.
+ * @param {Array<Error>} [errors=[]] The errors (of the same error type) this review build is in response to.
  */
 async function build$g(errors = [])
 {
@@ -13420,9 +13515,9 @@ async function validateDatabase(db, config)
             const result = await resolveDatabaseErrors(db, config, errors);
 
             // If review was successful...
-            if (result)
+            if (result.length > 0)
             {
-                reviews.push(result);
+                reviews.push(...result);
 
                 // Restart the database...
                 await clearDatabase$6(db);

@@ -57,6 +57,6 @@ async function buildStep(error)
     return await createBuilder()
         .type(TYPE)
         .param(0, 'Assignment ID', 'The new assignment id to change to.')
-        .param(1, 'Submission ID', 'The id for the target submission.')
+        .param(1, 'Submission ID', 'The id for the target submission.', error.context.submissionID || '')
         .build();
 }

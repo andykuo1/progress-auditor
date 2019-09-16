@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 
 export const DIVIDER_LENGTH = 80;
-export const CHOICE_SEPARATOR = { message: "=-=-= END " + "=-".repeat(35), role: 'separator' };
+export const CHOICE_SEPARATOR = { message: "\n=-=-= END " + "=-".repeat(35) + "\n", role: 'separator' };
 
 export function log(message)
 {
