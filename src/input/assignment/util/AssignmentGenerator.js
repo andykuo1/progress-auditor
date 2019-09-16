@@ -1,7 +1,6 @@
 import * as UserDatabase from '../../../database/UserDatabase.js';
 import * as AssignmentDatabase from '../../../database/AssignmentDatabase.js';
 import * as VacationDatabase from '../../../database/VacationDatabase.js';
-import * as DateUtil from '../../../util/DateUtil.js';
 import * as DateGenerator from '../../../util/DateGenerator.js';
 
 const MAX_GENERATED_ASSIGNMENTS = 100;

@@ -31,7 +31,7 @@ function evaluatePostAssignment(headerContent, bodyContent)
     }
     // Last Assignment
     {
-        if (/last/i.test(headerContent))
+        if (/last/i.test(headerContent) || /final/i.test(headerContent))
         {
             return 'last';
         }

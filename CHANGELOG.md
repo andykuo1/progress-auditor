@@ -18,7 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow empty reviews (for type 'empty')
 - Error skipping
 - New review for ignoring other reviews (reflection-ish)
-- The Progress Otter wants to say more things.
+- The Progress Otter wants to say more things
+- Escape at any time
+- Autocomplete system for options
 
 ### Changed
 - A decent refactor of handlers and loaders
@@ -29,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - All resolvers are now reviews without builders
 - Scheme handler, use Review Registry instead (they are still called schemes though)
+
+### Fixed
+- Assignment changes for "last" now propagate correctly
 
 ## [0.3.2] - 2019-09-09
 ### Added
