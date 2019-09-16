@@ -1,5 +1,5 @@
 import { log, askPrompt, ask, askPath, askDate, askChoose, CHOICE_SEPARATOR } from './Client.js';
-import { createResolver, ifFailOrAgain, ifFailAndAgain } from './Resolver.js';
+import { createResolver, ifFailOrAgain, ifFailAndAgain } from './helper/Resolver.js';
 import * as ReviewMaker from './ReviewMaker.js';
 import ReviewRegistry from '../review/ReviewRegistry.js';
 import chalk from 'chalk';

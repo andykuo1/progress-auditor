@@ -1,5 +1,5 @@
 import { log, askPath } from './Client.js';
-import { createResolver, ifFailAndAgain } from './Resolver.js';
+import { createResolver, ifFailAndAgain } from './helper/Resolver.js';
 import * as ConfigMaker from './ConfigMaker.js';
 
 async function searchDirectoryForConfigFile(directoryPath)

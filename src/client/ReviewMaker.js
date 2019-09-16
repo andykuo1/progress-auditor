@@ -1,5 +1,5 @@
 import { log, debug, askPrompt, ask, askPath, askDate } from './Client.js';
-import { createResolver, ifFailOrAgain, ifFailAndAgain } from './Resolver.js';
+import { createResolver, ifFailOrAgain, ifFailAndAgain } from './helper/Resolver.js';
 
 // FIXME: Still being built.
 export async function run(cache = {})

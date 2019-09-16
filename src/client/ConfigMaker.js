@@ -1,5 +1,5 @@
 import { log, debug, askPrompt, ask, askPath, askDate } from './Client.js';
-import { createResolver, ifFailOrAgain } from './Resolver.js';
+import { createResolver, ifFailOrAgain } from './helper/Resolver.js';
 
 export async function run(cache = {})
 {
