@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Progress Otter wants to say more things
 - Escape at any time
 - Autocomplete system for options
+- Batch error processing by type
+- Cache output on error
 
 ### Changed
 - A decent refactor of handlers and loaders
