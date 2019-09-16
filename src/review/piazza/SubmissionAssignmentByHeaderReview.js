@@ -62,12 +62,6 @@ export async function review(db, config, reviewDatabase)
                             db.throwError('\t\t\t\t\t\t\t\tSubmission:', baseSubmission, '\n=-=-=-=-=-=>\n', nextSubmission);
                         }
                         */
-        
-                        // Submission is processed... delete content and mark as resolved.
-                        for(const submission of submissions)
-                        {
-                            delete submission.attributes.content;
-                        }
                     }
                     else
                     {
