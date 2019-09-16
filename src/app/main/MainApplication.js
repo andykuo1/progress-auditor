@@ -1,10 +1,8 @@
 import * as ConfigHandler from './ConfigHandler.js';
-import * as SchemeHandler from './SchemeHandler.js';
 import * as DatabaseHandler from './DatabaseHandler.js';
 import * as DatabaseSolver from './DatabaseSolver.js';
+import * as ReviewHandler from './ReviewHandler.js';
 import * as OutputHandler from './OutputHandler.js';
-
-import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 
 /**
  * Guarantees a config will be returned. It will throw an error if unable to.
@@ -39,11 +37,9 @@ export async function resolveConfig(directory)
                 console.error('Failed to load config.', e);
             }
         }
-
-        // None found. Create one?
+        
+        // More fallbacks...
         if (!config) config = await ConfigHandler.createNewConfig(directory);
-    
-        // None made. Use the default instead.
         if (!config) config = await ConfigHandler.loadDefaultConfig(directory);
     }
 
@@ -67,8 +63,8 @@ export async function resolveDatabase(config)
     // Creates an empty database (with no structure at all)...
     const db = await DatabaseHandler.createDatabase(config);
 
-    // Prepare registries with scheme...
-    await SchemeHandler.prepareScheme(db, config, config.scheme);
+    // Prepare review registry with schemes...
+    await ReviewHandler.prepareDatabaseForScheme(db, config, config.scheme);
 
     // Try to prepare all database entries from config...
     await DatabaseHandler.prepareDatabaseForInputs(db, config);
@@ -77,7 +73,7 @@ export async function resolveDatabase(config)
     await DatabaseHandler.populateDatabaseWithInputs(db, config);
 
     // Apply the database review fixes...
-    await DatabaseHandler.fixDatabaseWithReviews(db, config);
+    await ReviewHandler.fixDatabaseWithReviews(db, config);
 
     // Check with the user if it is okay to continue, based on some data stats...
     if (!await DatabaseHandler.verifyDatabaseWithClient(db, config))
@@ -116,13 +112,11 @@ export async function validateDatabase(db, config)
     
                 // Re-apply all the data...
                 await DatabaseHandler.populateDatabaseWithInputs(db, config);
-                // Apply the new reviews...
-                for(const review of reviews)
-                {
-                    ReviewDatabase.addReview(db, ...review);
-                }
+                // Re-apply the new reviews...
+                await ReviewHandler.populateDatabaseWithAdditionalReviews(db, config, reviews);
+
                 // Re-fix them...
-                await DatabaseHandler.fixDatabaseWithReviews(db, config);    
+                await ReviewHandler.fixDatabaseWithReviews(db, config);
             }
 
             // And go back to check for errors again...

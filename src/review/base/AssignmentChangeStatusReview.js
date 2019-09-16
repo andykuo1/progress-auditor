@@ -1,5 +1,5 @@
-import { createReviewer } from './helper/Reviewer.js';
-import { createBuilder } from './helper/ReviewBuilder.js';
+import { createReviewer } from '../helper/Reviewer.js';
+import { createBuilder } from '../helper/ReviewBuilder.js';
 
 const ERROR_TAG = 'REVIEW';
 

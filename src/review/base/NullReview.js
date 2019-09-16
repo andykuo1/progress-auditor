@@ -1,4 +1,4 @@
-import { createReviewer } from './helper/Reviewer.js';
+import { createReviewer } from '../helper/Reviewer.js';
 
 const ERROR_TAG = 'REVIEW';
 

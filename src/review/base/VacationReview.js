@@ -1,10 +1,10 @@
-import * as VacationDatabase from '../database/VacationDatabase.js';
-import * as DateUtil from '../util/DateUtil.js';
-import * as FieldParser from '../util/FieldParser.js';
-import { stringHash } from '../util/MathHelper.js';
+import * as VacationDatabase from '../../database/VacationDatabase.js';
+import * as DateUtil from '../../util/DateUtil.js';
+import * as FieldParser from '../../util/FieldParser.js';
+import { stringHash } from '../../util/MathHelper.js';
 
-import { createReviewer } from './helper/Reviewer.js';
-import { createBuilder } from './helper/ReviewBuilder.js';
+import { createReviewer } from '../helper/Reviewer.js';
+import { createBuilder } from '../helper/ReviewBuilder.js';
 
 const ERROR_TAG = 'REVIEW';
 
@@ -36,7 +36,8 @@ export async function review(db, config, reviewDatabase)
                     vacationID = stringHash(params.join('|'));
                 }
     
-                VacationDatabase.addVacation(db, vacationID, ownerKey, startDate, endDate);
+                // TODO: Vacation padding should be specified at top level or by assignment
+                VacationDatabase.addVacation(db, vacationID, ownerKey, startDate, endDate, 'week');
             })
             .review();
     }

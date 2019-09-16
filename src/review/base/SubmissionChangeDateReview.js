@@ -1,8 +1,8 @@
-import * as SubmissionDatabase from '../../../database/SubmissionDatabase.js';
-import * as ParseUtil from '../../../util/ParseUtil.js';
+import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
+import * as ParseUtil from '../../util/ParseUtil.js';
 
-import { createReviewer } from './helper/Reviewer.js';
-import { createBuilder } from './helper/ReviewBuilder.js';
+import { createReviewer } from '../helper/Reviewer.js';
+import { createBuilder } from '../helper/ReviewBuilder.js';
 
 const ERROR_TAG = 'REVIEW';
 

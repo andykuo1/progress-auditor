@@ -1,151 +1,45 @@
-import * as ParserLoader from '../../input/parser/ParserLoader.js';
+import * as InputLoader from './loader/InputLoader.js';
 import * as ParserRegistry from '../../input/parser/ParserRegistry.js';
+import path from 'path';
+import fs from 'fs';
 
-const fs = require('fs');
-const path = require('path');
-
-function validateInputEntry(config, inputEntry)
+export async function loadInputsFromConfig(db, config)
 {
-    const errors = [];
-
-    const inputPath = config.inputPath || '.';
-    const inputName = inputEntry.inputName;
-    const inputFilePath = path.resolve(inputPath, inputName);
-    const parserType = inputEntry.parser;
-    const customPath = inputEntry.customPath;
-
-    if (!inputName)
+    const inputEntries = await InputLoader.findInputEntries(config);
+    for(const inputEntry of inputEntries)
     {
-        errors.push([
-            'Invalid input entry:',
-            '=>',
-            `Missing required property 'inputName'.`,
-            '<='
-        ]);
-    }
-
-    if (!fs.existsSync(inputFilePath))
-    {
-        // This is not an error, it should simply skip it...
-        /*
-        errors.push([
-            `Cannot find input file '${inputName}':`,
-            '=>',
-            `File does not exist: '${inputFilePath}'.`,
-            '<='
-        ]);
-        */
-    }
-
-    if (!parserType && !customPath)
-    {
-        errors.push([
-            'Invalid input entry:',
-            '=>',
-            `Missing one of property 'parser' or 'customPath'.`,
-            '<='
-        ]);
-    }
-
-    if (customPath && !fs.existsSync(customPath))
-    {
-        errors.push([
-            `Cannot find custom parser file '${path.basename(customPath)}':`,
-            '=>',
-            `File does not exist: '${customPath}'.`,
-            '<='
-        ]);
-    }
-
-    if (errors.length > 0)
-    {
-        throw new Error([
-            'Failed to validate input entry:',
-            '=>',
-            errors,
-            '<='
-        ]);
+        try
+        {
+            await InputLoader.loadInputEntry(db, config, inputEntry);
+        }
+        catch(e)
+        {
+            // TODO: What to output if input file is missing?
+            // TODO: What to output if input file cannot be parsed?
+            // TODO: What to output if custom parser file is missing?
+            // TODO: What to output if custom parser file is invalid?
+            // TODO: What to output if parser type is missing?
+            console.error('Failed to load input entry.', e);
+        }
     }
 }
 
-/** If unable to find entries, an empty array is returned. */
-export async function findInputEntries(config)
+export async function applyParsersToDatabase(db, config)
 {
-    console.log("...Finding input entries...");
-    if (Array.isArray(config.inputs))
+    for(const parser of ParserRegistry.getParsers())
     {
-        const result = config.inputs;
+        const [parserFunction, filePath, parserType, opts] = parser;
 
-        // Validate input entries...
-        const errors = [];
-        for(const inputEntry of result)
+        // File path is not GUARANTEED to exist...
+        if (fs.existsSync(filePath))
         {
-            try
-            {
-                validateInputEntry(config, inputEntry);
-            }
-            catch(e)
-            {
-                errors.push(e);
-            }
-        }
-
-        if (errors.length > 0)
-        {
-            throw new Error([
-                'Failed to resolve input entries from config:',
-                '=>',
-                errors,
-                '<='
-            ]);
+            console.log(`...Parsing '${path.basename(filePath)}' with '${path.basename(parserType)}'...`);
+            await parserFunction.parse(db, config, filePath, opts);
         }
         else
         {
-            return result;
+            console.log(`...Skipping '${path.basename(filePath)}' (cannot find it)...`);
+            continue;
         }
     }
-    else
-    {
-        return [];
-    }
-}
-
-/**
- * Guaranteed to load input entry. Will throw an error if failed.
- * Also assumes that inputEntry is valid.
- */
-export async function loadInputEntry(db, config, inputEntry)
-{
-    console.log(`...Process input entry '${inputEntry.inputName}'...`);
-    const inputPath = config.inputPath || '.';
-    const inputName = inputEntry.inputName;
-    const filePath = path.resolve(inputPath, inputName);
-    const parserType = inputEntry.parser;
-    const customPath = inputEntry.customPath;
-    const opts = inputEntry.opts || {};
-
-    let Parser;
-    try
-    {
-        // customPath will override parserType if defined.
-        if (customPath)
-        {
-            Parser = ParserLoader.loadCustomParser(customPath);
-        }
-        else
-        {
-            Parser = ParserLoader.loadParserByType(parserType);
-        }
-    }
-    catch(e)
-    {
-        throw new Error([
-            `Failed to resolve input entry from config:`,
-            '=>',
-            e,
-            '<='
-        ]);
-    }
-
-    ParserRegistry.registerParser(Parser, filePath, customPath || parserType, opts);
 }

@@ -1,9 +1,25 @@
-import * as Menu from '../client/menu/Menu.js';
-import * as ReviewMaker from '../client/menu/ReviewMaker.js';
+import * as Menu from './Menu.js';
+import * as Client from '../../../client/Client.js';
 
 const chalk = require('chalk');
-const inquirer = require('inquirer');
 
+import * as ReviewResolver from '../../../client/ReviewResolver.js';
+
+export async function resolveErrors(errors)
+{
+    const cache = {};
+    await ReviewResolver.run(errors, cache);
+    if (cache.reviews && cache.reviews.length > 0)
+    {
+        return cache.reviews;
+    }
+    else
+    {
+        return null;
+    }
+}
+
+/*
 export async function askClientToPickError(errors)
 {
     const dst = [];
@@ -36,7 +52,7 @@ export async function showErrorInfo(error)
     const errorSolutions = `${chalk.green(`${chalk.bold(`= Solutions: ${'='.repeat(67)}`)}\n => ${error.options.join('\n => ')}\n${chalk.bold('='.repeat(80))}`)}`;
     Menu.println(errorSolutions);
 
-    if (await Menu.askYesNo("Show more info?"))
+    if (await Client.ask("Show more info?"))
     {
         const errorInfo = `${chalk.yellow(`${chalk.bold(`= More Info: ${'='.repeat(67)}`)}\n | ${error.more.join('\n')}\n${'='.repeat(80)}`)}`;
         Menu.println(errorInfo);
@@ -47,10 +63,11 @@ export async function askClientToReviewError(db, errorID)
 {
     const error = db.getErrorByID(errorID);
     await showErrorInfo(error);
-    return await Menu.askYesNo("Continue to review?");
+    return await Client.ask("Continue to review?");
 }
 
 export async function doReviewSession(db, config)
 {
     return await ReviewMaker.run(db, config, true);
 }
+*/

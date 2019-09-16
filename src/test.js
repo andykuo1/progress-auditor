@@ -2,28 +2,26 @@
 
 // import './util/DateTest.js';
 
-import * as ConfigResolver from './client/ConfigResolver.js';
-import * as Client from './client/Client.js';
+import * as ReviewResolver from './client/ReviewResolver.js';
+
+let id = 0;
+function createError(message)
+{
+    return {
+        id: ++id,
+        message
+    };
+}
 
 async function main()
 {
-    const filepath = await Client.askFindFile("Where is it?");
-    console.log(filepath);
+    const cache = {};
 
-    /*
-    const cache = {
-        configResolver: {}
-    };
-
-    process.on('exit', () =>
-    {
-        console.error(JSON.stringify(cache));
-    });
-    
-    const config = await ConfigResolver.run('./', cache.configResolver);
-    console.log(config);
-    console.log("To be used later...");
-    */
+    const result = await ReviewResolver.run([
+        createError("Sad error"),
+        createError("Happy error"),
+        createError("Other error"),
+    ], cache);
 }
 
 main();

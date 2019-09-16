@@ -1,6 +1,6 @@
-import * as Client from '../client/Client.js';
-import * as Review from '../database/Review.js';
-import * as MathHelper from '../util/MathHelper.js';
+import * as Client from '../../client/Client.js';
+import * as Review from '../../database/Review.js';
+import * as MathHelper from '../../util/MathHelper.js';
 
 export function createBuilder()
 {

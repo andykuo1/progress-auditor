@@ -1,7 +1,7 @@
-import * as UserDatabase from '../../../database/UserDatabase.js';
+import * as UserDatabase from '../../database/UserDatabase.js';
 
-import { createReviewer } from './helper/Reviewer.js';
-import { createBuilder } from './helper/ReviewBuilder.js';
+import { createReviewer } from '../helper/Reviewer.js';
+import { createBuilder } from '../helper/ReviewBuilder.js';
 
 const ERROR_TAG = 'REVIEW';
 

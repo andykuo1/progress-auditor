@@ -16,6 +16,11 @@ export function debug(message)
     console.log(chalk.gray(message));
 }
 
+export function skippedError(message, error)
+{
+    console.error(message + " - " + error.message + "...skipping error...");
+}
+
 export async function wait(seconds, message = undefined)
 {
     if (message) console.log(message);

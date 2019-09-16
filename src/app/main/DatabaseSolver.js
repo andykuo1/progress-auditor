@@ -34,14 +34,8 @@ export async function resolveDatabaseErrors(db, config, errors)
 {
     console.log("...Resolving database errors...");
 
-    const errorID = await ErrorReviewer.askClientToPickError(errors);
-
-    if (await ErrorReviewer.askClientToReviewError(db, errorID))
-    {
-        return await ErrorReviewer.doReviewSession(db, config);
-    }
-
-    return null;
+    // TODO: This should be directed to ReviewResolver in the future.
+    return await ErrorReviewer.resolveErrors(errors);
 }
 
 export async function clearDatabase(db, config)
@@ -99,6 +93,8 @@ export async function outputNewReviewsToFile(db, config, reviews = null)
         {
             const review = ReviewDatabase.getReviewByID(db, reviewID);
             const reviewEntry = [];
+            if (review.type === '__temp__') continue;
+
             // ID
             reviewEntry.push(reviewID);
             // Date

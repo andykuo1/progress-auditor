@@ -5,9 +5,11 @@ export function createReviewer(reviewDatabase)
         _type: null,
         _paramLength: -1,
         _callback: null,
+        _async: false,
         async review()
         {
             const errors = [];
+            const results = [];
             this._reviews.forEach((value, key) =>
             {
                 if (!this._type || value.type !== this._type) return;
@@ -17,15 +19,28 @@ export function createReviewer(reviewDatabase)
                     return;
                 }
 
-                try
+                if (this._async)
                 {
-                    await this._callback.call(null, value, key);
+                    results.push(
+                        this._callback.call(null, value, key)
+                            .catch(e => errors.push(`Failed to review - ${e.message}`))
+                    );
                 }
-                catch(e)
+                else
                 {
-                    errors.push(`Failed to review - ${e.message}`);
+                    try
+                    {
+                        results.push(Promise.resolve(this._callback.call(null, value, key)));
+                    }
+                    catch(e)
+                    {
+                        errors.push(`Failed to review - ${e.message}`);
+                    }
                 }
             });
+
+            // Resolve all for each callback promises...
+            await Promise.all(results);
 
             if (errors.length > 0)
             {
@@ -45,6 +60,13 @@ export function createReviewer(reviewDatabase)
         forEach(callback)
         {
             this._callback = callback;
+            this._async = false;
+            return this;
+        },
+        forEachAsync(callback)
+        {
+            this._callback = callback;
+            this._async = true;
             return this;
         }
     }

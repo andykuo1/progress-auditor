@@ -1,7 +1,6 @@
 import chalk from 'chalk';
-import figlet from 'figlet';
-import inquirer from 'inquirer';
 import { version } from '../../../../package.json';
+import * as Client from '../../../client/Client.js';
 
 import * as ProgressOtter from './ProgressOtter.js';
 
@@ -35,11 +34,7 @@ export function rightAlignString(...messages)
 
 export function printTitle()
 {
-    const STYLED_TEXT = chalk.green(figlet.textSync(TITLE, { font: 'Big' }));
-    printDivider();
-    println(STYLED_TEXT);
-    println(rightAlignString('Version', version));
-    printDivider();
+    Client.doTheBigTitleThing(TITLE, 'Version ' + version);
 }
 
 export function printlnError(errorMessage, stackTrace = (SHOW_STACK_TRACE && errorMessage instanceof Error))
@@ -77,38 +72,6 @@ export function printError(errorMessage, depth = 0)
     {
         println('  '.repeat(depth), chalk.red(((depth <= 0) ? '+' : '-') + ' ' + errorMessage));
     }
-}
-
-export async function askYesNo(message)
-{
-    const answer = await inquirer.prompt([{
-        name: 'value',
-        type: 'confirm',
-        message
-    }]);
-    return answer.value;
-}
-
-export async function askChoose(message, ...options)
-{
-    const choices = [];
-    for(const option of options)
-    {
-        choices.push({
-            name: option[0],
-            value: option[1],
-            short: option[1]
-        });
-    }
-    const answer = await inquirer.prompt([
-        {
-            name: 'value',
-            type: 'list',
-            message,
-            choices
-        }
-    ]);
-    return answer.value;
 }
 
 export function evalArgs(argv)

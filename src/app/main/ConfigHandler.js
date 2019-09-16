@@ -1,5 +1,4 @@
 import * as ConfigLoader from '../../config/ConfigLoader.js';
-import * as ConfigMaker from '../../app/client/menu/ConfigMaker.js';
 
 import * as ClientHandler from '../client/ClientHandler.js';
 
@@ -39,7 +38,9 @@ export async function createNewConfig(directory)
 {
     if (await ClientHandler.askWhetherToMakeNewConfig())
     {
-        return ConfigMaker.run(directory, true);
+        // TODO: This should be the config maker here.
+        // return ConfigMaker.run(directory, true);
+        return null;
     }
     else
     {

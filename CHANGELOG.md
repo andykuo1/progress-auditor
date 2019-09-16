@@ -6,11 +6,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.0] - 2019-09-14
+## [0.4.0] - 2019-09-16
 ### Added
 - Now has a safety net to log all data when it crashes
 - New testing environment
-- A config maker when there isn't one
+- New config maker when there isn't one
+- New review maker that can be customized for every review
+- New UI system
+- New interactive review build system
+- New base scheme that handles generic reviews
+- Allow empty reviews (for type 'empty')
+
+### Changed
+- A decent refactor of handlers and loaders
+- Vacations now live in reviews for convenience
+- Vacation padding is now applied at the top level config
+
+### Removed
+- All resolvers are now reviews without builders
+- Scheme handler, use Review Registry instead (they are still called schemes though)
 
 ## [0.3.2] - 2019-09-09
 ### Added

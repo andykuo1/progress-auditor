@@ -34,7 +34,7 @@ export function clearDatabase(db)
 
 export function forEach(db, callback)
 {
-    return db[REVIEW_KEY].forEach(callback);
+    db[REVIEW_KEY].forEach(callback);
 }
 
 /**

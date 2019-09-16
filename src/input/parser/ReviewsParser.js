@@ -40,10 +40,13 @@ export async function parse(db, config, filepath, opts={})
             const comments = row[2];
             const reviewType = row[3];
             const params = [];
+
+            // Skip the initial stuff and iterate only over the infinite parameters... until an empty cell.
             for(let i = 4; i < row.length; ++i)
             {
-                if (row[i].length <= 0) break;
-                params.push(row[i]);
+                const param = row[i].trim();
+                if (param.length <= 0) break;
+                params.push(param);
             }
 
             const review = ReviewDatabase.addReview(db, reviewID, reviewDate, comments, reviewType, params);

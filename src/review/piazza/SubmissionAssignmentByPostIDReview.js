@@ -1,5 +1,5 @@
-import * as UserDatabase from '../../../database/UserDatabase.js';
-import * as SubmissionDatabase from '../../../database/SubmissionDatabase.js';
+import * as UserDatabase from '../../database/UserDatabase.js';
+import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
 
 const ERROR_TAG = 'REVIEW';
 

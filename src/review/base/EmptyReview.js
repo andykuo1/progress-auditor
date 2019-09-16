@@ -1,4 +1,4 @@
-import { createBuilder } from './helper/ReviewBuilder.js';
+import { createBuilder } from '../helper/ReviewBuilder.js';
 
 /**
  * Every reviewer is expected to have at least a unique TYPE and a review function.
