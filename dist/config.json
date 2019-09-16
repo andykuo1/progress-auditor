@@ -25,7 +25,6 @@
     ],
     "inputs": [
         {
-            "__comment": "FIXME!",
             "inputName": "_reviews.csv",
             "parser": "reviews",
             "opts": {}

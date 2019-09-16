@@ -126,21 +126,19 @@ export async function validateDatabase(db, config)
             break;
         }
     }
-
-    // Whether to ignore errors or continue as normal...
-    if (!await DatabaseSolver.verifyErrorsWithClient(db, config, errors))
-    {
-        await DatabaseSolver.outputErrorLog(db, config, errors);
-        
-        // IT'S AN ERROR! RUN AWAY!!!
-        throw new Error('Cannot resolve errors. Stopping program...');
-    }
-
+    
     // Whether to save any newly created reviews...
     if (await DatabaseSolver.shouldSaveNewReviewsForClient(db, config, reviews))
     {
         // This is null because we want to output all of it...
         await DatabaseSolver.outputNewReviewsToFile(db, config, null);
+    }
+
+    // Whether to ignore errors or continue as normal...
+    if (!await DatabaseSolver.verifyErrorsWithClient(db, config, errors))
+    {
+        // IT'S AN ERROR! RUN AWAY!!!
+        throw new Error('Cannot resolve errors. Stopping program...');
     }
 
     // All is well.

@@ -63,6 +63,20 @@ export function addReview(db, reviewID, reviewDate, comment, type, params)
     }
 }
 
+export function removeReviewByID(db, reviewID)
+{
+    const reviewMapping = db[REVIEW_KEY];
+    if (reviewMapping.has(reviewID))
+    {
+        reviewMapping.delete(reviewID);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 export function getReviews(db)
 {
     return db[REVIEW_KEY].keys();

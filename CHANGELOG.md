@@ -16,11 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New interactive review build system
 - New base scheme that handles generic reviews
 - Allow empty reviews (for type 'empty')
+- Error skipping
+- New review for ignoring other reviews (reflection-ish)
+- The Progress Otter wants to say more things.
 
 ### Changed
 - A decent refactor of handlers and loaders
 - Vacations now live in reviews for convenience
 - Vacation padding is now applied at the top level config
+- Move review saves to before error logs
 
 ### Removed
 - All resolvers are now reviews without builders

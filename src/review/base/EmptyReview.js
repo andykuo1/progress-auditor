@@ -15,7 +15,7 @@ export const DESCRIPTION = 'A placeholder review if you need one.';
  */
 export async function review(db, config, reviewDatabase)
 {
-    console.log("Nice to meet you. I'm empty :D");
+    // console.log("Nice to meet you. I'm empty :D");
 }
 
 /**

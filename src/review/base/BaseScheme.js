@@ -8,11 +8,14 @@ import * as UserAddOwnerReview from './UserAddOwnerReview.js';
 
 import * as NullReview from './NullReview.js';
 import * as EmptyReview from './EmptyReview.js';
+import * as IgnoreReview from './IgnoreReview.js';
 // import * as VacationReview from './VacationReview.js';
 
 export async function setup(db, config, reviewRegistry)
 {
     reviewRegistry
+        // NOTE: Must be first. (however, this won't apply for vacation reviews, look at VacationReview for solution)
+        .register(IgnoreReview)
         // NOTE: Order determines execution order, but these
         // reviews shouldn't care about that.
         .register(EmptyReview)
