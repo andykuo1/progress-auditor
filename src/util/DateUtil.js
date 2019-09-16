@@ -11,9 +11,9 @@ export const DAYS_IN_WEEK = 7;
  */
 export function compareDates(a, b)
 {
-    const dayA = new Date(a.getUTCFullYear(), a.getUTCMonth(), a.getUTCDate());
-    const dayB = new Date(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate());
-    return dayA - dayB;
+    const dayA = new Date(a.getUTCFullYear(), a.getUTCMonth(), a.getUTCDate()).getTime();
+    const dayB = new Date(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate()).getTime();
+    return Math.ceil((dayA - dayB) / ONE_DAYTIME);
 }
 
 /**
@@ -37,7 +37,7 @@ export function isWithinDates(date, fromDate, toDate)
     return compareDatesWithTime(dayDate, dayFrom) >= 0 && compareDatesWithTime(dayDate, dayTo) <= 0;
 }
 
-export function getDaysBetween(fromDate, toDate)
+export function getDaysUntil(fromDate, toDate)
 {
     const dayFrom = new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate());
     const dayTo = new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate());

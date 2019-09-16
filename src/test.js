@@ -1,27 +1,10 @@
 /** Run your tests here. */
 
-// import './util/DateTest.js';
-
-import * as ReviewResolver from './client/ReviewResolver.js';
-
-let id = 0;
-function createError(message)
-{
-    return {
-        id: ++id,
-        message
-    };
-}
+import './util/DateTest.js';
 
 async function main()
 {
-    const cache = {};
-
-    const result = await ReviewResolver.run([
-        createError("Sad error"),
-        createError("Happy error"),
-        createError("Other error"),
-    ], cache);
+    console.log("No tests here.");
 }
 
 main();

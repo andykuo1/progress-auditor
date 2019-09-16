@@ -462,7 +462,7 @@ function isWithinDates(date, fromDate, toDate)
     return compareDatesWithTime(dayDate, dayFrom) >= 0 && compareDatesWithTime(dayDate, dayTo) <= 0;
 }
 
-function getDaysBetween(fromDate, toDate)
+function getDaysUntil(fromDate, toDate)
 {
     const dayFrom = new Date(fromDate.getUTCFullYear(), fromDate.getUTCMonth(), fromDate.getUTCDate());
     const dayTo = new Date(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate());
@@ -696,7 +696,7 @@ var DateUtil = /*#__PURE__*/Object.freeze({
     compareDates: compareDates,
     compareDatesWithTime: compareDatesWithTime,
     isWithinDates: isWithinDates,
-    getDaysBetween: getDaysBetween,
+    getDaysUntil: getDaysUntil,
     copyDate: copyDate,
     getNearestSunday: getNearestSunday,
     getPastSunday: getPastSunday,
@@ -1256,7 +1256,7 @@ function createVacation(vacationID, ownerKey, startDate, endDate, padding, attri
         effectiveStartDate: newStartDate,
         effectiveEndDate: newEndDate,
         padding: padding,
-        duration: getDaysBetween(startDate, endDate),
+        duration: getDaysUntil(startDate, endDate),
         attributes
     };
 }
@@ -1322,7 +1322,7 @@ function offsetDateByVacations(db, ownerKeys, date)
         const vacation = vacationMapping.get(vacationID);
         if (isWithinDates(result, vacation.effectiveStartDate, vacation.effectiveEndDate))
         {
-            const days = getDaysBetween(result, vacation.effectiveStartDate);
+            const days = getDaysUntil(result, vacation.effectiveStartDate);
             result.setTime(result.getTime() + days * ONE_DAYTIME);
         }
     }
@@ -1679,7 +1679,7 @@ function createOffsetDelayValidator(invalidDateRanges = [])
 
             if (isWithinDates(result, dateRange[0], dateRange[1]))
             {
-                const offset = getDaysBetween(dateRange[0], result) + 1;
+                const offset = getDaysUntil(dateRange[0], result) + 1;
                 result = offsetDate(dateRange[1], offset);
             }
         }

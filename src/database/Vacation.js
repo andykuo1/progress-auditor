@@ -1,4 +1,4 @@
-import { ONE_DAYTIME, getDaysBetween, getPastSunday, getNextEffectiveSunday } from '../util/DateUtil.js';
+import { ONE_DAYTIME, getDaysUntil, getPastSunday, getNextEffectiveSunday } from '../util/DateUtil.js';
 
 function computeDatesWithPadding(padding, startDate, endDate)
 {
@@ -44,7 +44,7 @@ export function createVacation(vacationID, ownerKey, startDate, endDate, padding
         effectiveStartDate: newStartDate,
         effectiveEndDate: newEndDate,
         padding: padding,
-        duration: getDaysBetween(startDate, endDate),
+        duration: getDaysUntil(startDate, endDate),
         attributes
     };
 }

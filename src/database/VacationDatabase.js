@@ -1,5 +1,5 @@
 import * as Vacation from './Vacation.js';
-import { ONE_DAYTIME, isWithinDates, getDaysBetween } from '../util/DateUtil.js';
+import { ONE_DAYTIME, isWithinDates, getDaysUntil } from '../util/DateUtil.js';
 
 export const VACATION_KEY = 'vacation';
 const OUTPUT_LOG = 'db.vacation.log';
@@ -58,7 +58,7 @@ export function offsetDateByVacations(db, ownerKeys, date)
         const vacation = vacationMapping.get(vacationID);
         if (isWithinDates(result, vacation.effectiveStartDate, vacation.effectiveEndDate))
         {
-            const days = getDaysBetween(result, vacation.effectiveStartDate);
+            const days = getDaysUntil(result, vacation.effectiveStartDate);
             result.setTime(result.getTime() + days * ONE_DAYTIME);
         }
     }

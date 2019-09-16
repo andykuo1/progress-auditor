@@ -41,14 +41,20 @@ function run()
     assertDateEquals(past, prev);
     assertDateEquals(past, pastPast);
 
+    logDivider("Testing getDaysUntil()");
+    assertEquals(1, DateUtil.getDaysUntil(DateUtil.parse('2019-09-13'), DateUtil.parse('2019-09-14')));
+    assertEquals(2, DateUtil.getDaysUntil(DateUtil.parse('2019-09-13'), DateUtil.parse('2019-09-15')));
+    assertEquals(2, DateUtil.getDaysUntil(DateUtil.parse('2019-09-15'), DateUtil.parse('2019-09-13')));
+    assertEquals(29, DateUtil.getDaysUntil(DateUtil.parse('2019-09-1'), DateUtil.parse('2019-09-30')));
+
     logDivider("Testing if getting sequential next Sundays is correct.");
-    assertEquals(7, DateUtil.getDaysBetween(next, nextNext));
-    assertEquals(7, DateUtil.getDaysBetween(prev, next));
-    assertEquals(7, DateUtil.getDaysBetween(prevPrev, prev));
-    assertEquals(0, DateUtil.getDaysBetween(next, next));
-    assertEquals(0, DateUtil.getDaysBetween(past, pastPast));
-    assertEquals(5, DateUtil.getDaysBetween(date, past));
-    assertEquals(5, DateUtil.getDaysBetween(past, date));
+    assertEquals(7, DateUtil.getDaysUntil(next, nextNext));
+    assertEquals(7, DateUtil.getDaysUntil(prev, next));
+    assertEquals(7, DateUtil.getDaysUntil(prevPrev, prev));
+    assertEquals(0, DateUtil.getDaysUntil(next, next));
+    assertEquals(0, DateUtil.getDaysUntil(past, pastPast));
+    assertEquals(5, DateUtil.getDaysUntil(date, past));
+    assertEquals(5, DateUtil.getDaysUntil(past, date));
 
     logDivider("Testing if isWithinDates() is correct.");
     assertEquals(true, DateUtil.isWithinDates(date, date, date));
@@ -61,7 +67,7 @@ function run()
     assertDateEquals(date, DateUtil.offsetDate(date, 0));
     assertDateEquals(next, DateUtil.offsetDate(date, 2));
     assertDateEquals(prev, DateUtil.offsetDate(date, -5));
-    assertEquals(1, DateUtil.getDaysBetween(date, DateUtil.offsetDate(date, -1)));
+    assertEquals(1, DateUtil.getDaysUntil(date, DateUtil.offsetDate(date, -1)));
     assertEquals(true, DateUtil.isWithinDates(date, past, DateUtil.offsetDate(past, DateUtil.DAYS_IN_WEEK)));
 
     logDivider("Testing weekly sunday generator.");
@@ -159,13 +165,20 @@ function run()
         const endVacationDate = DateUtil.parse('2019-9-13');
         const vacationRange = [startVacationDate, endVacationDate];
         const ranges = DateGenerator.convertDateRangesToEffectiveWorkWeeks([vacationRange]);
-        assertDateEquals(DateUtil.parse('2019-9-8'), ranges[0][0]);
-        assertDateEquals(DateUtil.parse('2019-9-14'), ranges[0][1]);
+        // assertDateEquals(DateUtil.parse('2019-9-8'), ranges[0][0]);
+        assertDateEquals(DateUtil.parse('2019-9-9'), ranges[0][0]); // 9 is a Monday
+        // assertDateEquals(DateUtil.parse('2019-9-14'), ranges[0][1]);
+        assertDateEquals(DateUtil.parse('2019-9-15'), ranges[0][1]); // 15 is a Sunday
         const validator = DateGenerator.createOffsetDelayValidator(ranges);
         const result = DateGenerator.generateWeeklySunday(startDate, endDate, validator);
-        assertDateEquals(DateUtil.parse('2019-9-15'), result[0]);
+        // assertDateEquals(DateUtil.parse('2019-9-15'), result[0]);
+        // assertDateEquals(DateUtil.parse('2019-9-22'), result[1]);
+        // assertDateEquals(DateUtil.parse('2019-9-29'), result[2]);
+        // NOTE: Since assignments should be due the Sunday BEFORE vacation...
+        assertDateEquals(DateUtil.parse('2019-9-8'), result[0]);
         assertDateEquals(DateUtil.parse('2019-9-22'), result[1]);
         assertDateEquals(DateUtil.parse('2019-9-29'), result[2]);
+        assertEquals(3, result.length);
     }
     {
         const startVacationDate = DateUtil.parse('2019-9-11');
@@ -188,22 +201,35 @@ function run()
         const endVacationDate = DateUtil.parse('2019-9-15');
         const vacationRange = [startVacationDate, endVacationDate];
         const ranges = DateGenerator.convertDateRangesToEffectiveWorkWeeks([vacationRange]);
-        // Is this expected? If it is due the Sunday after an effective week,
-        // and if the next is a vacation week, the due date becomes the Sunday they get back.
-        assertDateEquals(DateUtil.parse('2019-9-8'), ranges[0][0]);
-        assertDateEquals(DateUtil.parse('2019-9-14'), ranges[0][1]);
+        // If it is due the Sunday after an effective week, and if the next is a vacation week,
+        // the due date should be the Sunday BEFORE the vacation, not when they get back.
+        assertDateEquals(DateUtil.parse('2019-9-9'), ranges[0][0]); // 9 is a Monday
+        assertDateEquals(DateUtil.parse('2019-9-15'), ranges[0][1]); // 15 is a Sunday
         const validator = DateGenerator.createOffsetDelayValidator(ranges);
         const result = DateGenerator.generateWeeklySunday(startDate, endDate, validator);
-        assertDateEquals(DateUtil.parse('2019-9-15'), result[0]);
+        assertDateEquals(DateUtil.parse('2019-9-8'), result[0]);
         assertDateEquals(DateUtil.parse('2019-9-22'), result[1]);
         assertDateEquals(DateUtil.parse('2019-9-29'), result[2]);
-        console.log(`From ${DateUtil.stringify(startDate, false)} to ${DateUtil.stringify(endDate, false)} => ${result.map(date => DateUtil.stringify(date, false))}`);
     }
     {
         const startDate = DateUtil.parse('2019-6-17');
         const endDate = DateUtil.parse('2019-9-6');
         const result = DateGenerator.generateWeeklySunday(startDate, endDate);
-        console.log(`From ${DateUtil.stringify(startDate, false)} to ${DateUtil.stringify(endDate, false)} => ${result.map(date => DateUtil.stringify(date, false))}`);
+        // console.log(`From ${DateUtil.stringify(startDate, false)} to ${DateUtil.stringify(endDate, false)} => ${result.map(date => DateUtil.stringify(date, false))}`);
+    }
+    logDivider('Testing contiguous weeks.')
+    {
+        const startDate = DateUtil.parse('2019-9-1');
+        const endDate = DateUtil.parse('2019-9-30');
+        const vacation1 = [DateUtil.parse('2019-9-9'), DateUtil.parse('2019-9-13')];
+        const vacation2 = [DateUtil.parse('2019-9-16'), DateUtil.parse('2019-9-20')];
+        const ranges = DateGenerator.convertDateRangesToEffectiveWorkWeeks([vacation1, vacation2]);
+        assertDateEquals(DateUtil.parse('2019-9-9'), ranges[0][0]); // 9 is a Monday
+        assertDateEquals(DateUtil.parse('2019-9-22'), ranges[0][1]); // 22 is a Sunday
+        const validator = DateGenerator.createOffsetDelayValidator(ranges);
+        const result = DateGenerator.generateWeeklySunday(startDate, endDate, validator);
+        assertDateEquals(DateUtil.parse('2019-9-8'), result[0]);
+        assertDateEquals(DateUtil.parse('2019-9-29'), result[1]);
     }
 }
 

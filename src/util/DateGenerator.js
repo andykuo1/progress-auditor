@@ -22,7 +22,7 @@ export function sortDateRanges(dateRanges)
 /**
  * Merge date ranges that overlap. This assumes the ranges are in order of start date.
  */
-export function mergeDateRangesWithOverlap(dateRanges)
+export function mergeDateRangesWithOverlap(dateRanges, contiguous = true)
 {
     let prevDateRange = null;
     for(let i = 0; i < dateRanges.length; ++i)
@@ -32,7 +32,9 @@ export function mergeDateRangesWithOverlap(dateRanges)
         {
             prevDateRange = dateRange;
         }
-        else if (DateUtil.compareDates(prevDateRange[1], dateRange[0]) >= 0)
+        // If date ranges overlap if the end date is past the other start date,
+        // OR if they are continguous (optional).
+        else if (DateUtil.compareDates(prevDateRange[1], dateRange[0]) >= (contiguous ? -1 : 0))
         {
             // Merge the two ranges...
             prevDateRange[1].setTime(dateRange[1].getTime());
@@ -58,7 +60,7 @@ export function convertDateRangesToEffectiveWorkWeeks(dateRanges, dst = [])
     for(const dateRange of dateRanges)
     {
         // If the range is too small, it can never possibly occupy 3 or more work days...
-        if (DateUtil.getDaysBetween(dateRange[0], dateRange[1]) < 3)
+        if (DateUtil.getDaysUntil(dateRange[0], dateRange[1]) < 3)
         {
             continue;
         }
@@ -83,6 +85,18 @@ export function convertDateRangesToEffectiveWorkWeeks(dateRanges, dst = [])
 
     mergeDateRangesWithOverlap(dst);
 
+    // HACK: To get assignments to be due BEFORE the vacation:
+    // Shave off the Sunday of every starting vacation
+    // Since it's expected the previous week to be an effective work week,
+    // any assignments due would be on the first Sunday before the vacation.
+    for(const dateRange of dst)
+    {
+        // Offset by 1 day, since every "week" starts on a Sunday.
+        // and ends on a Saturday.
+        dateRange[0] = DateUtil.offsetDate(dateRange[0], 1);
+        dateRange[1] = DateUtil.offsetDate(dateRange[1], 1);
+    }
+
     return dst;
 }
 
@@ -100,7 +114,7 @@ export function createOffsetDelayValidator(invalidDateRanges = [])
 
             if (DateUtil.isWithinDates(result, dateRange[0], dateRange[1]))
             {
-                const offset = DateUtil.getDaysBetween(dateRange[0], result) + 1;
+                const offset = DateUtil.getDaysUntil(dateRange[0], result) + 1;
                 result = DateUtil.offsetDate(dateRange[1], offset);
             }
         }
