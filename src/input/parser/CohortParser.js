@@ -48,7 +48,7 @@ export async function parse(db, config, filepath, opts={ maxEndDates: [] })
         // ...
         try
         {
-            const userID = FieldParser.parseEmail(row[6]);
+            const userID = row[5].trim().toUpperCase(); // FieldParser.parseEmail(row[6]);
             const ownerKey = FieldParser.parseEmail(row[6], row[1]);
             const userName = FieldParser.parseName(`${row[3]} ${row[2]}`);
             const pid = row[5].trim().toUpperCase();
