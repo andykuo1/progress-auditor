@@ -1,7 +1,6 @@
 import { log, error, askPrompt, ask, CHOICE_SEPARATOR } from './Client.js';
 import ReviewRegistry from '../review/ReviewRegistry.js';
 import chalk from 'chalk';
-import * as Menu from '../app/client/menu/Menu.js';
 
 async function askChooseError(message, errors, errorMapping)
 {
@@ -136,7 +135,7 @@ async function askClientToReviewErrors(errors)
 async function showErrorInfo(error)
 {
     const errorMessage = `${chalk.gray(error.id + ':')} ${error.message}`;
-    Menu.printError(errorMessage);
+    error(errorMessage);
 
     const errorSolutions = `${chalk.green(`${chalk.bold(`= Solutions: ${'='.repeat(67)}`)}\n => ${error.options.join('\n => ')}\n${chalk.bold('='.repeat(80))}`)}`;
     log(errorSolutions);

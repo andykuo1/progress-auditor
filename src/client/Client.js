@@ -1,6 +1,7 @@
 import Enquirer from 'enquirer';
 import * as DateUtil from '../util/DateUtil.js';
 import * as MathHelper from '../util/MathHelper.js';
+import * as ProgressOtter from './helper/ProgressOtter.js';
 import chalk from 'chalk';
 import figlet from 'figlet';
 
@@ -20,6 +21,42 @@ export function debug(message)
 export function error(message)
 {
     console.error(chalk.redBright(message));
+}
+
+export function success(message)
+{
+    console.log(chalk.green(message));
+}
+
+export function motivation()
+{
+    ProgressOtter.say(ProgressOtter.getMotivation());
+}
+
+export function formattedError(errorMessage, depth = 0)
+{
+    if (Array.isArray(errorMessage))
+    {
+        for(const message of errorMessage)
+        {
+            if (message === '=>')
+            {
+                depth += 1;
+            }
+            else if (message === '<=')
+            {
+                depth -= 1;
+            }
+            else
+            {
+                formattedError(message, depth);
+            }
+        }
+    }
+    else
+    {
+        error('  '.repeat(depth), ((depth <= 0) ? '+' : '-') + ' ' + errorMessage);
+    }
 }
 
 const MAX_SKIPPED_ERRORS = 100;

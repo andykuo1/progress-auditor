@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Now has a safety net to log all data when it crashes
 - New testing environment
-- New config maker when there isn't one
+- New config resolution technique when things are missing
 - New review maker that can be customized for every review
 - New UI system
 - New interactive review build system
@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Autocomplete system for options
 - Batch error processing by type
 - Cache output on error
+- Force check for overwriting files
 
 ### Changed
 - A decent refactor of handlers and loaders

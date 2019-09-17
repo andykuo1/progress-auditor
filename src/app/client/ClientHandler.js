@@ -1,4 +1,3 @@
-import * as Menu from './menu/Menu.js';
 import * as Client from '../../client/Client.js';
 
 // Used for logging database stats...
@@ -50,12 +49,12 @@ export async function askWhetherToSaveNewReviews(db, config, reviews)
 export async function askWhetherToReviewErrors(db, config, errors)
 {
     // Let the client decide whether to review the errors...
-    Menu.printlnError(`Found ${errors.length} errors. :(`);
-    Menu.printMotivation();
+    Client.formattedError(`Found ${errors.length} errors. :(`);
+    Client.motivation();
     const result = await Client.ask("Do you want to review them now?", true);
     if (!result)
     {
-        Menu.println(`Skipping errors...${Math.random() > 0.6 ? chalk.gray(`(I trust you)...`) : ''}`);
+        Client.log(`Skipping errors...${Math.random() > 0.6 ? chalk.gray(`(I trust you)...`) : ''}`);
     }
     return result;
 }
@@ -68,12 +67,12 @@ export async function askWhetherToSaveDebugInfo()
 
 export async function showSkippingDebugLog()
 {
-    Menu.println('...Skipping debug logs...');
+    Client.log('...Skipping debug logs...');
 }
 
 export async function celebrateNoErrors()
 {
-    Menu.println("== No errors! Hooray! ==");
+    Client.success("== No errors! Hooray! ==");
 }
 export async function askWhetherToMakeNewConfig()
 {

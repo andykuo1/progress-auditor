@@ -1,4 +1,3 @@
-import * as Menu from './Menu.js';
 import * as ReviewRegistry from '../../../input/review/ReviewRegistry.js';
 import * as MathHelper from '../../../util/MathHelper.js';
 import * as DateUtil from '../../../util/DateUtil.js';

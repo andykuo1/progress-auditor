@@ -1,14 +1,13 @@
-import * as Menu from './menu/Menu.js';
+import * as Client from '../../client/Client.js';
 import * as DatabaseSolver from '../main/DatabaseSolver.js';
-import * as DateUtil from '../../util/DateUtil.js';
 
 export async function onStart(directory, args)
 {
-    Menu.printTitle();
-    Menu.println();
+    Client.doTheBigTitleThing();
+    Client.log('');
 
-    Menu.println("Running from directory:", directory);
-    Menu.println();
+    Client.log('Running from directory: ' + directory);
+    Client.log('');
 }
 
 export async function onSetup(db, config)
@@ -19,9 +18,6 @@ export async function onSetup(db, config)
      * should take place; they will be considered for alterations
      * in the processing stage.
      */
-
-    Menu.println("Date:", DateUtil.stringify(db.currentDate));
-    Menu.println();
 }
 
 export async function onPreProcess(db, config)
@@ -55,7 +51,7 @@ export async function onOutput(db, config)
 
 export async function onError(db, config, error)
 {
-    Menu.printlnError(error, (config && config.debug) || false);
+    Client.formattedError(error, (config && config.debug) || false);
     
     try
     {
