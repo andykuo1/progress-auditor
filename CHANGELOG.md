@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2019-09-17
+### Changed
+- User ID is now PID instead of e-mail
+
+### Fixed
+- Missing error count output for review session
+
 ## [0.4.0] - 2019-09-16
 ### Added
 - Now has a safety net to log all data when it crashes

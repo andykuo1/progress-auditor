@@ -127,10 +127,11 @@ Here's an example config file:
 | opts      | Any additional options for the assignment. |
 | opts.customPath | You can specify a custom script by setting this to the path to the custom assigner. |
 
+Example:
 ```json
 {
-    "assignmentName": "",
-    "pattern": "",
+    "assignmentName": "week",
+    "pattern": "sunday",
     "opts": {}
 }
 ```
@@ -143,10 +144,11 @@ Here's an example config file:
 | opts      | Any additional options for the input file. |
 | opts.customPath | You can specify a custom script by setting this to the path to the custom parser. |
 
+Example:
 ```json
 {
     "inputName": "cohort.csv",
-    "parser": "The type of parser to use for this input file.",
+    "parser": "cohort",
     "opts": {}
 }
 ```
@@ -162,11 +164,16 @@ Here's an example config file:
 | opts.customIntro | A custom intro to prepend to each PDF output. |
 | opts.customOutro | A custom intro to append to each PDF output. |
 
+Example:
 ```json
 {
-    "assignmentName": "",
-    "format": "",
-    "opts": {}
+    "outputName": "reports.csv",
+    "format": "student",
+    "opts": {
+        "exportPDF": "reports.pdf",
+        "customIntro": "Hello!",
+        "customOutro": "Goodbye!"
+    }
 }
 ```
 
