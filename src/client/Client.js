@@ -132,21 +132,24 @@ export async function askChoose(message, choices)
     return answer;
 }
 
-export async function askPath(message, exists = true, isDirectory = false, validate = undefined)
+export async function askPath(message, baseDirectory, exists = true, isDirectory = false, validate = undefined)
 {
     const fs = require('fs');
+    const path = require('path');
     return await askPrompt(message, 'input', {
+        result: value => path.resolve(baseDirectory, value),
         validate: value =>
         {
-            if (validate) validate.call(null, value);
+            const absPath = path.resolve(baseDirectory, value);
+            if (validate) validate.call(null, absPath);
             if (!exists) return true;
-            if (!fs.existsSync(value))
+            if (!fs.existsSync(absPath))
             {
                 return "Path does not exist.";
             }
             else
             {
-                const stat = fs.lstatSync(value);
+                const stat = fs.lstatSync(absPath);
                 if (isDirectory && !stat.isDirectory())
                 {
                     return "Path is not a directory.";
@@ -248,6 +251,8 @@ export async function askFindFile(message, directory = '.', validate = undefined
         });
 
         let fileEntry = await prompt.run();
+        if (!fileEntry) return null;
+
         let filePath;
 
         // Client used the custom path instead...
@@ -289,10 +294,11 @@ export async function askFindFile(message, directory = '.', validate = undefined
     return result;
 }
 
-export async function askDate(message)
+export async function askDate(message, defaultValue = undefined)
 {
-    return await askPrompt(message, 'input', {
-        hint: "YYYY-MM-DD-hh-mm-ss (You don't need the time)",
+    const result = await askPrompt(message, 'input', {
+        initial: defaultValue && DateUtil.stringify(defaultValue, false),
+        hint: "YYYY-MM-DD-hh:mm:ss (You don't need the time)",
         validate: value =>
         {
             try
@@ -306,42 +312,6 @@ export async function askDate(message)
             return true;
         }
     });
-}
 
-export async function askInput(message, choices = null, opts = {})
-{
-    if (Array.isArray(choices))
-    {
-        const prompt = new Enquirer.AutoComplete({
-            name: 'answer',
-            message,
-            limit: 10,
-            choices,
-            suggest: (input, choices) =>
-            {
-                let str = input.toLowerCase();
-                const result = choices.filter(ch => ch.message.toLowerCase().includes(str));
-    
-                // Add the current input as a selectable option...
-                result.push({ message: input });
-    
-                return result;
-            },
-            ...opts
-        });
-
-        const { answer } = await prompt.run();
-        return answer;
-    }
-    else
-    {
-        const prompt = new Enquirer.Input({
-            name: 'answer',
-            message,
-            ...opts
-        });
-
-        const { answer } = await prompt.run();
-        return answer;
-    }
+    return DateUtil.parse(result);
 }

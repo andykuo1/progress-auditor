@@ -36,7 +36,7 @@ export async function run(directory, cache = {})
         .init("Change working directory?")
         .run(async () =>
         {
-            const path = await askPath("Directory path", true, true);
+            const path = await askPath("Directory path", directory, true, true);
             if (path)
             {
                 cache.currentDirectory = path;

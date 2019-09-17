@@ -127,6 +127,14 @@ export async function outputNewReviewsToFile(db, config, reviews = null)
         }
     }
 
-    const outputFilePath = path.resolve(config.outputPath, `reviews-${DateUtil.stringify(new Date(Date.now()), false)}.csv`);
+    let outputFilePath;
+    if (config.outputAutoDate && db)
+    {
+        outputFilePath = path.resolve(config.outputPath + '/' + DateUtil.stringify(db.currentDate, false), 'reviews.csv');
+    }
+    else
+    {
+        outputFilePath = path.resolve(config.outputPath, `reviews-${DateUtil.stringify(new Date(Date.now()), true)}.csv`);
+    }
     await FileUtil.writeTableToCSV(outputFilePath, reviewTable);
 }

@@ -1,4 +1,4 @@
-import { log, error, askPrompt, ask, askPath, askDate, askChoose, CHOICE_SEPARATOR, askInput } from './Client.js';
+import { log, error, askPrompt, ask, CHOICE_SEPARATOR } from './Client.js';
 import ReviewRegistry from '../review/ReviewRegistry.js';
 import chalk from 'chalk';
 import * as Menu from '../app/client/menu/Menu.js';
@@ -79,6 +79,8 @@ export async function run(errors, cache = {})
     try
     {
         const chosenErrorIDs = await askChooseError("What error do you want to review?", errors, errorMapping);
+        if (!chosenErrorIDs) throw null;
+        
         const chosenErrors = [];
         for(const errorID of chosenErrorIDs)
         {

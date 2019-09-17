@@ -21,6 +21,8 @@ export async function review(db, config)
                 const targetSubmission = SubmissionDatabase.getSubmissionByID(db, params[0]);
                 if (!targetSubmission)
                 {
+                    console.log("...Ignoring redundant reviewed submission...");
+                    /*
                     db.throwError(ERROR_TAG, `Invalid review param - Cannot find submission for id '${params[0]}'.`, {
                         id: [id, type],
                         options: [
@@ -28,6 +30,7 @@ export async function review(db, config)
                             `Or the id is wrong.`
                         ]
                     });
+                    */
                     return;
                 }
 

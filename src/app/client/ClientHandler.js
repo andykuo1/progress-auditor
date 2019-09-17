@@ -1,22 +1,43 @@
 import * as Menu from './menu/Menu.js';
 import * as Client from '../../client/Client.js';
+
+// Used for logging database stats...
+import * as UserDatabase from '../../database/UserDatabase.js';
+import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
+import * as ReviewDatabase from '../../database/ReviewDatabase.js';
+
 const chalk = require('chalk');
 
 export async function askForConfigFilePath(directory)
 {
-    // TODO: Let the client specify another config file...
+    if (await Client.ask("Change the working directory?"))
+    {
+        return Client.askPath("Another working directory:", directory, true, true);
+    }
+
     return null;
 }
 
 export async function askWhetherDatabaseIsValidToUse(db, config)
 {
-    // TODO: Let the client verify the database stats...
-    return true;
+    // Let the client verify the database stats...
+    Client.log('')
+    Client.log('== Current Status ==')
+    Client.log(` - Current Date: ${config.currentDate}`);
+    Client.log(` - Input Path: ${config.inputPath}`);
+    Client.log(` - Output Path: ${config.outputPath}`);
+    Client.log(` - Scheme: ${config.scheme}`);
+    Client.log(` - User(s): ${UserDatabase.getUserCount(db)}`);
+    Client.log(` - Submission(s): ${SubmissionDatabase.getSubmissionCount(db)}`);
+    Client.log(` - Review(s): ${ReviewDatabase.getReviewCount(db)}`);
+    Client.log('');
+
+    return await Client.ask("Is this correct?");
 }
 
 export async function askWhetherToIgnoreErrors(db, config, errors)
 {
-    // TODO: Let the client decide whether to skip these errors...
+    // Let the client decide whether to skip these errors...
     return await Client.ask(`Do you want to continue despite ${errors.length} error(s)?`);
 }
 
@@ -31,7 +52,7 @@ export async function askWhetherToReviewErrors(db, config, errors)
     // Let the client decide whether to review the errors...
     Menu.printlnError(`Found ${errors.length} errors. :(`);
     Menu.printMotivation();
-    const result = await Client.ask("Do you want to review them now?");
+    const result = await Client.ask("Do you want to review them now?", true);
     if (!result)
     {
         Menu.println(`Skipping errors...${Math.random() > 0.6 ? chalk.gray(`(I trust you)...`) : ''}`);

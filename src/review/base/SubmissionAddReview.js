@@ -26,6 +26,7 @@ export async function review(db, config)
                 const userID = UserDatabase.getUserByOwnerKey(db, ownerKey);
                 if (!userID)
                 {
+                    return;
                     db.throwError(ERROR_TAG, `Cannot find user for owner key ${ownerKey}`, {
                         id: [id, type],
                         options: [`Add missing owner key '${ownerKey}' to a user.`]

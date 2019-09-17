@@ -177,7 +177,7 @@ export async function output(db, config, outputPath, opts)
     }
     
     const outputTable = tableBuilder.build();
-    FileUtil.writeTableToCSV(outputPath, outputTable);
+    await FileUtil.writeTableToCSV(outputPath, outputTable);
 
     // Output as a PDF as well...
     if (opts.exportPDF)

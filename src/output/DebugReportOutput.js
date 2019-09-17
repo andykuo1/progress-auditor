@@ -11,20 +11,20 @@ export async function output(db, config, outputPath, opts)
 {
     // Output all database logs...
     const outputFunction = FileUtil.writeToFile;
-    try { UserDatabase.outputLog(db, outputFunction, outputPath); }
+    try { await UserDatabase.outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.'); }
-    try { SubmissionDatabase.outputLog(db, outputFunction, outputPath); }
+    try { await SubmissionDatabase.outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.'); }
-    try { AssignmentDatabase.outputLog(db, outputFunction, outputPath); }
+    try { await AssignmentDatabase.outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.'); }
-    try { ReviewDatabase.outputLog(db, outputFunction, outputPath); }
+    try { await ReviewDatabase.outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.'); }
-    try { VacationDatabase.outputLog(db, outputFunction, outputPath); }
+    try { await VacationDatabase.outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.'); }
 
     // Output computed config file...
-    try { FileUtil.writeToFile(path.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4)); }
-    catch(e) {}
+    try { await FileUtil.writeToFile(path.resolve(outputPath, 'config.log'), JSON.stringify(config, null, 4)); }
+    catch(e) { console.error('Failed to output config log.'); }
 
     // Output error list...
     try
@@ -43,15 +43,15 @@ export async function output(db, config, outputPath, opts)
             }
             output = "It's okay. We'll get through this.\n\n" + errors.join('\n');
         }
-        FileUtil.writeToFile(path.resolve(outputPath, 'errors.txt'), output);
+        await FileUtil.writeToFile(path.resolve(outputPath, 'errors.txt'), output);
     }
-    catch(e) {}
+    catch(e) { console.error('Failed to output error log.'); }
 
     // Output database cache...
     try
     {
         const output = JSON.stringify(db.getCache(), null, 4);
-        FileUtil.writeToFile(path.resolve(outputPath, 'cache.txt'), output);
+        await FileUtil.writeToFile(path.resolve(outputPath, 'cache.txt'), output);
     }
-    catch(e) {}
+    catch(e) { console.error('Failed to output cache log.'); }
 }

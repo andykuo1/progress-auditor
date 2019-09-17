@@ -1,3 +1,5 @@
+import * as Client from '../client/Client.js';
+
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -48,21 +50,25 @@ export function readFileByLine(filepath, callback)
     });
 }
 
-// TODO: Temporary hack for writing files, NOT ASYNC!
-export function writeToFile(filepath, content)
+export async function writeToFile(filepath, content)
 {
     fs.mkdirSync(path.dirname(filepath), { recursive: true });
-    fs.writeFile(filepath, content, function(err) {
-        if (err)
-        {
-            return console.log(err);
-        }
 
-        console.log("File saved:", filepath);
-    }); 
+    if (!fs.existsSync(filepath) || await Client.ask(`File '${path.basename(filepath)}' already exists. Are you sure you want to overwrite it?`))
+    {
+        return new Promise((resolve, reject) =>
+        {
+            fs.writeFile(filepath, content, (err) =>
+            {
+                if (err) { reject(err); }
+                console.log("File saved:", filepath);
+                resolve();
+            });
+        });
+    }
 }
 
-export function writeTableToCSV(filepath, table)
+export async function writeTableToCSV(filepath, table)
 {
-    writeToFile(filepath, table.map(e => e.join(',')).join('\n'));
+    await writeToFile(filepath, table.map(e => e.join(',')).join('\n'));
 }

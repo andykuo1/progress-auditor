@@ -83,6 +83,11 @@ export function getReviews(db)
     return db[REVIEW_KEY].keys();
 }
 
+export function getReviewCount(db)
+{
+    return db[REVIEW_KEY].size;
+}
+
 export function getReviewByID(db, reviewID)
 {
     return db[REVIEW_KEY].get(String(reviewID));
@@ -115,5 +120,5 @@ export function outputLog(db, outputFunction, outputDir = '.')
     
     const header = `${'# '.repeat(20)}\n# Reviews\n# Size: ${reviewMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
+    return outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }

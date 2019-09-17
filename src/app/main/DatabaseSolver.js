@@ -2,7 +2,7 @@ import * as DatabaseSetup from '../../database/DatabaseSetup.js';
 import * as ClientHandler from '../client/ClientHandler.js';
 import * as OutputHandler from '../main/OutputHandler.js';
 
-import * as ErrorReviewer from '../client/menu/ErrorReviewer.js';
+import * as ReviewResolver from '../../client/ReviewResolver.js';
 
 /** If unable to find errors, an empty array is returned. */
 export async function findDatabaseErrors(db, config)
@@ -30,8 +30,16 @@ export async function resolveDatabaseErrors(db, config, errors)
 {
     console.log("...Resolving database errors...");
 
-    // TODO: This should be directed to ReviewResolver in the future.
-    return await ErrorReviewer.resolveErrors(db, config, errors);
+    const cache = db.getCache().reviewSession = {};
+    await ReviewResolver.run(errors, cache);
+    if (cache.reviews && cache.reviews.length > 0)
+    {
+        return cache.reviews;
+    }
+    else
+    {
+        return null;
+    }
 }
 
 export async function clearDatabase(db, config)

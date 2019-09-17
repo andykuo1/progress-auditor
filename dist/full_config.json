@@ -1,6 +1,9 @@
 {
+    "currentDate": "2019-7-30",
     "include": [],
     "scheme": "piazza",
+    "inputPath": "./__TEST__/in",
+    "outputPath": "./__TEST__/out",
     "outputAutoDate": true,
     "debug": true,
     "assignments": [
@@ -22,7 +25,7 @@
     ],
     "inputs": [
         {
-            "inputName": "reviews.csv",
+            "inputName": "_reviews.csv",
             "parser": "reviews",
             "opts": {}
         },
@@ -42,6 +45,10 @@
         }
     ],
     "outputs": [
+        {
+            "outputName": "debug",
+            "format": "debug"
+        },
         {
             "outputName": "slip-days.csv",
             "format": "instructor"

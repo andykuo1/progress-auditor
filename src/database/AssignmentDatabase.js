@@ -98,5 +98,5 @@ export function outputLog(db, outputFunction, outputDir = '.')
     
     const header = `${'# '.repeat(20)}\n# Assignments\n# Size: ${assignmentMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
+    return outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }

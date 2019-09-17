@@ -2,6 +2,15 @@ import * as SundayAssignment from './SundayAssignment';
 import * as LastAssignment from './LastAssignment';
 import * as IntroAssignment from './IntroAssignment';
 
+export function getAssignmentTypes()
+{
+    return [
+        'sunday',
+        'intro',
+        'last',
+    ];
+}
+
 export function loadAssignmentByType(assignmentType)
 {
     switch(assignmentType)

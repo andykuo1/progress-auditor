@@ -44,6 +44,11 @@ export function getUsers(db)
     return db[USER_KEY].keys();
 }
 
+export function getUserCount(db)
+{
+    return db[USER_KEY].size;
+}
+
 export function getUserByID(db, id)
 {
     return db[USER_KEY].get(id);
@@ -124,5 +129,5 @@ export function outputLog(db, outputFunction, outputDir = '.')
 
     const header = `${'# '.repeat(20)}\n# Users\n# Size: ${userMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
+    return outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }

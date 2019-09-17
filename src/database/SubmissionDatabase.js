@@ -177,6 +177,11 @@ export function getSubmissions(db)
     return db[SUBMISSION_KEY][SUBMISSION_LIST_KEY].keys();
 }
 
+export function getSubmissionCount(db)
+{
+    return db[SUBMISSION_KEY][SUBMISSION_LIST_KEY].size;
+}
+
 export function clearSubmissionsByOwner(db, ownerKey)
 {
     // Remove from list mapping...
@@ -232,5 +237,5 @@ export function outputLog(db, outputFunction, outputDir = '.')
     
     const header = `${'# '.repeat(20)}\n# Submissions\n# Size: ${submissionListMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
+    return outputFunction(require('path').resolve(outputDir, OUTPUT_LOG), log);
 }

@@ -34,7 +34,6 @@ export async function resolveConfig(directory)
             catch(e)
             {
                 // Failed to load config. Try again.
-                console.error('Failed to load config.', e);
             }
         }
         
@@ -48,6 +47,9 @@ export async function resolveConfig(directory)
         // This should never happen...
         throw new Error('Could not resolve a config file for program. Stopping program...');
     }
+
+    await ConfigHandler.validateConfig(config, directory);
+
     return config;
 }
 
@@ -103,7 +105,7 @@ export async function validateDatabase(db, config)
             const result = await DatabaseSolver.resolveDatabaseErrors(db, config, errors);
 
             // If review was successful...
-            if (result.length > 0)
+            if (result && result.length > 0)
             {
                 reviews.push(...result);
 

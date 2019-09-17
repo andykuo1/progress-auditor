@@ -224,6 +224,12 @@ export function parse(dateString)
         minute = 0;
         second = 0;
     }
+    else
+    {
+        hour = Number(dateString.substring(hourIndex + 1, minuteIndex));
+        minute = Number(dateString.substring(minuteIndex + 1, secondIndex));
+        second = Number(dateString.substring(secondIndex + 1));
+    }
 
     year = Number(dateString.substring(yearIndex, monthIndex));
     month = Number(dateString.substring(monthIndex + 1, dayIndex));
