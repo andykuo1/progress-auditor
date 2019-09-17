@@ -9696,7 +9696,7 @@ async function writeToFile(filepath, content)
 {
     fs.mkdirSync(path.dirname(filepath), { recursive: true });
 
-    if (!fs.existsSync(filepath) || await ask(`File '${path.basename(filepath)}' already exists. Are you sure you want to overwrite it?`))
+    if (await checkExistsOverwrite(filepath))
     {
         return new Promise((resolve, reject) =>
         {
@@ -9715,12 +9715,18 @@ async function writeTableToCSV(filepath, table)
     await writeToFile(filepath, table.map(e => e.join(',')).join('\n'));
 }
 
+async function checkExistsOverwrite(filepath)
+{
+    return !fs.existsSync(filepath) || await ask(`File '${path.basename(filepath)}' already exists. Are you sure you want to overwrite it?`);
+}
+
 var FileUtil = /*#__PURE__*/Object.freeze({
     readJSONFile: readJSONFile,
     readCSVFileByRow: readCSVFileByRow,
     readFileByLine: readFileByLine,
     writeToFile: writeToFile,
-    writeTableToCSV: writeTableToCSV
+    writeTableToCSV: writeTableToCSV,
+    checkExistsOverwrite: checkExistsOverwrite
 });
 
 function parseDate(value)
@@ -12133,10 +12139,14 @@ async function output$1(db, config, outputPath, opts)
     {
         const fs = require('fs');
         const path = require('path');
-        const PDFDocument = require('pdfkit');
-    
-        const doc = new PDFDocument();
+
         const pdfPath = path.resolve(path.dirname(outputPath), typeof opts.exportPDF === 'string' ? opts.exportPDF : 'reports.pdf');
+
+        // Make sure PDF exports don't overwrite either...
+        if (!await checkExistsOverwrite(pdfPath)) return;
+
+        const PDFDocument = require('pdfkit');
+        const doc = new PDFDocument();
         doc.pipe(fs.createWriteStream(pdfPath));
 
         let headerFlag = true;
@@ -12855,8 +12865,6 @@ var SubmissionAssignmentByLastReview = /*#__PURE__*/Object.freeze({
     build: build$5
 });
 
-const ERROR_TAG$7 = 'REVIEW';
-
 const TYPE$6 = 'assignment_by_post';
 const DESCRIPTION$6 = 'Assigns submission by matching post id.';
 
@@ -12872,7 +12880,13 @@ async function review$6(db, config)
         for(const submissionID of getSubmissions(db))
         {
             const submission = getSubmissionByID(db, submissionID);
-            if (submission.assignment === 'null')
+            const userID = getUserByOwnerKey(db, submission.owner);
+            // Skip any unknown owner keys. It is not my job.
+            if (!userID) continue;
+            const validAssignments = getAssignmentsByUser(db, userID);
+
+            // If this submission is not assigned correctly (not only unassigned)...
+            if (!validAssignments.includes(submission.assignment))
             {
                 const unassignedSubmission = submission;
 
@@ -12882,7 +12896,7 @@ async function review$6(db, config)
                 for(const [assignmentID, submissions] of Object.entries(assignedSubmissions))
                 {
                     // If it is a properly assigned assignment...
-                    if (assignmentID === 'null') continue;
+                    if (!validAssignments.includes(assignmentID)) continue;
 
                     for(const ownedSubmission of submissions)
                     {
@@ -12903,7 +12917,8 @@ async function review$6(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$7, e);
+        error(e);
+        throw e;
     }
 }
 
@@ -12917,7 +12932,7 @@ var SubmissionAssignmentByPostNumberReview = /*#__PURE__*/Object.freeze({
     build: build$6
 });
 
-const ERROR_TAG$8 = 'REVIEW';
+const ERROR_TAG$7 = 'REVIEW';
 
 /**
  * This is the LAST time zone offset from UTC. This means that there does
@@ -13047,7 +13062,7 @@ async function review$7(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$8, e);
+        db.throwError(ERROR_TAG$7, e);
     }
 }
 
@@ -13080,7 +13095,7 @@ var SubmissionSlipDaysReview = /*#__PURE__*/Object.freeze({
     build: build$7
 });
 
-const ERROR_TAG$9 = 'REVIEW';
+const ERROR_TAG$8 = 'REVIEW';
 
 const TYPE$8 = 'change_assignment_status';
 const DESCRIPTION$8 = 'Changes the assignment status and slips for an owner.';
@@ -13120,7 +13135,7 @@ async function review$8(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$9, e);
+        db.throwError(ERROR_TAG$8, e);
     }
 }
 
@@ -13152,7 +13167,7 @@ var AssignmentChangeStatusReview = /*#__PURE__*/Object.freeze({
     build: build$8
 });
 
-const ERROR_TAG$a = 'REVIEW';
+const ERROR_TAG$9 = 'REVIEW';
 
 const TYPE$9 = 'add_submission';
 const DESCRIPTION$9 = 'Add submission (with assignment) for owner.';
@@ -13196,7 +13211,7 @@ async function review$9(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$a, e);
+        db.throwError(ERROR_TAG$9, e);
     }
 }
 
@@ -13228,7 +13243,7 @@ var SubmissionAddReview = /*#__PURE__*/Object.freeze({
     build: build$9
 });
 
-const ERROR_TAG$b = 'REVIEW';
+const ERROR_TAG$a = 'REVIEW';
 
 const TYPE$a = 'change_assignment';
 const DESCRIPTION$a = 'Change assignment for submission.';
@@ -13256,25 +13271,30 @@ async function review$a(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$b, e);
+        db.throwError(ERROR_TAG$a, e);
     }
 }
 
 async function build$a(errors = [])
 {
+    // HACK: To allow to use prev value in next review...
+    // This should be handled directly by the Builder instead.
+    let prevAssignmentID = '';
     const result = [];
     for(const error of errors)
     {
-        result.push(await buildStep$5(error));
+        const review = await buildStep$5(error, prevAssignmentID);
+        prevAssignmentID = review.params[0];
+        result.push(review);
     }
     return result;
 }
 
-async function buildStep$5(error)
+async function buildStep$5(error, prevAssignmentID = '')
 {
     return await createBuilder()
         .type(TYPE$a)
-        .param(0, 'Assignment ID', 'The new assignment id to change to.')
+        .param(0, 'Assignment ID', 'The new assignment id to change to.', prevAssignmentID || '')
         .param(1, 'Submission ID', 'The id for the target submission.', error.context.submissionID || '')
         .build();
 }
@@ -13286,7 +13306,7 @@ var SubmissionChangeAssignmentReview = /*#__PURE__*/Object.freeze({
     build: build$a
 });
 
-const ERROR_TAG$c = 'REVIEW';
+const ERROR_TAG$b = 'REVIEW';
 
 const TYPE$b = 'change_submission_date';
 const DESCRIPTION$b = 'Change date for submission.';
@@ -13314,7 +13334,7 @@ async function review$b(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$c, e);
+        db.throwError(ERROR_TAG$b, e);
     }
 }
 
@@ -13344,7 +13364,7 @@ var SubmissionChangeDateReview = /*#__PURE__*/Object.freeze({
     build: build$b
 });
 
-const ERROR_TAG$d = 'REVIEW';
+const ERROR_TAG$c = 'REVIEW';
 
 const TYPE$c = 'ignore_owner';
 const DESCRIPTION$c = 'Ignore all submissions for owner.';
@@ -13365,7 +13385,7 @@ async function review$c(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$d, e);
+        db.throwError(ERROR_TAG$c, e);
     }
 }
 
@@ -13394,7 +13414,7 @@ var SubmissionIgnoreOwnerReview = /*#__PURE__*/Object.freeze({
     build: build$c
 });
 
-const ERROR_TAG$e = 'REVIEW';
+const ERROR_TAG$d = 'REVIEW';
 
 const TYPE$d = 'ignore_submission';
 const DESCRIPTION$d = 'Ignore specific submission by id.';
@@ -13436,7 +13456,7 @@ async function review$d(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$e, e);
+        db.throwError(ERROR_TAG$d, e);
     }
 }
 
@@ -13465,7 +13485,7 @@ var SubmissionIgnoreReview = /*#__PURE__*/Object.freeze({
     build: build$d
 });
 
-const ERROR_TAG$f = 'REVIEW';
+const ERROR_TAG$e = 'REVIEW';
 
 const TYPE$e = 'add_owner_key';
 const DESCRIPTION$e = 'Add additional owner key for user.';
@@ -13507,7 +13527,7 @@ async function review$e(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$f, e);
+        db.throwError(ERROR_TAG$e, e);
     }
 }
 
@@ -13537,7 +13557,7 @@ var UserAddOwnerReview = /*#__PURE__*/Object.freeze({
     build: build$e
 });
 
-const ERROR_TAG$g = 'REVIEW';
+const ERROR_TAG$f = 'REVIEW';
 
 const TYPE$f = 'null';
 const DESCRIPTION$f = 'Unknown review type.';
@@ -13551,7 +13571,7 @@ async function review$f(db, config)
             .forEach(value =>
             {
                 const { id, type } = value;
-                db.throwError(ERROR_TAG$g, `Unhandled review type ${type} for review '${id}'.`, {
+                db.throwError(ERROR_TAG$f, `Unhandled review type ${type} for review '${id}'.`, {
                     id: [id, type],
                     options: [
                         `You probably misspelled the review type.`,
@@ -13563,7 +13583,7 @@ async function review$f(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG$g, e);
+        db.throwError(ERROR_TAG$f, e);
     }
 }
 
@@ -13658,9 +13678,10 @@ async function setup$1(db, config, reviewRegistry)
         // Order matters here...
         .register(SubmissionAssignmentByIntroReview)
         .register(SubmissionAssignmentByLastReview)
-        .register(SubmissionAssignmentByHeaderReview)
         // This must go after all assignment resolution reviews.
         .register(SubmissionAssignmentByPostNumberReview)
+        // This ASSIGNS ALL OTHER submissions.
+        .register(SubmissionAssignmentByHeaderReview)
         // This must go LAST.
         .register(SubmissionSlipDaysReview);
 }

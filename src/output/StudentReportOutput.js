@@ -184,10 +184,14 @@ export async function output(db, config, outputPath, opts)
     {
         const fs = require('fs');
         const path = require('path');
-        const PDFDocument = require('pdfkit');
-    
-        const doc = new PDFDocument();
+
         const pdfPath = path.resolve(path.dirname(outputPath), typeof opts.exportPDF === 'string' ? opts.exportPDF : 'reports.pdf');
+
+        // Make sure PDF exports don't overwrite either...
+        if (!await FileUtil.checkExistsOverwrite(pdfPath)) return;
+
+        const PDFDocument = require('pdfkit');
+        const doc = new PDFDocument();
         doc.pipe(fs.createWriteStream(pdfPath));
 
         let headerFlag = true;

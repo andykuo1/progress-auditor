@@ -1,4 +1,7 @@
 import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
+import * as UserDatabase from '../../database/UserDatabase.js';
+import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
+import * as Client from '../../client/Client.js';
 
 const ERROR_TAG = 'REVIEW';
 
@@ -17,7 +20,13 @@ export async function review(db, config)
         for(const submissionID of SubmissionDatabase.getSubmissions(db))
         {
             const submission = SubmissionDatabase.getSubmissionByID(db, submissionID);
-            if (submission.assignment === 'null')
+            const userID = UserDatabase.getUserByOwnerKey(db, submission.owner);
+            // Skip any unknown owner keys. It is not my job.
+            if (!userID) continue;
+            const validAssignments = AssignmentDatabase.getAssignmentsByUser(db, userID);
+
+            // If this submission is not assigned correctly (not only unassigned)...
+            if (!validAssignments.includes(submission.assignment))
             {
                 const unassignedSubmission = submission;
 
@@ -27,7 +36,7 @@ export async function review(db, config)
                 for(const [assignmentID, submissions] of Object.entries(assignedSubmissions))
                 {
                     // If it is a properly assigned assignment...
-                    if (assignmentID === 'null') continue;
+                    if (!validAssignments.includes(assignmentID)) continue;
 
                     for(const ownedSubmission of submissions)
                     {
@@ -48,7 +57,8 @@ export async function review(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG, e);
+        Client.error(e);
+        throw e;
     }
 }
 

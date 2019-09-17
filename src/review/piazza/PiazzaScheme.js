@@ -15,9 +15,10 @@ export async function setup(db, config, reviewRegistry)
         // Order matters here...
         .register(SubmissionAssignmentByIntroReview)
         .register(SubmissionAssignmentByLastReview)
-        .register(SubmissionAssignmentByHeaderReview)
         // This must go after all assignment resolution reviews.
         .register(SubmissionAssignmentByPostNumberReview)
+        // This ASSIGNS ALL OTHER submissions.
+        .register(SubmissionAssignmentByHeaderReview)
         // This must go LAST.
         .register(SubmissionSlipDaysReview);
 }

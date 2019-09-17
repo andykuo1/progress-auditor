@@ -54,7 +54,7 @@ export async function writeToFile(filepath, content)
 {
     fs.mkdirSync(path.dirname(filepath), { recursive: true });
 
-    if (!fs.existsSync(filepath) || await Client.ask(`File '${path.basename(filepath)}' already exists. Are you sure you want to overwrite it?`))
+    if (await checkExistsOverwrite(filepath))
     {
         return new Promise((resolve, reject) =>
         {
@@ -71,4 +71,9 @@ export async function writeToFile(filepath, content)
 export async function writeTableToCSV(filepath, table)
 {
     await writeToFile(filepath, table.map(e => e.join(',')).join('\n'));
+}
+
+export async function checkExistsOverwrite(filepath)
+{
+    return !fs.existsSync(filepath) || await Client.ask(`File '${path.basename(filepath)}' already exists. Are you sure you want to overwrite it?`);
 }

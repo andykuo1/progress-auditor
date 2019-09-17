@@ -1,4 +1,6 @@
 {
+    "currentDate": "2019-09-07",
+    "inputPath": "./__TEST__/in/2019-09-07",
     "include": [],
     "scheme": "piazza",
     "outputAutoDate": true,
@@ -42,6 +44,10 @@
         }
     ],
     "outputs": [
+        {
+            "outputName": "debug",
+            "format": "debug"
+        },
         {
             "outputName": "slip-days.csv",
             "format": "instructor"
