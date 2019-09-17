@@ -14205,9 +14205,11 @@ async function generateOutput(db, config)
     }
 }
 
+const version = "0.4.1";
+
 async function onStart(directory, args)
 {
-    doTheBigTitleThing();
+    doTheBigTitleThing('Progress Auditor', `Version v${version}`);
     log('');
 
     log('Running from directory: ' + directory);
