@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [0.4.1] - 2019-09-17
+### Added
+- Another save-review check if review session fails
+- Added more auto-complete for other review types
+- Stack traces for unexpected errors
+
 ### Changed
 - User ID is now PID instead of e-mail
 
