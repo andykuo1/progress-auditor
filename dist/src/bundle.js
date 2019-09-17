@@ -14226,7 +14226,7 @@ async function generateOutput(db, config)
     }
 }
 
-const version = "0.4.1";
+const version = "0.4.2";
 
 async function onStart(directory, args)
 {

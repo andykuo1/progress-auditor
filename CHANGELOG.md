@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2019-09-17
+### Added
+- `change_assignment` review now has history tracking
+
+### Fixed
+- Missing version number in the title
+- Post number propagation now works correctly for all assignment types
+- PDF exporting will now check for overwrite as well
+
 ## [0.4.1] - 2019-09-17
 ### Added
 - Another save-review check if review session fails
