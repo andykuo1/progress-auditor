@@ -27,11 +27,150 @@ To make a program that streamlines and tracks the grading and logistics of discu
 ---
 
 ## Usage
-Make sure to choose the correct executable for your platform. Each executable file name is appended by its appropriate platform.
 
-You can double-click to run them in interactive mode or execute them in the terminal (or command prompt) to supply additional arguments.
+You will need 2 things:
+- The executable for your platform
+- A config file called 'config.json' next to it
 
-## Getting Started
+Make sure to choose the correct executable for your platform. You can double-click to run them in interactive mode or execute them through the terminal.
+
+Here are the available options for the config file:
+
+| Name              | Description  | Examples |
+| ----------------- | ------------ | -------- |
+| scheme            | The review procedures to execute. Currently, only 'piazza' is available. | "piazza" |
+| inputPath         | The path to the input files. | ./inputs/ |
+| outputPath        | The path to the output files. | ./outputs/ |
+| currentDate       | The date of the execution. Could be used to simulate older executions. | "2019-01-01" |
+| includes          | An array of file paths to other configs. This will load and merge the configs in these directories. The top-level, the current config, will override all included configs and so on. | [ "./base", "../siblingPath/otherDirectory" ] |
+| assignments       | An array of assignment entry objects. | /* Refer below. */ |
+| inputs            | An array of input entry objects. | /* Refer below. */ |
+| outputs           | An array of output entry objects. | /* Refer below. */ |
+| outputAutoDate    | Whether to write output into a directory named by date of execution. | true |
+| debug             | Whether to enable debug mode for more debugging information, such as stack traces. | false |
+
+Here's an example config file:
+```json
+{
+    "currentDate": "2020-01-01",
+    "include": [],
+    "scheme": "piazza",
+    "inputPath": "./inputs",
+    "outputPath": "./outputs",
+    "outputAutoDate": true,
+    "debug": false,
+    "assignments": [
+        {
+            "assignmentName": "intro",
+            "pattern": "intro",
+            "opts": {}
+        },
+        {
+            "assignmentName": "week",
+            "pattern": "sunday",
+            "opts": {}
+        },
+        {
+            "assignmentName": "last",
+            "pattern": "last",
+            "opts": {}
+        }
+    ],
+    "inputs": [
+        {
+            "inputName": "reviews.csv",
+            "parser": "reviews",
+            "opts": {}
+        },
+        {
+            "inputName": "contributions.csv",
+            "parser": "contributions",
+            "opts": {}
+        },
+        {
+            "inputName": "cohort.csv",
+            "parser": "cohort",
+            "opts": {
+                "maxEndDates": [
+                    { "pattern": "Special Summer Session", "endDate": "2020-10-10" }
+                ]
+            }
+        }
+    ],
+    "outputs": [
+        {
+            "outputName": "debug",
+            "format": "debug"
+        },
+        {
+            "outputName": "slip-days.csv",
+            "format": "instructor"
+        },
+        {
+            "outputName": "reports.csv",
+            "format": "student",
+            "opts": {
+                "exportPDF": "reports.pdf",
+                "customIntro": "Good morning!",
+                "customOutro": "Have a nice day!"
+            }
+        }
+    ]
+}
+```
+
+### Assignment Entries
+| Property  | Description |
+| --------- | ----------- |
+| assignmentName | The unique assignment name. |
+| pattern    | The due date assigning pattern type. The currently implemented parsers are `intro`, `sunday`, and `last`. |
+| opts      | Any additional options for the assignment. |
+| opts.customPath | You can specify a custom script by setting this to the path to the custom assigner. |
+
+```json
+{
+    "assignmentName": "",
+    "pattern": "",
+    "opts": {}
+}
+```
+
+### Input Entries
+| Property  | Description |
+| --------- | ----------- |
+| inputName | The input file name or path relative to the `inputPath`. |
+| parser    | The parser type. The currently implemented parsers are `cohort`, `contributions`, and `reviews`. |
+| opts      | Any additional options for the input file. |
+| opts.customPath | You can specify a custom script by setting this to the path to the custom parser. |
+
+```json
+{
+    "inputName": "cohort.csv",
+    "parser": "The type of parser to use for this input file.",
+    "opts": {}
+}
+```
+
+### Output Entries
+| Property  | Description |
+| --------- | ----------- |
+| outputName | The output file name or path relative to the `inputPath`. |
+| format    | The format type. The currently implemented parsers are `instructor`, `student`, and `debug`. |
+| opts      | Any additional options for the output file. |
+| opts.customPath | You can specify a custom script by setting this to the path to the custom output. |
+| opts.exportPDF | The PDF output file name for the `student` output type. This will enable PDF export. |
+| opts.customIntro | A custom intro to prepend to each PDF output. |
+| opts.customOutro | A custom intro to append to each PDF output. |
+
+```json
+{
+    "assignmentName": "",
+    "format": "",
+    "opts": {}
+}
+```
+
+## Contributing
 
 ### Installing [Node.js](https://nodejs.org/en/)
 This is required to test the program. Just get the current version and install it.
