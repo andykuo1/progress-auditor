@@ -1,3 +1,4 @@
+import * as Client from '../client/Client.js';
 const path = require('path');
 const fs = require('fs');
 
@@ -27,7 +28,7 @@ export async function loadConfig(configPath)
     }
     catch(e)
     {
-        console.error(`...Cannot find config at '${configPath}'...`);
+        Client.error(`...Cannot find config at '${configPath}'...`, true);
         return Promise.reject(e);
     }
 

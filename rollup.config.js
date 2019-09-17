@@ -13,7 +13,7 @@ export default {
       preferBuiltins: true
     }),
     commonjs(),
-    terser()
+    // terser()
   ],
   external: [
     "fs",

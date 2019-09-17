@@ -52,6 +52,6 @@ async function buildStep(error)
 {
     return await createBuilder()
         .type(TYPE)
-        .param(0, 'Review ID', 'The target review to ignore.')
+        .param(0, 'Review ID', 'The target review to ignore.', error.context.reviewID || '')
         .build();
 }

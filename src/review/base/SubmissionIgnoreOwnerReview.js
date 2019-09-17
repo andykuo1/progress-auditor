@@ -42,6 +42,6 @@ async function buildStep(error)
 {
     return await createBuilder()
         .type(TYPE)
-        .param(0, 'Owner Key', 'The target owner to ignore.')
+        .param(0, 'Owner Key', 'The target owner to ignore.', error.context.ownerKey || '')
         .build();
 }

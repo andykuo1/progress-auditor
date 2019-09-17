@@ -1,7 +1,5 @@
 import { createBuilder } from '../helper/ReviewBuilder.js';
 
-const ERROR_TAG = 'REVIEW';
-
 /**
  * Every reviewer is expected to have at least a unique TYPE and a review function.
  * The build function is optional and only if users can change the review.

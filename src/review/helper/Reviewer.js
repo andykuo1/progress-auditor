@@ -35,7 +35,7 @@ export function createReviewer()
                     }
                     catch(e)
                     {
-                        errors.push(`Failed to review - ${e.message}`);
+                        errors.push(`Failed to review '${key}' - ${e.message} - '${value}'`);
                     }
                 }
             });

@@ -7,6 +7,7 @@ import figlet from 'figlet';
 
 export const DIVIDER_LENGTH = 80;
 export const CHOICE_SEPARATOR = { message: "\n=-=-= END " + "=-".repeat(35) + "\n", role: 'separator' };
+const SHOW_STACK_TRACE = true;
 
 export function log(message)
 {
@@ -18,9 +19,14 @@ export function debug(message)
     console.log(chalk.gray(message));
 }
 
-export function error(message)
+export function error(message, expected = false)
 {
     console.error(chalk.redBright(message));
+    
+    if (!expected && SHOW_STACK_TRACE)
+    {
+        console.trace(chalk.red(message));
+    }
 }
 
 export function success(message)
@@ -55,7 +61,7 @@ export function formattedError(errorMessage, depth = 0)
     }
     else
     {
-        error('  '.repeat(depth), ((depth <= 0) ? '+' : '-') + ' ' + errorMessage);
+        error('  '.repeat(depth) + ' ' + ((depth <= 0) ? '+' : '-') + ' ' + errorMessage);
     }
 }
 
@@ -66,7 +72,7 @@ const FORCE_SKIP_ERRORS = new Set();
 export async function skippedError(message, reason = undefined)
 {
     const errorMessage = message + " - " + (reason instanceof Error ? reason.message : reason);
-    error(errorMessage);
+    error(errorMessage, true);
 
     const errorHash = MathHelper.stringHash(errorMessage);
     if (FORCE_SKIP_ERRORS.has(errorHash))

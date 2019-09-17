@@ -4,6 +4,7 @@ import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
 import * as DateUtil from '../../util/DateUtil.js';
 import { stringHash } from '../../util/MathHelper.js';
 
+import * as Errors from '../helper/Errors.js';
 import { createReviewer } from '../helper/Reviewer.js';
 import { createBuilder } from '../helper/ReviewBuilder.js';
 
@@ -26,11 +27,8 @@ export async function review(db, config)
                 const userID = UserDatabase.getUserByOwnerKey(db, ownerKey);
                 if (!userID)
                 {
+                    Errors.throwInvalidReviewParamOwnerKeyError(db, value, ownerKey);
                     return;
-                    db.throwError(ERROR_TAG, `Cannot find user for owner key ${ownerKey}`, {
-                        id: [id, type],
-                        options: [`Add missing owner key '${ownerKey}' to a user.`]
-                    });
                 }
                 
                 const assignmentID = params[1];

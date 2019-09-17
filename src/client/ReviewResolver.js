@@ -1,4 +1,4 @@
-import { log, error, askPrompt, ask, CHOICE_SEPARATOR } from './Client.js';
+import * as Client from './Client.js';
 import ReviewRegistry from '../review/ReviewRegistry.js';
 import chalk from 'chalk';
 
@@ -15,9 +15,9 @@ async function askChooseError(message, errors, errorMapping)
             value: error.id,
         });
     }
-    choices.push(CHOICE_SEPARATOR);
+    choices.push(Client.CHOICE_SEPARATOR);
 
-    return await askPrompt(message, 'autocomplete', {
+    return await Client.askPrompt(message, 'autocomplete', {
         multiple: true,
         limit: 4,
         choices,
@@ -101,7 +101,7 @@ export async function run(errors, cache = {})
         }
         else
         {
-            error("Review interrupted. Restarting review session...");
+            Client.error("Review interrupted. Restarting review session...", true);
         }
     }
 }
@@ -118,10 +118,10 @@ async function askClientToReviewErrors(errors)
         }
     }
     const errorSolutions = `${chalk.green(`${chalk.bold(`= Solutions: ${'='.repeat(67)}`)}\n => ${Array.from(solutions).join('\n => ')}\n${chalk.bold('='.repeat(80))}`)}`;
-    log(errorSolutions);
+    Client.log(errorSolutions);
 
     // Show more info for each one...
-    if (await ask("Show more info?"))
+    if (await Client.ask("Show more info?"))
     {
         for(const error of errors)
         {
@@ -129,19 +129,21 @@ async function askClientToReviewErrors(errors)
         }
     }
 
-    return await ask("Continue to review?");
+    return await Client.ask("Continue to review?");
 }
 
 async function showErrorInfo(error)
 {
+    if (!error) return;
+
     const errorMessage = `${chalk.gray(error.id + ':')} ${error.message}`;
-    error(errorMessage);
+    Client.error(errorMessage, true);
 
     const errorSolutions = `${chalk.green(`${chalk.bold(`= Solutions: ${'='.repeat(67)}`)}\n => ${error.options.join('\n => ')}\n${chalk.bold('='.repeat(80))}`)}`;
-    log(errorSolutions);
+    Client.log(errorSolutions);
 
     const errorInfo = `${chalk.yellow(`${chalk.bold(`= More Info: ${'='.repeat(67)}`)}\n | ${error.more.join('\n')}\n${'='.repeat(80)}`)}`;
-    log(errorInfo);
+    Client.log(errorInfo);
 }
 
 /**
@@ -174,7 +176,7 @@ async function chooseReviewType(reviewRegistry)
             buildableReviewTypes.push(reviewType);
         }
     }
-    const result = await askPrompt("What type of review do you want to make?", "autocomplete", {
+    const result = await Client.askPrompt("What type of review do you want to make?", "autocomplete", {
         limit: 10,
         choices: buildableReviewTypes,
     });

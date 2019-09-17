@@ -1,5 +1,6 @@
 import * as UserDatabase from '../../database/UserDatabase.js';
 
+import * as Errors from '../helper/Errors.js';
 import { createReviewer } from '../helper/Reviewer.js';
 import { createBuilder } from '../helper/ReviewBuilder.js';
 
@@ -21,23 +22,14 @@ export async function review(db, config)
                 const user = UserDatabase.getUserByID(db, params[0]);
                 if (!user)
                 {
-                    db.throwError(ERROR_TAG, `Invalid review param - Cannot find user for id '${params[0]}'.`, {
-                        id: [id, type],
-                        options: [
-                            `User with this id has probably already been removed.`,
-                            `Or the id is wrong.`
-                        ]
-                    });
+                    Errors.throwInvalidReviewParamUserIDError(db, value, params[0]);
                     return;
                 }
             
                 const ownerKey = params[1];
                 if (user.ownerKey.includes(ownerKey))
                 {
-                    db.throwError(ERROR_TAG, `Invalid review param - Duplicate owner key '${ownerKey}' for user.`, {
-                        id: [id, type],
-                        options: [`The user already has this owner key.`]
-                    });
+                    console.log("...Ignoring redundant review for owner key...");
                     return;
                 }
             

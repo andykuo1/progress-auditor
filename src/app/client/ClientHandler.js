@@ -49,7 +49,7 @@ export async function askWhetherToSaveNewReviews(db, config, reviews)
 export async function askWhetherToReviewErrors(db, config, errors)
 {
     // Let the client decide whether to review the errors...
-    Client.error(`Found ${errors.length} errors. :(`);
+    Client.error(`Found ${errors.length} errors. :(`, true);
     Client.motivation();
     const result = await Client.ask("Do you want to review them now?", true);
     if (!result)

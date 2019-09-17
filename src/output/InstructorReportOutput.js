@@ -89,12 +89,12 @@ export async function output(db, config, outputPath, opts)
     {
         tableBuilder.addColumn(assignmentID + ' Status', (userID) => {
             const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
-            if (!assignment) return '!ERROR';
+            if (!assignment) return '';
             return assignment.attributes.status;
         });
         tableBuilder.addColumn(assignmentID + ' Slips', (userID) => {
             const assignment = AssignmentDatabase.getAssignmentByID(db, userID, assignmentID);
-            if (!assignment) return '!ERROR';
+            if (!assignment) return '';
             return assignment.attributes.slipDays;
         });
     }

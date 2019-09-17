@@ -1,6 +1,6 @@
 import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
-import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
 
+import * as Errors from '../helper/Errors.js';
 import { createReviewer } from '../helper/Reviewer.js';
 import { createBuilder } from '../helper/ReviewBuilder.js';
 
@@ -22,13 +22,7 @@ export async function review(db, config)
                 const submission = SubmissionDatabase.getSubmissionByID(db, params[1]);
                 if (!submission)
                 {
-                    db.throwError(ERROR_TAG, `Invalid review param - unable to find submission for id '${params[1]}'.`, {
-                        id: [id, type],
-                        options: [
-                            'The submission for that id is missing from the database.',
-                            'Or it\'s the wrong id.'
-                        ]
-                    });
+                    Errors.throwInvalidReviewParamSubmissionIDError(db, value, params[1]);
                     return;
                 }
 
