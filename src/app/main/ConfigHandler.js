@@ -1,7 +1,7 @@
 import * as Client from '../../client/Client.js';
-import * as ConfigLoader from '../../config/ConfigLoader.js';
 import * as DateUtil from '../../util/DateUtil.js';
-import * as ConfigParamResolver from '../client/ConfigParamResolver.js';
+import * as ConfigLoader from '../helper/config/ConfigLoader.js';
+import * as ConfigParamResolver from '../helper/config/ConfigParamResolver.js';
 
 /** If unable to load config file, null is returned. */
 export async function loadConfigFile(filepath)

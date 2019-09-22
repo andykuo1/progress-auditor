@@ -1,4 +1,4 @@
-import * as Client from '../client/Client.js';
+import * as Client from '../../../client/Client.js';
 const path = require('path');
 const fs = require('fs');
 
