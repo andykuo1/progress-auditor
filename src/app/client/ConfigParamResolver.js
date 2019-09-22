@@ -1,11 +1,11 @@
-import * as Client from '../client/Client.js';
-import * as Resolver from '../client/helper/Resolver.js';
+import * as Client from '../../client/Client.js';
+import * as Resolver from '../../client/helper/Resolver.js';
 
 import * as ReviewHandler from '../main/ReviewHandler.js';
 
-import * as ParserLoader from '../input/parser/ParserLoader.js';
-import * as AssignmentLoader from '../input/assignment/AssignmentLoader.js';
-import * as OutputLoader from '../output/OutputLoader.js';
+import * as ParserLoader from '../../input/parser/ParserLoader.js';
+import * as AssignmentLoader from '../../input/assignment/AssignmentLoader.js';
+import * as OutputLoader from '../../output/OutputLoader.js';
 
 export async function resolveInputs(directory)
 {
