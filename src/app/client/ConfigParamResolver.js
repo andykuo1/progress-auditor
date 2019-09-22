@@ -62,8 +62,9 @@ export async function resolveOutputs(directory)
     const outputs = await Client.askPrompt("Which outputs do you want to generate?", 'select', {
         multiple: true,
         choices: OutputLoader.getOutputTypes(),
-        // TODO: This is missing custom file.
     });
+
+    // TODO: This is should somehow allow loading custom output scripts.
 
     return outputs.map(value => ({
         outputName: value,
