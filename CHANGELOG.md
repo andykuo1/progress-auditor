@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2019-09-22
+## [0.4.3] - 2019-09-22
 ### Changed
 - Batch processing now applies to all selected automatically
 - Updated index exports to use new utilities
@@ -143,8 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Generic review process system
 - Process submissions for assignments
 
-[Unreleased]: https://github.com/andykuo1/progress-auditor/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/andykuo1/progress-auditor/releases/tag/v1.0.0
+[Unreleased]: https://github.com/andykuo1/progress-auditor/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.4.3
 [0.4.2]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.4.2
 [0.4.1]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.4.1
 [0.4.0]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.4.0
