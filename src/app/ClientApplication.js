@@ -1,6 +1,6 @@
-import { version } from '../../../package.json';
-import * as Client from '../../client/Client.js';
-import * as DatabaseSolver from '../main/DatabaseSolver.js';
+import { version } from '../../package.json';
+import * as Client from '../client/Client.js';
+import * as DatabaseSolver from './main/DatabaseSolver.js';
 
 export async function onStart(directory, args)
 {

@@ -1,6 +1,8 @@
 import * as Client from '../client/Client.js';
 import * as Resolver from '../client/helper/Resolver.js';
 
+import * as ReviewHandler from '../main/ReviewHandler.js';
+
 import * as ParserLoader from '../input/parser/ParserLoader.js';
 import * as AssignmentLoader from '../input/assignment/AssignmentLoader.js';
 import * as OutputLoader from '../output/OutputLoader.js';
@@ -157,4 +159,9 @@ export async function resolveOutputPath(directory)
 export async function resolveDate()
 {
     return await Client.askDate('What is the date for the current run?', new Date(Date.now()));
+}
+
+export async function resolveScheme()
+{
+    return await Client.askChoose('What is the scheme you are using?', ReviewHandler.getSchemeNames());
 }

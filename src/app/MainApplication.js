@@ -1,8 +1,8 @@
-import * as ConfigHandler from './ConfigHandler.js';
-import * as DatabaseHandler from './DatabaseHandler.js';
-import * as DatabaseSolver from './DatabaseSolver.js';
-import * as ReviewHandler from './ReviewHandler.js';
-import * as OutputHandler from './OutputHandler.js';
+import * as ConfigHandler from './main/ConfigHandler.js';
+import * as DatabaseHandler from './main/DatabaseHandler.js';
+import * as DatabaseSolver from './main/DatabaseSolver.js';
+import * as ReviewHandler from './main/ReviewHandler.js';
+import * as OutputHandler from './main/OutputHandler.js';
 
 /**
  * Guarantees a config will be returned. It will throw an error if unable to.

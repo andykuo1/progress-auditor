@@ -1,7 +1,7 @@
 import * as Client from '../../client/Client.js';
 import * as ConfigLoader from '../../config/ConfigLoader.js';
-import * as ConfigHelper from '../../client/ConfigHelper.js';
 import * as DateUtil from '../../util/DateUtil.js';
+import * as ConfigHelper from '../client/ConfigHelper.js';
 
 /** If unable to load config file, null is returned. */
 export async function loadConfigFile(filepath)
@@ -23,44 +23,14 @@ export async function loadDefaultConfig(directory)
 {
     console.log("...Load default config...");
     return {
-        scheme: 'piazza',
         outputAutoDate: true,
         debug: false,
-        assignments: [
-            {
-                assignmentName: 'intro',
-                pattern: 'intro',
-                opts: {}
-            },
-            {
-                assignmentName: 'week',
-                pattern: 'sunday',
-                opts: {}
-            },
-            {
-                assignmentName: 'last',
-                pattern: 'last',
-                opts: {}
-            }
-        ]
     }
-    return null;
 }
 
 export async function createNewConfig(directory)
 {
     return null;
-    /*
-    // TODO: ConfigMaker is just not ready :(
-    if (await ClientHandler.askWhetherToMakeNewConfig())
-    {
-        return ConfigMaker.run(directory);
-    }
-    else
-    {
-        return null;
-    }
-    */
 }
 
 export async function validateConfig(config, directory)
@@ -79,6 +49,13 @@ export async function validateConfig(config, directory)
     {
         Client.debug("Missing valid output path...using working directory instead.");
         config.outputPath = directory;
+    }
+
+    if (!config.scheme)
+    {
+        Client.log(chalk.yellow("Missing scheme..."));
+        const scheme = await ConfigHelper.resolveScheme();
+        config.scheme = scheme;
     }
 
     if (!config.assignments)
