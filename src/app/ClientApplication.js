@@ -9,6 +9,14 @@ export async function onStart(directory, args)
 
     Client.log('Running from directory: ' + directory);
     Client.log('');
+
+    Client.debug('== Quick Tutorial ==');
+    Client.debug(`1) To submit your answer, press 'enter'.`);
+    Client.debug(`2) Use 'space' to select multiple options.`);
+    Client.debug(`3) Navigate selection with 'up' and 'down'.`);
+    Client.debug('');
+    Client.log(`NOTICE: At any point in time you want to cancel, press 'escape' to abort the current operation.`);
+    Client.debug('');
 }
 
 export async function onSetup(db, config)

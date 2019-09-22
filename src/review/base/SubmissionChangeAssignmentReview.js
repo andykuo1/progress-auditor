@@ -68,7 +68,6 @@ export async function build(errors, db, config)
         for(const error of errors)
         {
             const review = await buildStep(error);
-            prevAssignmentID = review.params[0];
             result.push(review);
         }
         return result;

@@ -34,6 +34,18 @@ You will need 2 things:
 
 Make sure to choose the correct executable for your platform. You can double-click to run them in interactive mode or execute them through the terminal.
 
+There are generally 3 types of prompts:
+- **Confirmation prompts**: answer with 'y' or 'n' (no need to press 'enter').
+- **Select prompts**: choose with 'up' or 'down' arrow keys. Press 'enter' to select. If multiple answers are allowed, use 'space' to select multiple choices and press 'enter' when done.
+- **Input promps**: type in your answer and press 'enter' when done.
+
+The general rule is to:
+- Press 'enter' to confirm your answer
+- Use 'up' and 'down' to navigate
+- If multiple answers are allowed, use 'space' to select then press 'enter' to finalize.
+
+**NOTE**: If you want to cancel the operation at anytime, press 'escape'.
+
 Here are the available options for the config file:
 
 | Name              | Description  | Examples |
