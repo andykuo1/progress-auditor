@@ -1,4 +1,4 @@
-import * as ReviewRegistry from '../../../input/review/ReviewRegistry.js';
+import * as ReviewRegistry from '../../../review/ReviewRegistry.js';
 import * as MathHelper from '../../../util/MathHelper.js';
 import * as DateUtil from '../../../util/DateUtil.js';
 
@@ -46,7 +46,7 @@ export async function run(db, config, skipFirstCheck = true)
             const TYPE = 3;
             const PARAMS = 4;
 
-            const reviewer = ReviewRegistry.getReviewerByType(result[TYPE]);
+            const reviewer = ReviewRegistry.getReviewByType(result[TYPE]);
             const paramTypes = reviewer.REVIEW_PARAM_TYPES;
             const desc = reviewer.REVIEW_DESC;
     
@@ -127,7 +127,7 @@ async function makeReview(db, config)
 
 async function chooseReviewType(db, config)
 {
-    const reviewers = ReviewRegistry.getReviewers();
+    const reviewers = ReviewRegistry.getReviews();
     let answer;
 
     answer = await inquirer.prompt([
@@ -192,7 +192,7 @@ async function chooseReviewType(db, config)
     }
 
     return await confirmLoop(answer.value, async (reviewType) => {
-        const reviewer = ReviewRegistry.getReviewerByType(reviewType);
+        const reviewer = ReviewRegistry.getReviewByType(reviewType);
         const paramTypes = reviewer.REVIEW_PARAM_TYPES;
         const desc = reviewer.REVIEW_DESC;
 
@@ -227,7 +227,7 @@ async function chooseReviewParameter(db, config, paramType)
 async function chooseReviewParameters(db, config, reviewType)
 {
     const result = [];
-    const reviewer = ReviewRegistry.getReviewerByType(reviewType);
+    const reviewer = ReviewRegistry.getReviewByType(reviewType);
     const paramTypes = reviewer.REVIEW_PARAM_TYPES;
     for(const paramType of paramTypes)
     {

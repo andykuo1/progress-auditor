@@ -10523,6 +10523,11 @@ class ReviewRegistry
     {
         return this.reviewMap.keys();
     }
+
+    getReviews()
+    {
+        return this.reviewMap.values();
+    }
 }
 
 const INSTANCE = new ReviewRegistry();
@@ -12843,8 +12848,9 @@ async function resolveOutputs(directory)
     const outputs = await askPrompt("Which outputs do you want to generate?", 'select', {
         multiple: true,
         choices: getOutputTypes(),
-        // TODO: This is missing custom file.
     });
+
+    // TODO: This is should somehow allow loading custom output scripts.
 
     return outputs.map(value => ({
         outputName: value,

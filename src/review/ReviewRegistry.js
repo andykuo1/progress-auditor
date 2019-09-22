@@ -62,6 +62,11 @@ class ReviewRegistry
     {
         return this.reviewMap.keys();
     }
+
+    getReviews()
+    {
+        return this.reviewMap.values();
+    }
 }
 
 const INSTANCE = new ReviewRegistry();
