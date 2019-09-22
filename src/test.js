@@ -4,7 +4,7 @@ import './util/DateTest.js';
 
 async function main()
 {
-    console.log("No tests here.");
+    console.log("No tests here...yet.");
 }
 
 main();
