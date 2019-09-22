@@ -11724,7 +11724,6 @@ async function build$8(errors, db, config)
         for(const error of errors)
         {
             const review = await buildStep$3(error);
-            prevAssignmentID = review.params[0];
             result.push(review);
         }
         return result;
@@ -14436,7 +14435,7 @@ async function generateOutput(db, config)
     }
 }
 
-const version = "0.4.2";
+const version = "1.0.0";
 
 async function onStart(directory, args)
 {
@@ -14451,7 +14450,7 @@ async function onStart(directory, args)
     debug(`2) Use 'space' to select multiple options.`);
     debug(`3) Navigate selection with 'up' and 'down'.`);
     debug('');
-    log(`At any point in time you want to cancel, press 'escape' to abort the current operation.`);
+    log(`NOTICE: At any point in time you want to cancel, press 'escape' to abort the current operation.`);
     debug('');
 }
 

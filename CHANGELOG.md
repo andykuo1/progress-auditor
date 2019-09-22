@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2019-09-22
+### Changed
+- Batch processing now applies to all selected automatically
+- Updated index exports to use new utilities
+
+### Fixed
+- Removed false-negative error for add_owner_key.
+
 ## [0.4.2] - 2019-09-17
 ### Added
 - `change_assignment` review now has history tracking
@@ -135,6 +143,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Generic review process system
 - Process submissions for assignments
 
-[Unreleased]: https://github.com/andykuo1/progress-auditor/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/andykuo1/progress-auditor/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/andykuo1/progress-auditor/releases/tag/v1.0.0
+[0.4.2]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.4.2
+[0.4.1]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.4.1
+[0.4.0]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.4.0
+[0.3.2]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.3.2
+[0.3.1]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.3.1
+[0.3.0]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.3.0
 [0.2.0]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.2.0
 [0.1.0]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.1.0
