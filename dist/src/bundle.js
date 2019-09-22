@@ -660,7 +660,7 @@ function parse(dateString)
     // YYYY-MM-DD HH:MM:SS
     // YYYY-MM-DD-HH:MM:SS
     
-    let hourIndex, minuteIndex, secondIndex;
+    let hourIndex, minuteIndex, secondIndex, endIndex;
     hourIndex = dateString.indexOf('-', dayIndex + 1);
     if (hourIndex < 0)
     {
@@ -668,6 +668,10 @@ function parse(dateString)
     }
     minuteIndex = dateString.indexOf(':', hourIndex + 1);
     secondIndex = dateString.indexOf(':', minuteIndex + 1);
+
+    // The end could have a timezone appended to it, not just the end of the string...
+    endIndex = dateString.indexOf(' ', secondIndex + 1);
+    if (endIndex < 0) endIndex = dateString.length;
 
     let year, month, day, hour, minute, second;
 
@@ -687,7 +691,7 @@ function parse(dateString)
     {
         hour = Number(dateString.substring(hourIndex + 1, minuteIndex));
         minute = Number(dateString.substring(minuteIndex + 1, secondIndex));
-        second = Number(dateString.substring(secondIndex + 1));
+        second = Number(dateString.substring(secondIndex + 1, endIndex));
     }
 
     year = Number(dateString.substring(yearIndex, monthIndex));
@@ -9878,55 +9882,6 @@ var FileUtil = /*#__PURE__*/Object.freeze({
     checkExistsOverwrite: checkExistsOverwrite
 });
 
-function parseDate(value)
-{
-    // 2018-06-10 06:20:30 UTC
-    const result = new Date(1000);
-
-    const year = Number(value.substring(0, 4));
-    const month = Number(value.substring(5, 7));
-    const day = Number(value.substring(8, 10));
-
-    const hour = Number(value.substring(11, 13));
-    const minute = Number(value.substring(14, 16));
-    const second = Number(value.substring(17, 19));
-
-    if (year === NaN || month === NaN || day === NaN || hour === NaN || minute === NaN || second === NaN) throw new Error('Invalid date format - should be YYYY-MM-DD HH:MM:SS.');
-
-    result.setUTCFullYear(year);
-    result.setUTCMonth(month - 1);
-    result.setUTCDate(day);
-    result.setUTCHours(hour);
-    result.setUTCMinutes(minute);
-    result.setUTCSeconds(second);
-
-    return result;
-}
-
-function parseAmericanDate$1(value)
-{
-    // ex. 6/18/2019
-    const result = new Date(-1);
-
-    const dateArray = value.split('/');
-    const year = Number(dateArray[2]);
-    const month = Number(dateArray[0]);
-    const day = Number(dateArray[1]);
-
-    if (year === NaN || month === NaN || day === NaN) throw new Error('Invalid date format - should be MM/DD/YYYY.');
-
-    result.setUTCFullYear(year);
-    result.setUTCMonth(month - 1);
-    result.setUTCDate(day);
-
-    return result;
-}
-
-var ParseUtil = /*#__PURE__*/Object.freeze({
-    parseDate: parseDate,
-    parseAmericanDate: parseAmericanDate$1
-});
-
 const IDENTITY = function(a) { return a; };
 
 class TableBuilder
@@ -10134,7 +10089,6 @@ const UTIL_EXPORTS = {
     FieldParser,
     FileUtil,
     MathHelper,
-    ParseUtil,
     TableBuilder
 };
 const LIB_EXPORTS = {
@@ -11704,7 +11658,7 @@ async function review$9(db, config)
                     return;
                 }
             
-                submission.date = parseDate(params[1]);
+                submission.date = parse(params[1]);
             })
             .review(db, config);
     }
@@ -12554,7 +12508,7 @@ async function parse$2(db, config, filepath, opts={})
 
             // NOTE: To use, requires ownerKey -> userID Mapping
             const ownerKey = parseEmail(row[9]);
-            const submitDate = parseDate(row[3]);
+            const submitDate = parse(row[3]);
             const postID = row[1];
             // NOTE: This has to be unique AND deterministic. In other words,
             // it must uniquely identify this submission given the same input.

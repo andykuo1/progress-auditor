@@ -31,14 +31,12 @@ import * as DateUtil from './util/DateUtil.js';
 import * as FieldParser from './util/FieldParser.js';
 import * as FileUtil from './util/FileUtil.js';
 import * as MathHelper from './util/MathHelper.js';
-import * as ParseUtil from './util/ParseUtil.js';
 import TableBuilder from './util/TableBuilder.js';
 const UTIL_EXPORTS = {
     DateUtil,
     FieldParser,
     FileUtil,
     MathHelper,
-    ParseUtil,
     TableBuilder
 };
 

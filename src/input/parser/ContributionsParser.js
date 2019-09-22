@@ -1,7 +1,7 @@
 import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
 import * as FileUtil from '../../util/FileUtil.js';
 import * as MathHelper from '../../util/MathHelper.js';
-import * as ParseUtil from '../../util/ParseUtil.js';
+import * as DateUtil from '../../util/DateUtil.js';
 import * as FieldParser from '../../util/FieldParser.js';
 
 function evaluatePostAssignment(headerContent, bodyContent)
@@ -175,7 +175,7 @@ export async function parse(db, config, filepath, opts={})
 
             // NOTE: To use, requires ownerKey -> userID Mapping
             const ownerKey = FieldParser.parseEmail(row[9]);
-            const submitDate = ParseUtil.parseDate(row[3]);
+            const submitDate = DateUtil.parse(row[3]);
             const postID = row[1];
             // NOTE: This has to be unique AND deterministic. In other words,
             // it must uniquely identify this submission given the same input.

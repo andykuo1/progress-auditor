@@ -201,7 +201,7 @@ export function parse(dateString)
     // YYYY-MM-DD HH:MM:SS
     // YYYY-MM-DD-HH:MM:SS
     
-    let hourIndex, minuteIndex, secondIndex;
+    let hourIndex, minuteIndex, secondIndex, endIndex;
     hourIndex = dateString.indexOf('-', dayIndex + 1);
     if (hourIndex < 0)
     {
@@ -209,6 +209,10 @@ export function parse(dateString)
     }
     minuteIndex = dateString.indexOf(':', hourIndex + 1);
     secondIndex = dateString.indexOf(':', minuteIndex + 1);
+
+    // The end could have a timezone appended to it, not just the end of the string...
+    endIndex = dateString.indexOf(' ', secondIndex + 1);
+    if (endIndex < 0) endIndex = dateString.length;
 
     let year, month, day, hour, minute, second;
 
@@ -228,7 +232,7 @@ export function parse(dateString)
     {
         hour = Number(dateString.substring(hourIndex + 1, minuteIndex));
         minute = Number(dateString.substring(minuteIndex + 1, secondIndex));
-        second = Number(dateString.substring(secondIndex + 1));
+        second = Number(dateString.substring(secondIndex + 1, endIndex));
     }
 
     year = Number(dateString.substring(yearIndex, monthIndex));

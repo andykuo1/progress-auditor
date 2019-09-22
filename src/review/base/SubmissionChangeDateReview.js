@@ -1,5 +1,5 @@
 import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
-import * as ParseUtil from '../../util/ParseUtil.js';
+import * as DateUtil from '../../util/DateUtil.js';
 
 import * as Errors from '../helper/Errors.js';
 import { createReviewer } from '../helper/Reviewer.js';
@@ -25,7 +25,7 @@ export async function review(db, config)
                     return;
                 }
             
-                submission.date = ParseUtil.parseDate(params[1]);
+                submission.date = DateUtil.parse(params[1]);
             })
             .review(db, config);
     }
