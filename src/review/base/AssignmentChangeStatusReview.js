@@ -2,8 +2,6 @@ import * as Errors from '../helper/Errors.js';
 import { createReviewer } from '../helper/Reviewer.js';
 import { createBuilder } from '../helper/ReviewBuilder.js';
 
-const ERROR_TAG = 'REVIEW';
-
 export const TYPE = 'change_assignment_status';
 export const DESCRIPTION = 'Changes the assignment status and slips for an owner.';
 
@@ -42,7 +40,8 @@ export async function review(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG, e);
+        Client.error(e);
+        throw e;
     }
 }
 

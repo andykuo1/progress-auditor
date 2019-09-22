@@ -1,8 +1,6 @@
 import { createReviewer } from '../helper/Reviewer.js';
 import { createBuilder } from '../helper/ReviewBuilder.js';
 
-const ERROR_TAG = 'REVIEW';
-
 /**
  * Every reviewer is expected to have at least a unique TYPE and a review function.
  * The build function is optional and only if users can change the review.
@@ -33,7 +31,8 @@ export async function review(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG, e);
+        Client.error(e);
+        throw e;
     }
 }
 

@@ -1,10 +1,9 @@
 import * as UserDatabase from '../../database/UserDatabase.js';
+import * as Client from '../../client/Client.js';
 
 import * as Errors from '../helper/Errors.js';
 import { createReviewer } from '../helper/Reviewer.js';
 import { createBuilder } from '../helper/ReviewBuilder.js';
-
-const ERROR_TAG = 'REVIEW';
 
 export const TYPE = 'add_owner_key';
 export const DESCRIPTION = 'Add additional owner key for user.';
@@ -46,7 +45,8 @@ export async function review(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG, e);
+        Client.error(e);
+        throw e;
     }
 }
 

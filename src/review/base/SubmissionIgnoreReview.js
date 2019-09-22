@@ -3,8 +3,6 @@ import * as SubmissionDatabase from '../../database/SubmissionDatabase.js';
 import { createReviewer } from '../helper/Reviewer.js';
 import { createBuilder } from '../helper/ReviewBuilder.js';
 
-const ERROR_TAG = 'REVIEW';
-
 export const TYPE = 'ignore_submission';
 export const DESCRIPTION = 'Ignore specific submission by id.';
 
@@ -45,7 +43,8 @@ export async function review(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG, e);
+        Client.error(e);
+        throw e;
     }
 }
 

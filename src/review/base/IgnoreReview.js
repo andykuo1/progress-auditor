@@ -3,8 +3,6 @@ import * as ReviewDatabase from '../../database/ReviewDatabase.js';
 import { createReviewer } from '../helper/Reviewer.js';
 import { createBuilder } from '../helper/ReviewBuilder.js';
 
-const ERROR_TAG = 'REVIEW';
-
 export const TYPE = 'ignore_review';
 export const DESCRIPTION = 'Ignore another review (cannot ignore another ignore_review).';
 
@@ -34,7 +32,8 @@ export async function review(db, config)
     }
     catch(e)
     {
-        db.throwError(ERROR_TAG, e);
+        Client.error(e);
+        throw e;
     }
 }
 

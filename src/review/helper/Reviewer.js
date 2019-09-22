@@ -70,5 +70,5 @@ export function createReviewer()
             this._async = true;
             return this;
         }
-    }
+    };
 }
