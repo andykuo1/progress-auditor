@@ -164,11 +164,12 @@ export async function ask(message, defaultValue = false)
     return answer;
 }
 
-export async function askChoose(message, choices)
+export async function askChoose(message, choices, autocomplete = true)
 {
     const { answer } =  await Enquirer.prompt({
-        type: 'select',
+        type: autocomplete ? 'autocomplete' : 'select',
         name: 'answer',
+        limit: 10,
         message,
         choices,
     });

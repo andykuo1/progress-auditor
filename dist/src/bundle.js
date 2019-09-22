@@ -68,6 +68,12 @@ function clearDatabase(db)
  */
 function addAssignment(db, userID, assignmentID, dueDate, attributes={})
 {
+    // Cache extra info for reviews...(used to know what assignmentIDs are possible)
+    const cache = db.getCache();
+    if (!cache.assignmentKeys) cache.assignmentKeys = new Set();
+    cache.assignmentKeys.add(assignmentID);
+
+    // Here the function really begins...
     const assignmentMapping = db[ASSIGNMENT_KEY];
 
     let ownedAssignments;
@@ -93,6 +99,7 @@ function addAssignment(db, userID, assignmentID, dueDate, attributes={})
     }
 }
 
+// TODO: assignmentID is a bit misleading. It should really by assignment type.
 function getAssignmentByID(db, userID, assignmentID)
 {
     return db[ASSIGNMENT_KEY].get(userID)[assignmentID];
@@ -303,158 +310,6 @@ function createDatabase()
 
 var Database = /*#__PURE__*/Object.freeze({
     createDatabase: createDatabase
-});
-
-function createReview(reviewID, reviewDate, comment, type, params)
-{
-    return {
-        id: reviewID,
-        date: reviewDate,
-        comment,
-        type,
-        params
-    };
-}
-
-var Review = /*#__PURE__*/Object.freeze({
-    createReview: createReview
-});
-
-/**
- * The key for the database to access Review data.
- */
-const REVIEW_KEY = 'review';
-
-/**
- * The name of the output log for this data.
- */
-const OUTPUT_LOG$1 = 'db.review.log';
-
-/**
- * Prepares the database to be used for reviews.
- * @param {Database} db The database to prepare the sub-database for.
- */
-function setupDatabase$1(db)
-{
-    if (!(REVIEW_KEY in db))
-    {
-        db[REVIEW_KEY] = new Map();
-    }
-    return db;
-}
-
-function clearDatabase$1(db)
-{
-    if (REVIEW_KEY in db)
-    {
-        db[REVIEW_KEY].clear();
-    }
-    return db;
-}
-
-function forEach(db, callback)
-{
-    db[REVIEW_KEY].forEach(callback);
-}
-
-/**
- * Adds a review, by id, with the specified attributes.
- * @param {Database} db The current database to add to.
- * @param {*} reviewID The associated unique id for the review.
- * @param {Date} reviewDate The date the review was created.
- * @param {String} comment Comments related to this review.
- * @param {String} type The type of review. This is usually associated with a reviewer script.
- * @param {Array} params A variable length array of parameters for the review.
- */
-function addReview(db, reviewID, reviewDate, comment, type, params)
-{
-    const reviewMapping = db[REVIEW_KEY];
-
-    if (reviewMapping.has(reviewID))
-    {
-        db.throwError(REVIEW_KEY, `Found duplicate id for review '${reviewID}'.`);
-        return null;
-    }
-    else
-    {
-        const review = createReview(reviewID, reviewDate, comment, type, params);
-        reviewMapping.set(String(reviewID), review);
-        return review;
-    }
-}
-
-function removeReviewByID(db, reviewID)
-{
-    const key = String(reviewID);
-    const reviewMapping = db[REVIEW_KEY];
-    if (reviewMapping.has(key))
-    {
-        reviewMapping.delete(key);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-function getReviews(db)
-{
-    return db[REVIEW_KEY].keys();
-}
-
-function getReviewCount(db)
-{
-    return db[REVIEW_KEY].size;
-}
-
-function getReviewByID(db, reviewID)
-{
-    return db[REVIEW_KEY].get(String(reviewID));
-}
-
-function getReviewTypes(db)
-{
-    const reviewMapping = db[REVIEW_KEY];
-    const dst = new Set();
-    for(const review of reviewMapping.values())
-    {
-        dst.add(review.type);
-    }
-    return dst;
-}
-
-/**
- * Outputs all information related to reviews in this database.
- * @param {Database} db The current database.
- * @param {String} outputDir The output directory that will contain the output log.
- */
-function outputLog$1(db, outputFunction, outputDir = '.')
-{
-    const reviewMapping = db[REVIEW_KEY];
-    const result = {};
-    for(const [key, value] of reviewMapping.entries())
-    {
-        result[key] = value;
-    }
-    
-    const header = `${'# '.repeat(20)}\n# Reviews\n# Size: ${reviewMapping.size}\n${'# '.repeat(20)}`;
-    const log = `${header}\n${JSON.stringify(result, null, 4)}`;
-    return outputFunction(require('path').resolve(outputDir, OUTPUT_LOG$1), log);
-}
-
-var ReviewDatabase = /*#__PURE__*/Object.freeze({
-    REVIEW_KEY: REVIEW_KEY,
-    setupDatabase: setupDatabase$1,
-    clearDatabase: clearDatabase$1,
-    forEach: forEach,
-    addReview: addReview,
-    removeReviewByID: removeReviewByID,
-    getReviews: getReviews,
-    getReviewCount: getReviewCount,
-    getReviewByID: getReviewByID,
-    getReviewTypes: getReviewTypes,
-    outputLog: outputLog$1
 });
 
 const ONE_DAYTIME = 86400000;
@@ -814,6 +669,180 @@ var Schedule = /*#__PURE__*/Object.freeze({
 });
 
 /**
+ * Creates a user object.
+ * @param {*} userID The globally unique user id.
+ * @param {String} ownerKey The unique key, or keys, that associates submissions to users. Can be an array if associated with multiple.
+ * @param {String} userName The user's name.
+ * @param {Date} startDate The start date for the user.
+ * @param {Date} endDate The end date for the user.
+ * @param {Object} opts Additional options to initialize the user.
+ * @param {Number} opts.threshold The day threshold for week boundaries.
+ * @param {Object} attributes Any additional information about the user.
+ * @returns {Object} The user data object.
+ */
+function createUser(userID, ownerKey, userName, startDate, endDate, opts, attributes)
+{
+    const schedule = createSchedule(startDate, endDate, opts);
+    return {
+        id: userID,
+        ownerKey,
+        name: userName,
+        schedule,
+        attributes
+    };
+}
+
+var User = /*#__PURE__*/Object.freeze({
+    createUser: createUser
+});
+
+const USER_KEY = 'user';
+const OUTPUT_LOG$1 = 'db.user.log';
+
+function setupDatabase$1(db)
+{
+    if (!(USER_KEY in db))
+    {
+        db[USER_KEY] = new Map();
+    }
+    return db;
+}
+
+function clearDatabase$1(db)
+{
+    if (USER_KEY in db)
+    {
+        db[USER_KEY].clear();
+    }
+    return db;
+}
+
+function addUser(db, userID, ownerKey, userName, startDate, endDate, opts, attributes = {})
+{
+    const userMapping = db[USER_KEY];
+
+    if (userMapping.has(userID))
+    {
+        db.throwError(USER_KEY, `Found duplicate id for user '${userID}'.`);
+        return null;
+    }
+    else
+    {
+        // Create user...
+        const user = createUser(userID, ownerKey, userName, startDate, endDate, opts, attributes);
+        userMapping.set(userID, user);
+        return user;
+    }
+}
+
+function getUsers(db)
+{
+    return db[USER_KEY].keys();
+}
+
+function getUserCount(db)
+{
+    return db[USER_KEY].size;
+}
+
+function getUserByID(db, id)
+{
+    return db[USER_KEY].get(id);
+}
+
+/**
+ * @param {Database} db The database to search through.
+ * @param {String} ownerKey The owner key associated with the user.
+ * @returns {String} The user id, null if not found.
+ */
+function getUserByOwnerKey(db, ownerKey)
+{
+    const userMapping = db[USER_KEY];
+    for(const userData of userMapping.values())
+    {
+        if (Array.isArray(userData.ownerKey))
+        {
+            if (userData.ownerKey.includes(ownerKey))
+            {
+                return userData.id;
+            }
+        }
+        else if (userData.ownerKey == ownerKey)
+        {
+            return userData.id;
+        }
+    }
+    return null;
+}
+
+function getUsersByAttribute(db, attributeName, attributeValue)
+{
+    let result = [];
+    const userMapping = db[USER_KEY];
+    for(const userData of userMapping.values())
+    {
+        if (attributeName in userData.attributes)
+        {
+            const attributeData = userData.attributes[attributeName];
+            if (Array.isArray(attributeData))
+            {
+                if (attributeData.includes(attributeValue))
+                {
+                    result.push(userData.id);
+                }
+            }
+            else if (attributeData == attributeValue)
+            {
+                result.push(userData.id);
+            }
+        }
+        else if (attributeValue === null)
+        {
+            result.push(userData.id);
+        }
+    }
+    return result;
+}
+
+function getOwnerKeysForUserID(db, userID)
+{
+    const userMapping = db[USER_KEY];
+    const userData = userMapping.get(userID);
+    
+    const result = userData.ownerKey;
+    if (Array.isArray(result)) return result;
+    else return [result];
+}
+
+function outputLog$1(db, outputFunction, outputDir = '.')
+{
+    const userMapping = db[USER_KEY];
+    const result = {};
+    for(const [key, value] of userMapping.entries())
+    {
+        result[key] = value;
+    }
+
+    const header = `${'# '.repeat(20)}\n# Users\n# Size: ${userMapping.size}\n${'# '.repeat(20)}`;
+    const log = `${header}\n${JSON.stringify(result, null, 4)}`;
+    return outputFunction(require('path').resolve(outputDir, OUTPUT_LOG$1), log);
+}
+
+var UserDatabase$1 = /*#__PURE__*/Object.freeze({
+    USER_KEY: USER_KEY,
+    setupDatabase: setupDatabase$1,
+    clearDatabase: clearDatabase$1,
+    addUser: addUser,
+    getUsers: getUsers,
+    getUserCount: getUserCount,
+    getUserByID: getUserByID,
+    getUserByOwnerKey: getUserByOwnerKey,
+    getUsersByAttribute: getUsersByAttribute,
+    getOwnerKeysForUserID: getOwnerKeysForUserID,
+    outputLog: outputLog$1
+});
+
+/**
  * @param {String} submissionID A globally unique identifier for this submission data object.
  * @param {String} ownerKey The owner of the submission.
  * @param {String} assignmentID The assignment the submission is for.
@@ -1094,177 +1123,155 @@ var SubmissionDatabase = /*#__PURE__*/Object.freeze({
     outputLog: outputLog$2
 });
 
-/**
- * Creates a user object.
- * @param {*} userID The globally unique user id.
- * @param {String} ownerKey The unique key, or keys, that associates submissions to users. Can be an array if associated with multiple.
- * @param {String} userName The user's name.
- * @param {Date} startDate The start date for the user.
- * @param {Date} endDate The end date for the user.
- * @param {Object} opts Additional options to initialize the user.
- * @param {Number} opts.threshold The day threshold for week boundaries.
- * @param {Object} attributes Any additional information about the user.
- * @returns {Object} The user data object.
- */
-function createUser(userID, ownerKey, userName, startDate, endDate, opts, attributes)
+function createReview(reviewID, reviewDate, comment, type, params)
 {
-    const schedule = createSchedule(startDate, endDate, opts);
     return {
-        id: userID,
-        ownerKey,
-        name: userName,
-        schedule,
-        attributes
+        id: reviewID,
+        date: reviewDate,
+        comment,
+        type,
+        params
     };
 }
 
-var User = /*#__PURE__*/Object.freeze({
-    createUser: createUser
+var Review$1 = /*#__PURE__*/Object.freeze({
+    createReview: createReview
 });
 
-const USER_KEY = 'user';
-const OUTPUT_LOG$3 = 'db.user.log';
+/**
+ * The key for the database to access Review data.
+ */
+const REVIEW_KEY = 'review';
 
+/**
+ * The name of the output log for this data.
+ */
+const OUTPUT_LOG$3 = 'db.review.log';
+
+/**
+ * Prepares the database to be used for reviews.
+ * @param {Database} db The database to prepare the sub-database for.
+ */
 function setupDatabase$3(db)
 {
-    if (!(USER_KEY in db))
+    if (!(REVIEW_KEY in db))
     {
-        db[USER_KEY] = new Map();
+        db[REVIEW_KEY] = new Map();
     }
     return db;
 }
 
 function clearDatabase$3(db)
 {
-    if (USER_KEY in db)
+    if (REVIEW_KEY in db)
     {
-        db[USER_KEY].clear();
+        db[REVIEW_KEY].clear();
     }
     return db;
 }
 
-function addUser(db, userID, ownerKey, userName, startDate, endDate, opts, attributes = {})
+function forEach(db, callback)
 {
-    const userMapping = db[USER_KEY];
+    db[REVIEW_KEY].forEach(callback);
+}
 
-    if (userMapping.has(userID))
+/**
+ * Adds a review, by id, with the specified attributes.
+ * @param {Database} db The current database to add to.
+ * @param {*} reviewID The associated unique id for the review.
+ * @param {Date} reviewDate The date the review was created.
+ * @param {String} comment Comments related to this review.
+ * @param {String} type The type of review. This is usually associated with a reviewer script.
+ * @param {Array} params A variable length array of parameters for the review.
+ */
+function addReview(db, reviewID, reviewDate, comment, type, params)
+{
+    const reviewMapping = db[REVIEW_KEY];
+
+    if (reviewMapping.has(reviewID))
     {
-        db.throwError(USER_KEY, `Found duplicate id for user '${userID}'.`);
+        db.throwError(REVIEW_KEY, `Found duplicate id for review '${reviewID}'.`);
         return null;
     }
     else
     {
-        // Create user...
-        const user = createUser(userID, ownerKey, userName, startDate, endDate, opts, attributes);
-        userMapping.set(userID, user);
-        return user;
+        const review = createReview(reviewID, reviewDate, comment, type, params);
+        reviewMapping.set(String(reviewID), review);
+        return review;
     }
 }
 
-function getUsers(db)
+function removeReviewByID(db, reviewID)
 {
-    return db[USER_KEY].keys();
+    const key = String(reviewID);
+    const reviewMapping = db[REVIEW_KEY];
+    if (reviewMapping.has(key))
+    {
+        reviewMapping.delete(key);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
-function getUserCount(db)
+function getReviews(db)
 {
-    return db[USER_KEY].size;
+    return db[REVIEW_KEY].keys();
 }
 
-function getUserByID(db, id)
+function getReviewCount(db)
 {
-    return db[USER_KEY].get(id);
+    return db[REVIEW_KEY].size;
+}
+
+function getReviewByID(db, reviewID)
+{
+    return db[REVIEW_KEY].get(String(reviewID));
+}
+
+function getReviewTypes(db)
+{
+    const reviewMapping = db[REVIEW_KEY];
+    const dst = new Set();
+    for(const review of reviewMapping.values())
+    {
+        dst.add(review.type);
+    }
+    return dst;
 }
 
 /**
- * @param {Database} db The database to search through.
- * @param {String} ownerKey The owner key associated with the user.
- * @returns {String} The user id, null if not found.
+ * Outputs all information related to reviews in this database.
+ * @param {Database} db The current database.
+ * @param {String} outputDir The output directory that will contain the output log.
  */
-function getUserByOwnerKey(db, ownerKey)
-{
-    const userMapping = db[USER_KEY];
-    for(const userData of userMapping.values())
-    {
-        if (Array.isArray(userData.ownerKey))
-        {
-            if (userData.ownerKey.includes(ownerKey))
-            {
-                return userData.id;
-            }
-        }
-        else if (userData.ownerKey == ownerKey)
-        {
-            return userData.id;
-        }
-    }
-    return null;
-}
-
-function getUsersByAttribute(db, attributeName, attributeValue)
-{
-    let result = [];
-    const userMapping = db[USER_KEY];
-    for(const userData of userMapping.values())
-    {
-        if (attributeName in userData.attributes)
-        {
-            const attributeData = userData.attributes[attributeName];
-            if (Array.isArray(attributeData))
-            {
-                if (attributeData.includes(attributeValue))
-                {
-                    result.push(userData.id);
-                }
-            }
-            else if (attributeData == attributeValue)
-            {
-                result.push(userData.id);
-            }
-        }
-        else if (attributeValue === null)
-        {
-            result.push(userData.id);
-        }
-    }
-    return result;
-}
-
-function getOwnerKeysForUserID(db, userID)
-{
-    const userMapping = db[USER_KEY];
-    const userData = userMapping.get(userID);
-    
-    const result = userData.ownerKey;
-    if (Array.isArray(result)) return result;
-    else return [result];
-}
-
 function outputLog$3(db, outputFunction, outputDir = '.')
 {
-    const userMapping = db[USER_KEY];
+    const reviewMapping = db[REVIEW_KEY];
     const result = {};
-    for(const [key, value] of userMapping.entries())
+    for(const [key, value] of reviewMapping.entries())
     {
         result[key] = value;
     }
-
-    const header = `${'# '.repeat(20)}\n# Users\n# Size: ${userMapping.size}\n${'# '.repeat(20)}`;
+    
+    const header = `${'# '.repeat(20)}\n# Reviews\n# Size: ${reviewMapping.size}\n${'# '.repeat(20)}`;
     const log = `${header}\n${JSON.stringify(result, null, 4)}`;
     return outputFunction(require('path').resolve(outputDir, OUTPUT_LOG$3), log);
 }
 
-var UserDatabase$1 = /*#__PURE__*/Object.freeze({
-    USER_KEY: USER_KEY,
+var ReviewDatabase = /*#__PURE__*/Object.freeze({
+    REVIEW_KEY: REVIEW_KEY,
     setupDatabase: setupDatabase$3,
     clearDatabase: clearDatabase$3,
-    addUser: addUser,
-    getUsers: getUsers,
-    getUserCount: getUserCount,
-    getUserByID: getUserByID,
-    getUserByOwnerKey: getUserByOwnerKey,
-    getUsersByAttribute: getUsersByAttribute,
-    getOwnerKeysForUserID: getOwnerKeysForUserID,
+    forEach: forEach,
+    addReview: addReview,
+    removeReviewByID: removeReviewByID,
+    getReviews: getReviews,
+    getReviewCount: getReviewCount,
+    getReviewByID: getReviewByID,
+    getReviewTypes: getReviewTypes,
     outputLog: outputLog$3
 });
 
@@ -1469,6 +1476,228 @@ var VacationDatabase = /*#__PURE__*/Object.freeze({
     getVacationsByOwnerKeys: getVacationsByOwnerKeys,
     getVacationsByAttribute: getVacationsByAttribute,
     outputLog: outputLog$4
+});
+
+// TODO: this is still hard-coded...
+async function setupDatabase$5(config)
+{
+    const db = createDatabase();
+
+    // HACK: How do people access today's date?
+    let currentDate;
+    if ('currentDate' in config)
+    {
+        currentDate = parse(config.currentDate);
+    }
+    else
+    {
+        currentDate = new Date(Date.now());
+    }
+    db.currentDate = currentDate;
+    
+    // Actually setup the databases...
+    setupDatabase$1(db);
+    setupDatabase$2(db);
+    setupDatabase(db);
+    setupDatabase$3(db);
+    setupDatabase$4(db);
+
+    return db;
+}
+
+/**
+ * Clears the database of all data stored from parsers. This does not remove
+ * any loaded resources, such as scripts. This is used to restart the
+ * database for new reviews or other resolvers. If you want a completely NEW
+ * database, just delete it and setup a new one.
+ * @param {Database} db The database to clear data from.
+ * @param {Object} config The config.
+ */
+async function clearDatabase$5(db, config)
+{
+    clearDatabase$1(db);
+    clearDatabase$2(db);
+    clearDatabase(db);
+    clearDatabase$3(db);
+    clearDatabase$4(db);
+    db.clearErrors();
+
+    return db;
+}
+
+var DatabaseSetup = /*#__PURE__*/Object.freeze({
+    setupDatabase: setupDatabase$5,
+    clearDatabase: clearDatabase$5
+});
+
+const DEFAULT_VALIDATOR = (date) => {
+    return date;
+};
+
+function createDateRange(fromDate, toDate)
+{
+    return [copyDate(fromDate), copyDate(toDate)];
+}
+
+function copyDateRange(dateRange)
+{
+    return [copyDate(dateRange[0]), copyDate(dateRange[1])];
+}
+
+function sortDateRanges(dateRanges)
+{
+    dateRanges.sort((a, b) => a[0].getTime() - b[0].getTime());
+}
+
+/**
+ * Merge date ranges that overlap. This assumes the ranges are in order of start date.
+ */
+function mergeDateRangesWithOverlap(dateRanges, contiguous = true)
+{
+    let prevDateRange = null;
+    for(let i = 0; i < dateRanges.length; ++i)
+    {
+        let dateRange = dateRanges[i];
+        if (!prevDateRange)
+        {
+            prevDateRange = dateRange;
+        }
+        // If date ranges overlap if the end date is past the other start date,
+        // OR if they are continguous (optional).
+        else if (compareDates(prevDateRange[1], dateRange[0]) >= (contiguous ? -1 : 0))
+        {
+            // Merge the two ranges...
+            prevDateRange[1].setTime(dateRange[1].getTime());
+            // Delete the smaller one...
+            dateRanges.splice(i, 1);
+            // Decrement back one due to removal...
+            --i;
+        }
+    }
+}
+
+/**
+ * Expand or remove date ranges into effective work weeks.
+ * A week is effective if it occupies at least 3 of the work days,
+ * not including Sunday or Saturday.
+ */
+function convertDateRangesToEffectiveWorkWeeks(dateRanges, dst = [])
+{
+    for(const dateRange of dateRanges)
+    {
+        // If the range is too small, it can never possibly occupy 3 or more work days...
+        if (getDaysUntil(dateRange[0], dateRange[1]) < 3)
+        {
+            continue;
+        }
+        else
+        {
+            // Mon, Tues, Wed, will create effective work week.
+            const startDate = getNearestSunday(dateRange[0], true);
+            // Wed, Thurs, Fri, will create effective work week.
+            const endDate = getNearestSunday(dateRange[1], false);
+            // Neither start nor end date could become an effective week...
+            if (compareDates(startDate, endDate) === 0)
+            {
+                continue;
+            }
+            else
+            {
+                // The end date should always be a Saturday.
+                dst.push([startDate, offsetDate(endDate, -1)]);
+            }
+        }
+    }
+
+    mergeDateRangesWithOverlap(dst);
+
+    // HACK: To get assignments to be due BEFORE the vacation:
+    // Shave off the Sunday of every starting vacation
+    // Since it's expected the previous week to be an effective work week,
+    // any assignments due would be on the first Sunday before the vacation.
+    for(const dateRange of dst)
+    {
+        // Offset by 1 day, since every "week" starts on a Sunday.
+        // and ends on a Saturday.
+        dateRange[0] = offsetDate(dateRange[0], 1);
+        dateRange[1] = offsetDate(dateRange[1], 1);
+    }
+
+    return dst;
+}
+
+/** Assumes date ranges do not overlap and are sorted. */
+function createOffsetDelayValidator(invalidDateRanges = [])
+{
+    return function OffsetDelayValidator(date)
+    {
+        let result = copyDate(date);
+        for(const dateRange of invalidDateRanges)
+        {
+            // Since date ranges are sorted, all ranges afterwards are all greater than the date time.
+            // Therefore no collision is possible.
+            if (result.getTime() < dateRange[0].getTime()) break;
+
+            if (isWithinDates(result, dateRange[0], dateRange[1]))
+            {
+                const offset = getDaysUntil(dateRange[0], result) + 1;
+                result = offsetDate(dateRange[1], offset);
+            }
+        }
+        return result;
+    };
+}
+
+/**
+ * Generate a valid date.
+ * @param {Date} date The date to generate.
+ * @param {Function} [validator] The validator to get a valid date
+ * given another date. These effectively allows vacations to be implemented.
+ * @returns {Date} A valid date.
+ */
+function generateDate(date, validator = DEFAULT_VALIDATOR)
+{
+    return validator(date);
+}
+
+/**
+ * Generate valid weekly dates.
+ * @param {Date} startDate The date to start on or after.
+ * @param {Date} endDate The date to end on or before.
+ * @param {Function} [validator] The validator to get a valid date
+ * given another date. These effectively allows vacations to be implemented.
+ * @returns {Array<Date>} An array of valid dates for each week on the day
+ * between the start and end dates.
+ */
+function generateWeeklySunday(startDate, endDate, validator = DEFAULT_VALIDATOR)
+{
+    const result = [];
+
+    // Get the following Sunday of the effective week...
+    const effectiveStartSunday = offsetDate(getNearestSunday(startDate, true), DAYS_IN_WEEK);
+
+    // Make sure its a valid date...
+    let date = validator(effectiveStartSunday);
+    while(compareDates(date, endDate) <= 0)
+    {
+        result.push(date);
+
+        // Move to the next Sunday, but make sure it's still valid...
+        date = validator(getNextSunday(date));
+    }
+
+    return result;
+}
+
+var DateGenerator = /*#__PURE__*/Object.freeze({
+    createDateRange: createDateRange,
+    copyDateRange: copyDateRange,
+    sortDateRanges: sortDateRanges,
+    mergeDateRangesWithOverlap: mergeDateRangesWithOverlap,
+    convertDateRangesToEffectiveWorkWeeks: convertDateRangesToEffectiveWorkWeeks,
+    createOffsetDelayValidator: createOffsetDelayValidator,
+    generateDate: generateDate,
+    generateWeeklySunday: generateWeeklySunday
 });
 
 function parseName(value)
@@ -9600,11 +9829,12 @@ async function ask(message, defaultValue = false)
     return answer;
 }
 
-async function askChoose(message, choices)
+async function askChoose(message, choices, autocomplete = true)
 {
     const { answer } =  await enquirer.prompt({
-        type: 'select',
+        type: autocomplete ? 'autocomplete' : 'select',
         name: 'answer',
+        limit: 10,
         message,
         choices,
     });
@@ -9929,152 +10159,13 @@ class TableBuilder
     }
 }
 
-const DEFAULT_VALIDATOR = (date) => {
-    return date;
-};
-
-function createDateRange(fromDate, toDate)
-{
-    return [copyDate(fromDate), copyDate(toDate)];
-}
-
-function sortDateRanges(dateRanges)
-{
-    dateRanges.sort((a, b) => a[0].getTime() - b[0].getTime());
-}
-
-/**
- * Merge date ranges that overlap. This assumes the ranges are in order of start date.
- */
-function mergeDateRangesWithOverlap(dateRanges, contiguous = true)
-{
-    let prevDateRange = null;
-    for(let i = 0; i < dateRanges.length; ++i)
-    {
-        let dateRange = dateRanges[i];
-        if (!prevDateRange)
-        {
-            prevDateRange = dateRange;
-        }
-        // If date ranges overlap if the end date is past the other start date,
-        // OR if they are continguous (optional).
-        else if (compareDates(prevDateRange[1], dateRange[0]) >= (contiguous ? -1 : 0))
-        {
-            // Merge the two ranges...
-            prevDateRange[1].setTime(dateRange[1].getTime());
-            // Delete the smaller one...
-            dateRanges.splice(i, 1);
-            // Decrement back one due to removal...
-            --i;
-        }
-    }
-}
-
-/** Assumes date ranges do not overlap and are sorted. */
-function createOffsetDelayValidator(invalidDateRanges = [])
-{
-    return function OffsetDelayValidator(date)
-    {
-        let result = copyDate(date);
-        for(const dateRange of invalidDateRanges)
-        {
-            // Since date ranges are sorted, all ranges afterwards are all greater than the date time.
-            // Therefore no collision is possible.
-            if (result.getTime() < dateRange[0].getTime()) break;
-
-            if (isWithinDates(result, dateRange[0], dateRange[1]))
-            {
-                const offset = getDaysUntil(dateRange[0], result) + 1;
-                result = offsetDate(dateRange[1], offset);
-            }
-        }
-        return result;
-    };
-}
-
-/**
- * Generate valid weekly dates.
- * @param {Date} startDate The date to start on or after.
- * @param {Date} endDate The date to end on or before.
- * @param {Function} [validator] The validator to get a valid date
- * given another date. These effectively allows vacations to be implemented.
- * @returns {Array<Date>} An array of valid dates for each week on the day
- * between the start and end dates.
- */
-function generateWeeklySunday(startDate, endDate, validator = DEFAULT_VALIDATOR)
-{
-    const result = [];
-
-    // Get the following Sunday of the effective week...
-    const effectiveStartSunday = offsetDate(getNearestSunday(startDate, true), DAYS_IN_WEEK);
-
-    // Make sure its a valid date...
-    let date = validator(effectiveStartSunday);
-    while(compareDates(date, endDate) <= 0)
-    {
-        result.push(date);
-
-        // Move to the next Sunday, but make sure it's still valid...
-        date = validator(getNextSunday(date));
-    }
-
-    return result;
-}
-
-const MAX_GENERATED_ASSIGNMENTS = 100;
-
-function assign(db, userID, assignmentID, dueDate, attributes = {})
-{
-    const ownerKeys = getOwnerKeysForUserID(db, userID);
-    const newDueDate = offsetDateByVacations(db, ownerKeys, dueDate);
-    return addAssignment(db, userID, assignmentID, newDueDate, attributes);
-}
-
-function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, attributes = {})
-{
-    const ownerKeys = getOwnerKeysForUserID(db, userID);
-    const vacations = getVacationsByOwnerKeys(db, ownerKeys);
-
-    // Convert vacations to work week ranges...
-    const timeOffRanges = [];
-    for(const vacationID of vacations)
-    {
-        const vacation = getVacationByID(db, vacationID);
-        timeOffRanges.push(createDateRange(vacation.userStartDate, vacation.userEndDate));
-    }
-    sortDateRanges(timeOffRanges);
-    mergeDateRangesWithOverlap(timeOffRanges);
-    const validator = createOffsetDelayValidator(timeOffRanges);
-    const dueDates = generateWeeklySunday(startDate, endDate, validator);
-
-    // Assign assignments to due date...
-    const result = [];
-    let assignmentCount = 0;
-    for(const date of dueDates)
-    {
-        const assignment = addAssignment(db, userID, `${assignmentBaseName}[${assignmentCount + 1}]`, date, Object.assign({}, attributes));
-        result.push(assignment);
-        
-        if (++assignmentCount > MAX_GENERATED_ASSIGNMENTS)
-        {
-            throw new Error('Reached maximum amount of assignments generated.')
-        }
-    }
-
-    return result;
-}
-
-var AssignmentGenerator = /*#__PURE__*/Object.freeze({
-    assign: assign,
-    assignWeekly: assignWeekly
-});
-
 // database
 const DATABASE_EXPORTS = {
     Assignment,
     AssignmentDatabase: AssignmentDatabase$1,
     Database,
-    Review,
+    DatabaseSetup,
+    Review: Review$1,
     ReviewDatabase,
     Schedule,
     Submission,
@@ -10085,22 +10176,18 @@ const DATABASE_EXPORTS = {
     VacationDatabase
 };
 const UTIL_EXPORTS = {
+    DateGenerator,
     DateUtil,
     FieldParser,
     FileUtil,
     MathHelper,
     TableBuilder
 };
-const LIB_EXPORTS = {
-    AssignmentGenerator
-};
 
 // Named export
 const ProgressAuditor = {
     ...DATABASE_EXPORTS,
-    // ...PIPELINE_EXPORTS,
     ...UTIL_EXPORTS,
-    ...LIB_EXPORTS
 };
 
 // Global export
@@ -11602,31 +11689,53 @@ async function review$8(db, config)
     }
     catch(e)
     {
-        Client.error(e);
+        error(e);
         throw e;
     }
 }
 
-async function build$8(errors = [])
+async function build$8(errors, db, config)
 {
-    // HACK: To allow to use prev value in next review...
-    // This should be handled directly by the Builder instead.
-    let prevAssignmentID = '';
-    const result = [];
-    for(const error of errors)
+    // Batch error processing...
+    if (errors.length > 1)
     {
-        const review = await buildStep$3(error, prevAssignmentID);
-        prevAssignmentID = review.params[0];
-        result.push(review);
+        const cache = db.getCache();
+        const assignmentKeys = cache.assignmentKeys ? Array.from(cache.assignmentKeys) : [];
+        let assignmentID = await askChoose('What is the expected assignment ID instead?', [...assignmentKeys, '(custom)']);
+        if (assignmentID === '(custom)')
+        {
+            assignmentID = await askPrompt('What is the custom assignment ID?', 'input');
+        }
+
+        const result = [];
+        for(const error of errors)
+        {
+            const id = uuid();
+            const date = new Date(Date.now());
+            const params = [assignmentID, error.context.submissionID];
+            result.push(createReview(id, date, 'Generated by Progress Auditor', TYPE$8, params));
+        }
+        return result;
     }
-    return result;
+    // Single error processing...
+    else
+    {
+        const result = [];
+        for(const error of errors)
+        {
+            const review = await buildStep$3(error);
+            prevAssignmentID = review.params[0];
+            result.push(review);
+        }
+        return result;
+    }
 }
 
-async function buildStep$3(error, prevAssignmentID = '')
+async function buildStep$3(error)
 {
     return await createBuilder()
         .type(TYPE$8)
-        .param(0, 'Assignment ID', 'The new assignment id to change to.', prevAssignmentID || '')
+        .param(0, 'Assignment ID', 'The new assignment id to change to.')
         .param(1, 'Submission ID', 'The id for the target submission.', error.context.submissionID || '')
         .build();
 }
@@ -11859,14 +11968,45 @@ async function review$c(db, config)
     }
 }
 
-async function build$c(errors = [])
+async function build$c(errors, db, config)
 {
-    const result = [];
-    for(const error of errors)
+    if (errors.length > 1)
     {
-        result.push(await buildStep$7(error));
+        const userIDs = getUsers(db);
+        const choices = [];
+        for(const userID of userIDs)
+        {
+            choices.push({
+                message: userID + ': ' + chalk$1.gray(getUserByID(db, userID).name),
+                value: userID,
+            });
+        }
+        choices.push('(custom)');
+        const userID = await askChoose('What is the expected user ID instead?', choices);
+        if (userID === '(custom)')
+        {
+            userID = await askPrompt('What is the custom user ID?', 'input');
+        }
+
+        const result = [];
+        for(const error of errors)
+        {
+            const id = uuid();
+            const date = new Date(Date.now());
+            const params = [userID, error.context.ownerKey];
+            result.push(Review.createReview(id, date, 'Generated by Progress Auditor', TYPE$c, params));
+        }
+        return result;
     }
-    return result;
+    else
+    {
+        const result = [];
+        for(const error of errors)
+        {
+            result.push(await buildStep$7(error));
+        }
+        return result;
+    }
 }
 
 async function buildStep$7(error)
@@ -12258,7 +12398,7 @@ const PARSER_OPTIONS = {
  */
 async function parse$1(db, config, filepath, opts={ maxEndDates: [] })
 {
-    setupDatabase$3(db);
+    setupDatabase$1(db);
 
     const maxEndDateEntries = processMaxEndDateEntries(opts.maxEndDates);
 
@@ -12549,7 +12689,7 @@ var ContributionsParser = /*#__PURE__*/Object.freeze({
  */
 async function parse$3(db, config, filepath, opts={})
 {
-    setupDatabase$1(db);
+    setupDatabase$3(db);
 
     let first = true;
     await readCSVFileByRow(filepath, (row) => {
@@ -12655,6 +12795,49 @@ function loadCustomParser(filePath)
             '<='
         ]);
     }
+}
+
+const MAX_GENERATED_ASSIGNMENTS = 100;
+
+function assign(db, userID, assignmentID, dueDate, attributes = {})
+{
+    const ownerKeys = getOwnerKeysForUserID(db, userID);
+    const newDueDate = offsetDateByVacations(db, ownerKeys, dueDate);
+    return addAssignment(db, userID, assignmentID, newDueDate, attributes);
+}
+
+function assignWeekly(db, userID, assignmentBaseName, startDate, endDate, attributes = {})
+{
+    const ownerKeys = getOwnerKeysForUserID(db, userID);
+    const vacations = getVacationsByOwnerKeys(db, ownerKeys);
+
+    // Convert vacations to work week ranges...
+    const timeOffRanges = [];
+    for(const vacationID of vacations)
+    {
+        const vacation = getVacationByID(db, vacationID);
+        timeOffRanges.push(createDateRange(vacation.userStartDate, vacation.userEndDate));
+    }
+    sortDateRanges(timeOffRanges);
+    mergeDateRangesWithOverlap(timeOffRanges);
+    const validator = createOffsetDelayValidator(timeOffRanges);
+    const dueDates = generateWeeklySunday(startDate, endDate, validator);
+
+    // Assign assignments to due date...
+    const result = [];
+    let assignmentCount = 0;
+    for(const date of dueDates)
+    {
+        const assignment = addAssignment(db, userID, `${assignmentBaseName}[${assignmentCount + 1}]`, date, Object.assign({}, attributes));
+        result.push(assignment);
+        
+        if (++assignmentCount > MAX_GENERATED_ASSIGNMENTS)
+        {
+            throw new Error('Reached maximum amount of assignments generated.')
+        }
+    }
+
+    return result;
 }
 
 async function assign$1(db, name, userID, userSchedule, opts={})
@@ -13331,53 +13514,6 @@ async function applyAssignersToDatabase(db, config)
     }
 }
 
-// TODO: this is still hard-coded...
-async function setupDatabase$5(config)
-{
-    const db = createDatabase();
-
-    // HACK: How do people access today's date?
-    let currentDate;
-    if ('currentDate' in config)
-    {
-        currentDate = parse(config.currentDate);
-    }
-    else
-    {
-        currentDate = new Date(Date.now());
-    }
-    db.currentDate = currentDate;
-    
-    // Actually setup the databases...
-    setupDatabase$3(db);
-    setupDatabase$2(db);
-    setupDatabase(db);
-    setupDatabase$1(db);
-    setupDatabase$4(db);
-
-    return db;
-}
-
-/**
- * Clears the database of all data stored from parsers. This does not remove
- * any loaded resources, such as scripts. This is used to restart the
- * database for new reviews or other resolvers. If you want a completely NEW
- * database, just delete it and setup a new one.
- * @param {Database} db The database to clear data from.
- * @param {Object} config The config.
- */
-async function clearDatabase$5(db, config)
-{
-    clearDatabase$3(db);
-    clearDatabase$2(db);
-    clearDatabase(db);
-    clearDatabase$1(db);
-    clearDatabase$4(db);
-    db.clearErrors();
-
-    return db;
-}
-
 /**
  * This needs to load and populate the VacationDatabase BEFORE assigners are loaded.
  * But all of this happens from the input of the ReviewDatabase.
@@ -13745,13 +13881,13 @@ async function output$3(db, config, outputPath, opts)
 {
     // Output all database logs...
     const outputFunction = writeToFile;
-    try { await outputLog$3(db, outputFunction, outputPath); }
+    try { await outputLog$1(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.'); }
     try { await outputLog$2(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.'); }
     try { await outputLog(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.'); }
-    try { await outputLog$1(db, outputFunction, outputPath); }
+    try { await outputLog$3(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.'); }
     try { await outputLog$4(db, outputFunction, outputPath); }
     catch(e) { console.error('Failed to output log.'); }
@@ -13883,6 +14019,59 @@ async function outputDebugLog(db, config)
     }
 }
 
+/** Tries to resolve the errors with reviews. */
+async function run(db, config, errors, cache = {})
+{
+    cache.errors = errors;
+    cache.reviews = [];
+
+    const errorMapping = new Map();
+    for(const error of errors)
+    {
+        errorMapping.set(error.id, error);
+    }
+
+    /**
+     * First, show all the errors and let the client pick one or many.
+     * This should have preliminary info to figure out what to do next.
+     * If the client has picked some, ask if they want to ignore these or review them.
+     * If ignore, store the error ids to hide them next time.
+     * If review, enter review mode for all selected reviews.
+     * Do they want to save the reviews somewhere? Do they want to review some more?
+     * Return anything we have.
+     */
+
+    try
+    {
+        const chosenErrorIDs = await askChooseError("What error do you want to review?", errors, errorMapping);
+        if (!chosenErrorIDs) throw null;
+        
+        const chosenErrors = [];
+        for(const errorID of chosenErrorIDs)
+        {
+            const error = errorMapping.get(errorID);
+            chosenErrors.push(error);
+        }
+    
+        if (await askClientToReviewErrors(chosenErrors))
+        {
+            const reviewResult = await doReviewSession(db, config, INSTANCE, chosenErrors);
+            cache.reviews.push(...reviewResult);
+        }
+    }
+    catch(e)
+    {
+        if (e && e.message && e.message.length > 0)
+        {
+            throw e;
+        }
+        else
+        {
+            error("Review interrupted. Restarting review session...", true);
+        }
+    }
+}
+
 async function askChooseError(message, errors, errorMapping)
 {
     const choices = [];
@@ -13934,59 +14123,6 @@ function formatErrorAsChoice(error)
     return [first, second, third].join('\n');
 }
 
-/** Tries to resolve the errors with reviews. */
-async function run(errors, cache = {})
-{
-    cache.errors = errors;
-    cache.reviews = [];
-
-    const errorMapping = new Map();
-    for(const error of errors)
-    {
-        errorMapping.set(error.id, error);
-    }
-
-    /**
-     * First, show all the errors and let the client pick one or many.
-     * This should have preliminary info to figure out what to do next.
-     * If the client has picked some, ask if they want to ignore these or review them.
-     * If ignore, store the error ids to hide them next time.
-     * If review, enter review mode for all selected reviews.
-     * Do they want to save the reviews somewhere? Do they want to review some more?
-     * Return anything we have.
-     */
-
-    try
-    {
-        const chosenErrorIDs = await askChooseError("What error do you want to review?", errors, errorMapping);
-        if (!chosenErrorIDs) throw null;
-        
-        const chosenErrors = [];
-        for(const errorID of chosenErrorIDs)
-        {
-            const error = errorMapping.get(errorID);
-            chosenErrors.push(error);
-        }
-    
-        if (await askClientToReviewErrors(chosenErrors))
-        {
-            const reviewResult = await doReviewSession(INSTANCE, chosenErrors);
-            cache.reviews.push(...reviewResult);
-        }
-    }
-    catch(e)
-    {
-        if (e && e.message && e.message.length > 0)
-        {
-            throw e;
-        }
-        else
-        {
-            error("Review interrupted. Restarting review session...", true);
-        }
-    }
-}
-
 async function askClientToReviewErrors(errors)
 {
     // Show all solutions
@@ -14031,7 +14167,7 @@ async function showErrorInfo(error$1)
  * @returns {Array<Review>} The reviews generated for the list of errors.
  * If none were created, it will be an array of length 0.
  */
-async function doReviewSession(reviewRegistry, errors)
+async function doReviewSession(db, config, reviewRegistry, errors)
 {
     if (errors.length <= 0) throw new Error('Cannot review empty error list.');
 
@@ -14043,7 +14179,8 @@ async function doReviewSession(reviewRegistry, errors)
         throw new Error('Cannot build review with review-only review type.');
     }
 
-    return await review.build(errors);
+    // TODO: review.build() params should be changed to match (db, config, errors) for consistency.
+    return await review.build(errors, db, config);
 }
 
 async function chooseReviewType(reviewRegistry)
@@ -14093,7 +14230,7 @@ async function resolveDatabaseErrors(db, config, errors)
     try
     {
         const cache = db.getCache().reviewSession = {};
-        await run(errors, cache);
+        await run(db, config, errors, cache);
         if (cache.reviews && cache.reviews.length > 0)
         {
             return cache.reviews;

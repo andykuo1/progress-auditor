@@ -2,6 +2,59 @@ import * as Client from './Client.js';
 import ReviewRegistry from '../review/ReviewRegistry.js';
 import chalk from 'chalk';
 
+/** Tries to resolve the errors with reviews. */
+export async function run(db, config, errors, cache = {})
+{
+    cache.errors = errors;
+    cache.reviews = [];
+
+    const errorMapping = new Map();
+    for(const error of errors)
+    {
+        errorMapping.set(error.id, error);
+    }
+
+    /**
+     * First, show all the errors and let the client pick one or many.
+     * This should have preliminary info to figure out what to do next.
+     * If the client has picked some, ask if they want to ignore these or review them.
+     * If ignore, store the error ids to hide them next time.
+     * If review, enter review mode for all selected reviews.
+     * Do they want to save the reviews somewhere? Do they want to review some more?
+     * Return anything we have.
+     */
+
+    try
+    {
+        const chosenErrorIDs = await askChooseError("What error do you want to review?", errors, errorMapping);
+        if (!chosenErrorIDs) throw null;
+        
+        const chosenErrors = [];
+        for(const errorID of chosenErrorIDs)
+        {
+            const error = errorMapping.get(errorID);
+            chosenErrors.push(error);
+        }
+    
+        if (await askClientToReviewErrors(chosenErrors))
+        {
+            const reviewResult = await doReviewSession(db, config, ReviewRegistry, chosenErrors);
+            cache.reviews.push(...reviewResult);
+        }
+    }
+    catch(e)
+    {
+        if (e && e.message && e.message.length > 0)
+        {
+            throw e;
+        }
+        else
+        {
+            Client.error("Review interrupted. Restarting review session...", true);
+        }
+    }
+}
+
 async function askChooseError(message, errors, errorMapping)
 {
     const choices = [];
@@ -53,59 +106,6 @@ function formatErrorAsChoice(error)
     return [first, second, third].join('\n');
 }
 
-/** Tries to resolve the errors with reviews. */
-export async function run(errors, cache = {})
-{
-    cache.errors = errors;
-    cache.reviews = [];
-
-    const errorMapping = new Map();
-    for(const error of errors)
-    {
-        errorMapping.set(error.id, error);
-    }
-
-    /**
-     * First, show all the errors and let the client pick one or many.
-     * This should have preliminary info to figure out what to do next.
-     * If the client has picked some, ask if they want to ignore these or review them.
-     * If ignore, store the error ids to hide them next time.
-     * If review, enter review mode for all selected reviews.
-     * Do they want to save the reviews somewhere? Do they want to review some more?
-     * Return anything we have.
-     */
-
-    try
-    {
-        const chosenErrorIDs = await askChooseError("What error do you want to review?", errors, errorMapping);
-        if (!chosenErrorIDs) throw null;
-        
-        const chosenErrors = [];
-        for(const errorID of chosenErrorIDs)
-        {
-            const error = errorMapping.get(errorID);
-            chosenErrors.push(error);
-        }
-    
-        if (await askClientToReviewErrors(chosenErrors))
-        {
-            const reviewResult = await doReviewSession(ReviewRegistry, chosenErrors);
-            cache.reviews.push(...reviewResult);
-        }
-    }
-    catch(e)
-    {
-        if (e && e.message && e.message.length > 0)
-        {
-            throw e;
-        }
-        else
-        {
-            Client.error("Review interrupted. Restarting review session...", true);
-        }
-    }
-}
-
 async function askClientToReviewErrors(errors)
 {
     // Show all solutions
@@ -150,7 +150,7 @@ async function showErrorInfo(error)
  * @returns {Array<Review>} The reviews generated for the list of errors.
  * If none were created, it will be an array of length 0.
  */
-async function doReviewSession(reviewRegistry, errors)
+async function doReviewSession(db, config, reviewRegistry, errors)
 {
     if (errors.length <= 0) throw new Error('Cannot review empty error list.');
 
@@ -162,7 +162,8 @@ async function doReviewSession(reviewRegistry, errors)
         throw new Error('Cannot build review with review-only review type.');
     }
 
-    return await review.build(errors);
+    // TODO: review.build() params should be changed to match (db, config, errors) for consistency.
+    return await review.build(errors, db, config);
 }
 
 async function chooseReviewType(reviewRegistry)

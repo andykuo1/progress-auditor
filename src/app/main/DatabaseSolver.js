@@ -35,7 +35,7 @@ export async function resolveDatabaseErrors(db, config, errors)
     try
     {
         const cache = db.getCache().reviewSession = {};
-        await ReviewResolver.run(errors, cache);
+        await ReviewResolver.run(db, config, errors, cache);
         if (cache.reviews && cache.reviews.length > 0)
         {
             return cache.reviews;

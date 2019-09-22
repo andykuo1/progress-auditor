@@ -57,3 +57,16 @@ export function createBuilder()
         }
     };
 }
+
+function enforceLength(string, newLength)
+{
+    return string.padEnd(newLength, ' ').substring(0, newLength);
+}
+
+export function formatErrorAsRow(error, params)
+{
+    const first = ``;
+    let second = enforceLength(`${chalk.gray(error.id + ': ')} ${error.message}`, 30);
+    let third = error.info ? chalk.italic.gray(enforceLength(error.info)) : '';
+    return [first, second, third].join('\n');
+}

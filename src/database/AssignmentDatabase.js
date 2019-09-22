@@ -42,6 +42,12 @@ export function clearDatabase(db)
  */
 export function addAssignment(db, userID, assignmentID, dueDate, attributes={})
 {
+    // Cache extra info for reviews...(used to know what assignmentIDs are possible)
+    const cache = db.getCache();
+    if (!cache.assignmentKeys) cache.assignmentKeys = new Set();
+    cache.assignmentKeys.add(assignmentID);
+
+    // Here the function really begins...
     const assignmentMapping = db[ASSIGNMENT_KEY];
 
     let ownedAssignments;
@@ -67,6 +73,7 @@ export function addAssignment(db, userID, assignmentID, dueDate, attributes={})
     }
 }
 
+// TODO: assignmentID is a bit misleading. It should really by assignment type.
 export function getAssignmentByID(db, userID, assignmentID)
 {
     return db[ASSIGNMENT_KEY].get(userID)[assignmentID];
