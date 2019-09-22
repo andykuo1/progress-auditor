@@ -49,7 +49,7 @@ export async function resolveDatabaseErrors(db, config, errors)
     {
         Client.error('Error has occured.', true);
         const cache = db.getCache();
-        await ReviewHandler.shouldSaveNewReviewsForClient(db, config, cache.reviewSession && cache.reviewSession.reviews);
+        await ReviewHandler.shouldSaveReviewsForClient(db, config, cache.reviewSession && cache.reviewSession.reviews);
         throw e;
     }
 }

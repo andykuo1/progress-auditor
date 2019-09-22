@@ -1,7 +1,7 @@
 import * as Client from '../../client/Client.js';
 import * as ConfigLoader from '../../config/ConfigLoader.js';
 import * as DateUtil from '../../util/DateUtil.js';
-import * as ConfigHelper from '../client/ConfigHelper.js';
+import * as ConfigParamResolver from '../client/ConfigParamResolver.js';
 
 /** If unable to load config file, null is returned. */
 export async function loadConfigFile(filepath)
@@ -42,7 +42,7 @@ export async function validateConfig(config, directory)
     if (!config.inputPath || !fs.existsSync(config.inputPath))
     {
         Client.log(chalk.yellow("Missing valid input path..."));
-        config.inputPath = await ConfigHelper.resolveInputPath(directory);
+        config.inputPath = await ConfigParamResolver.resolveInputPath(directory);
     }
 
     if (!config.outputPath || !fs.existsSync(config.outputPath))
@@ -54,7 +54,7 @@ export async function validateConfig(config, directory)
     if (!config.scheme)
     {
         Client.log(chalk.yellow("Missing scheme..."));
-        const scheme = await ConfigHelper.resolveScheme();
+        const scheme = await ConfigParamResolver.resolveScheme();
         config.scheme = scheme;
     }
 
@@ -62,27 +62,27 @@ export async function validateConfig(config, directory)
     {
         Client.log(chalk.yellow("Missing assignment entries..."));
         const absInputPath = path.resolve(directory, config.inputPath);
-        config.assignments = await ConfigHelper.resolveAssignments(absInputPath);
+        config.assignments = await ConfigParamResolver.resolveAssignments(absInputPath);
     }
 
     if (!config.inputs)
     {
         Client.log(chalk.yellow("Missing input entries..."));
         const absInputPath = path.resolve(directory, config.inputPath);
-        config.inputs = await ConfigHelper.resolveInputs(absInputPath);
+        config.inputs = await ConfigParamResolver.resolveInputs(absInputPath);
     }
 
     if (!config.outputs)
     {
         Client.log(chalk.yellow("Missing output entries..."));
         const absOutputPath = path.resolve(directory, config.outputPath);
-        config.outputs = await ConfigHelper.resolveOutputs(absOutputPath);
+        config.outputs = await ConfigParamResolver.resolveOutputs(absOutputPath);
     }
 
     if (!config.currentDate)
     {
         Client.log(chalk.yellow("Missing current date..."));
-        const date = await ConfigHelper.resolveDate();
+        const date = await ConfigParamResolver.resolveDate();
         config.currentDate = DateUtil.stringify(date);
     }
 }

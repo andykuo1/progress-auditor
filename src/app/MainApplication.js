@@ -130,10 +130,10 @@ export async function validateDatabase(db, config)
     }
     
     // Whether to save any newly created reviews...
-    if (await ReviewHandler.shouldSaveNewReviewsForClient(db, config, reviews))
+    if (await ReviewHandler.shouldSaveReviewsForClient(db, config, reviews))
     {
         // This is null because we want to output all of it...
-        await ReviewHandler.outputNewReviewsToFile(db, config, null);
+        await ReviewHandler.outputReviewsToFile(db, config);
     }
 
     // Whether to ignore errors or continue as normal...
