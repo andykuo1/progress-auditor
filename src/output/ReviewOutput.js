@@ -1,3 +1,10 @@
+/**
+ * This file handles outputting the new review files once the client
+ * requests a save. This is used by the ReviewHandler and not specified
+ * by the config, as most other outputs are.
+ * 
+ * @module ReviewOutput
+ */
 import * as ReviewDatabase from '../database/ReviewDatabase.js';
 import * as SkipErrorReview from '../review/base/SkipErrorReview.js';
 import * as FileUtil from '../util/FileUtil.js';

@@ -1,3 +1,10 @@
+/**
+ * The schedule does not have its own database.
+ * Instead it is merged with the user data.
+ * 
+ * @module Schedule
+ */
+
 import { getPastSunday, getNextEffectiveSunday } from '../util/DateUtil.js';
 
 export const ONE_DAYTIME = 86400000;

@@ -1,3 +1,10 @@
+/**
+ * This file generates the dates for assignments
+ * with respect to schedules and vacations.
+ * 
+ * @module DateGenerator
+ */
+
 import * as DateUtil from './DateUtil.js';
 
 const DEFAULT_VALIDATOR = (date) => {

@@ -1,3 +1,9 @@
+/**
+ * This file is used to load and apply input parsers from the config to the database.
+ * 
+ * @module InputHandler
+ */
+
 import * as InputLoader from './loader/InputLoader.js';
 import * as ParserRegistry from '../../input/parser/ParserRegistry.js';
 import * as Client from '../../client/Client.js';

@@ -1,3 +1,14 @@
+/**
+ * This file handles the common lifecycle of a resolution process.
+ * 
+ * Generally, the program would need some kind of input from the
+ * client. And the input must be valid. Therefore, if the client
+ * provides invalid input, the process should start over and ask
+ * for a valid answer again. This handles that.
+ * 
+ * @module Resolver
+ */
+
 import { ask } from '../Client.js';
 
 export function ifFailAndAgain(message, expected = true)

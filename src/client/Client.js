@@ -1,3 +1,11 @@
+/**
+ * This file handles all client interface formatting. Any
+ * interactions from the client should be handled through
+ * here instead of directly working with the cli.
+ * 
+ * @module Client
+ */
+
 import Enquirer from 'enquirer';
 import * as DateUtil from '../util/DateUtil.js';
 import * as MathHelper from '../util/MathHelper.js';

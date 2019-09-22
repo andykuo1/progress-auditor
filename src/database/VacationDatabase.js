@@ -1,3 +1,11 @@
+/**
+ * This database does not have a "source" data file, it instead
+ * comes from the reviews in the ReviewDatabase. Refer to the
+ * VacationLoader for more info.
+ * 
+ * @module VacationDatabase
+ */
+
 import * as Vacation from './Vacation.js';
 import { ONE_DAYTIME, isWithinDates, getDaysUntil } from '../util/DateUtil.js';
 

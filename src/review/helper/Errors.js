@@ -1,3 +1,12 @@
+/**
+ * This file handles all errors that are thrown and
+ * are expected to be resolved by the client. Therefore,
+ * these errors should be made FOR resolving, not just
+ * to notify the client of an issue.
+ * 
+ * @module Errors
+ */
+
 const ERROR_TAG = 'REVIEW';
 
 function throwSafeError(db, source, message, errorClass = source.id, opts = {})

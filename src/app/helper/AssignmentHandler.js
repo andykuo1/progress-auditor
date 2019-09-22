@@ -1,3 +1,9 @@
+/**
+ * This file is used to load and apply assignments from the config to the database.
+ * 
+ * @module AssignmentHandler
+ */
+
 import * as AssignmentLoader from './loader/AssignmentLoader.js';
 import * as AssignerRegistry from '../../input/assignment/AssignerRegistry.js';
 import * as UserDatabase from '../../database/UserDatabase.js';

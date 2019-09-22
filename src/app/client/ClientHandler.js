@@ -1,3 +1,11 @@
+/**
+ * This file is used to abstract away any interactions with the client. This way
+ * other files that require client input do not need to worry about proper formatting,
+ * style, etc. and just worry about the output data they need.
+ * 
+ * @module ClientHandler
+ */
+
 import * as Client from '../../client/Client.js';
 
 // Used for logging database stats...

@@ -1,3 +1,9 @@
+/**
+ * This file is used to resolve parameters that may be missing in the config file.
+ * 
+ * @module ConfigParamResolver
+ */
+
 import * as Client from '../../../client/Client.js';
 import * as Resolver from '../../../client/helper/Resolver.js';
 

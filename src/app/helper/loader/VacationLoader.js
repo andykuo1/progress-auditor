@@ -1,3 +1,9 @@
+/**
+ * This file is used to specifically load the vacation entries from the review file.
+ * 
+ * @module VacationLoader
+ */
+
 import * as ReviewDatabase from '../../../database/ReviewDatabase.js';
 import * as VacationReview from '../../../review/base/VacationReview.js';
 

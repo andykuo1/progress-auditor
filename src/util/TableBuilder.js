@@ -1,5 +1,10 @@
 const IDENTITY = function(a) { return a; }
 
+/**
+ * This will build a table by first specifying the template columns
+ * the table should have. Then you can "build" the table by
+ * supplying the entires.
+ */
 class TableBuilder
 {
     constructor()

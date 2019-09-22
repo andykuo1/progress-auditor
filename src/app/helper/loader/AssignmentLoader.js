@@ -1,3 +1,9 @@
+/**
+ * This file is used to specifically load the assignment entries from the config file.
+ * 
+ * @module AssignmentLoader
+ */
+
 import * as AssignmentLoader from '../../../input/assignment/AssignmentLoader.js';
 import * as AssignerRegistry from '../../../input/assignment/AssignerRegistry.js';
 import path from 'path';

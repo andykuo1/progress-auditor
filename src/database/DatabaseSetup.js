@@ -1,3 +1,9 @@
+/**
+ * This file handles setting up and clearing the database.
+ * 
+ * @module DatabaseSetup
+ */
+
 import * as Database from './Database.js';
 import * as UserDatabase from './UserDatabase.js';
 import * as SubmissionDatabase from './SubmissionDatabase.js';

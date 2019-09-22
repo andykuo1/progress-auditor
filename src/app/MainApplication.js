@@ -1,3 +1,15 @@
+/**
+ * This file handles the macro-level logical flow of the program.
+ * This is used by `main.js`, alongside `ClientApplication` to
+ * execute and process the entire program.
+ * 
+ * The program's process is further broken down into handlers; each
+ * handler controls a certain stage of the program. There is usually
+ * one handler per stage, but there are a couple exceptions.
+ * 
+ * @module MainApplication
+ */
+
 import * as ConfigHandler from './main/ConfigHandler.js';
 import * as DatabaseHandler from './main/DatabaseHandler.js';
 import * as DatabaseSolver from './main/DatabaseSolver.js';

@@ -1,3 +1,15 @@
+/**
+ * This file handles the extra client interface of the program.
+ * This is used by `main.js`, alongside `MainApplication` to
+ * execute and process the entire program.
+ * 
+ * As of right now, this serves only to "inject" extra information
+ * that the client would want to see that is not relevant to
+ * the main program.
+ * 
+ * @module ClientApplication
+ */
+
 import { version } from '../../package.json';
 import * as Client from '../client/Client.js';
 import * as DatabaseSolver from './main/DatabaseSolver.js';

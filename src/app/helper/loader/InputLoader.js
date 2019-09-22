@@ -1,3 +1,9 @@
+/**
+ * This file is used to specifically load the input entries from the config file.
+ * 
+ * @module InputLoader
+ */
+
 import * as ParserLoader from '../../../input/parser/ParserLoader.js';
 import * as ParserRegistry from '../../../input/parser/ParserRegistry.js';
 import path from 'path';

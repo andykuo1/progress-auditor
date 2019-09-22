@@ -1,3 +1,9 @@
+/**
+ * This file tests the date algorithms. Simply import this file to run it.
+ * 
+ * @module DateTest
+ */
+
 import * as DateUtil from './DateUtil.js';
 import * as DateGenerator from './DateGenerator.js';
 
