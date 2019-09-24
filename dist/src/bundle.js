@@ -11274,10 +11274,10 @@ var SubmissionAssignmentByIntroReview = /*#__PURE__*/Object.freeze({
 
 const ERROR_TAG$3 = 'REVIEW';
 
-const TYPE$3 = 'assignment_by_intro';
-const DESCRIPTION$3 = 'Assigns submission by matching intro headers.';
+const TYPE$3 = 'assignment_by_last';
+const DESCRIPTION$3 = 'Assigns submission by matching last headers.';
 
-const WEEK_PATTERN = /week ?([0-9]+)/i;
+const WEEK_PATTERN = /week\[([0-9]+)\]/i;
 
 /**
  * Searches all unassigned submissions to check if they could also be 'intro' assignments.
@@ -11293,8 +11293,6 @@ async function review$3(db, config)
             const userID = getUserByOwnerKey(db, ownerKey);
             if (userID)
             {
-                const userName = getUserByID(db, userID).name;
-
                 // Find the last week's assignment number...
                 const assignments = getAssignmentsByUser(db, userID);
                 let maxAssignmentNumber = 0;
@@ -11318,22 +11316,16 @@ async function review$3(db, config)
                     }
                 }
                 const lastWeekNumber = maxAssignmentNumber + 1;
+                console.log(lastWeekNumber, getUserByID(db, userID).schedule.weeks);
         
                 const assignedSubmissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
-                if ('null' in assignedSubmissions)
+                const key = `week[${lastWeekNumber}]`;
+                if (key in assignedSubmissions)
                 {
-                    const unassignedSubmissions = assignedSubmissions['null'].slice();
+                    const unassignedSubmissions = assignedSubmissions[key].slice();
                     for(const unassignedSubmission of unassignedSubmissions)
                     {
-                        const headerContent = unassignedSubmission.attributes.content.head;
-                        const result = WEEK_PATTERN.exec(headerContent);
-                        if (result && result.length >= 2)
-                        {
-                            if (result[1] == lastWeekNumber)
-                            {
-                                changeSubmissionAssignment(db, unassignedSubmission, 'last');
-                            }
-                        }
+                        changeSubmissionAssignment(db, unassignedSubmission, 'last');
                     }
                 }
             }
@@ -12991,8 +12983,11 @@ function loadCustomAssignment(filePath)
 function getOutputTypes()
 {
     return [
+        // The general expected output with all users and their slip days.
         'instructor',
+        // The specific summary for each user, including options for pdf versions.
         'student',
+        // The debug logs.
         'debug',
     ];
 }

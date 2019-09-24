@@ -4,13 +4,13 @@ import * as AssignmentDatabase from '../../database/AssignmentDatabase.js';
 
 const ERROR_TAG = 'REVIEW';
 
-export const TYPE = 'assignment_by_intro';
-export const DESCRIPTION = 'Assigns submission by matching intro headers.';
+export const TYPE = 'assignment_by_last';
+export const DESCRIPTION = 'Assigns submission by matching last week assignment number.';
 
-const WEEK_PATTERN = /week ?([0-9]+)/i;
+const WEEK_PATTERN = /week\[([0-9]+)\]/i;
 
 /**
- * Searches all unassigned submissions to check if they could also be 'intro' assignments.
+ * Searches all 'week[n]' submissions (where n is the last week's assignment number) to check if they could also be 'last' assignments.
  * @param {Database} db The database.
  * @param {Config} config The config.
  */
@@ -23,8 +23,6 @@ export async function review(db, config)
             const userID = UserDatabase.getUserByOwnerKey(db, ownerKey);
             if (userID)
             {
-                const userName = UserDatabase.getUserByID(db, userID).name;
-
                 // Find the last week's assignment number...
                 const assignments = AssignmentDatabase.getAssignmentsByUser(db, userID);
                 let maxAssignmentNumber = 0;
@@ -50,20 +48,13 @@ export async function review(db, config)
                 const lastWeekNumber = maxAssignmentNumber + 1;
         
                 const assignedSubmissions = SubmissionDatabase.getAssignedSubmissionsByOwnerKey(db, ownerKey);
-                if ('null' in assignedSubmissions)
+                const key = `week[${lastWeekNumber}]`;
+                if (key in assignedSubmissions)
                 {
-                    const unassignedSubmissions = assignedSubmissions['null'].slice();
+                    const unassignedSubmissions = assignedSubmissions[key].slice();
                     for(const unassignedSubmission of unassignedSubmissions)
                     {
-                        const headerContent = unassignedSubmission.attributes.content.head;
-                        const result = WEEK_PATTERN.exec(headerContent);
-                        if (result && result.length >= 2)
-                        {
-                            if (result[1] == lastWeekNumber)
-                            {
-                                SubmissionDatabase.changeSubmissionAssignment(db, unassignedSubmission, 'last');
-                            }
-                        }
+                        SubmissionDatabase.changeSubmissionAssignment(db, unassignedSubmission, 'last');
                     }
                 }
             }
