@@ -59,7 +59,7 @@ Here are the available options for the config file:
 | inputs            | An array of input entry objects. | /* Refer below. */ |
 | outputs           | An array of output entry objects. | /* Refer below. */ |
 | outputAutoDate    | Whether to write output into a directory named by date of execution. | true |
-| debug             | Whether to enable debug mode for more debugging information, such as stack traces. | false |
+| debug             | Whether to enable debug mode for more debugging information, such as stack traces. To output debug logs, add a debug entry to the outputs instead. | false |
 
 Here's an example config file:
 ```json
@@ -155,6 +155,7 @@ Example:
 | parser    | The parser type. The currently implemented parsers are `cohort`, `contributions`, and `reviews`. |
 | opts      | Any additional options for the input file. |
 | opts.customPath | You can specify a custom script by setting this to the path to the custom parser. |
+| opts.maxEndDates | You can specify an array of maximum end dates for any user given the matching pattern. Each entry takes a regex pattern to match and a date. This is only implemented for cohort. |
 
 Example:
 ```json
@@ -162,6 +163,29 @@ Example:
     "inputName": "cohort.csv",
     "parser": "cohort",
     "opts": {}
+}
+```
+
+#### Max End Date Entries
+These entries are only available for the cohort parser.
+
+| Property  | Description |
+| --------- | ----------- |
+| pattern | The regex pattern to match in cohort for each user if they should have their schedule be limited by the max end date. |
+| endDate | The maximum possible end date for the matched users. |
+
+Example:
+```json
+{
+    "inputName": "cohort.csv",
+    "parser": "cohort",
+    "opts": {
+        "maxEndDates": [
+            { "pattern": "Special Summer Session 2018", "endDate": "2018-7-11" },
+            { "pattern": "Special Summer Session 2019", "endDate": "2019-8-23" },
+            { "pattern": "Winter 2020", "endDate": "2020-03-15" }
+        ]
+    }
 }
 ```
 
@@ -293,10 +317,10 @@ The entry point for the code is in `src/bin.js` (if bundled, this will be referr
 This script manages the interactive menu and handles starting the program. For the actual implementations, you should checkout `main.js` and `index.js`. `index.js` handles the imports/exports used and `main.js` handles the lifecycle of the program itself.
 
 ### Conclusion
-If you have any more questions, please contact Professor Mia Minnes or Andrew Kuo.
+If you have any more questions, please contact Professor Mia Minnes.
 
-Or, you can contact me:
-ank060@ucsd.edu
-(Please begin the subject with 'UCSD Progress Auditor');
+Or, you can contact me: ank060@ucsd.edu
+
+_(Please begin the subject with 'UCSD Progress Auditor')_
 
 Thank you for reading me!

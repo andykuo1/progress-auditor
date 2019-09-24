@@ -19,9 +19,6 @@ export async function loadAssignmentsFromConfig(db, config)
         }
         catch(e)
         {
-            // TODO: What to output if assignment type is missing?
-            // TODO: What to output if custom assignment file is missing?
-            // TODO: What to output if custom assignment file is invalid?
             console.error('Failed to load assignment entry.', e);
         }
     }

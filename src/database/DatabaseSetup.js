@@ -13,7 +13,6 @@ import * as VacationDatabase from './VacationDatabase.js';
 
 import * as DateUtil from '../util/DateUtil.js';
 
-// TODO: this is still hard-coded...
 export async function setupDatabase(config)
 {
     const db = Database.createDatabase();

@@ -13,6 +13,9 @@ export default {
       preferBuiltins: true
     }),
     commonjs(),
+    // NOTE: You could compress the javascript, but there really is no need.
+    // It will be compiled into binary by the pkg module anyways. And it's
+    // nice for debugging purposes.
     // terser()
   ],
   external: [
