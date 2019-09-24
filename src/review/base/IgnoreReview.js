@@ -24,7 +24,7 @@ export async function review(db, config)
                 const { id, type, params } = value;
                 const reviewID = params[0];
                 const review = ReviewDatabase.getReviewByID(db, reviewID);
-                if (review.type.endsWith(IGNORE_SUFFIX)) continue;
+                if (review.type.endsWith(IGNORE_SUFFIX)) return;
                 if (review.type === TYPE)
                 {
                     throw new Error(`Invalid review target '${reviewID}' - cannot ignore another ignore_review type.`);
