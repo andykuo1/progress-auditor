@@ -6,9 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2019-09-23
+## [1.0.0] - 2019-09-24
+### Fixed
+- Auto-assign for last week or week[n + 1] now assigns properly.
+
 ### Changed
 - Released version 1.0.0
+- And more documentation throughout.
 
 ## [0.4.3] - 2019-09-22
 ### Changed
@@ -17,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Removed false-negative error for add_owner_key.
+
+### Removed
+- `change_assignment` no longer has history tracking (but applies to all automatically instead)
 
 ## [0.4.2] - 2019-09-17
 ### Added
