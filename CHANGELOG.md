@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Released version 1.0.0
 - And more documentation throughout.
+- `ignore_review` now keeps old reviews around for posterity instead of removing them.
 
 ## [0.4.3] - 2019-09-22
 ### Changed

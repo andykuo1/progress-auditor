@@ -11275,12 +11275,12 @@ var SubmissionAssignmentByIntroReview = /*#__PURE__*/Object.freeze({
 const ERROR_TAG$3 = 'REVIEW';
 
 const TYPE$3 = 'assignment_by_last';
-const DESCRIPTION$3 = 'Assigns submission by matching last headers.';
+const DESCRIPTION$3 = 'Assigns submission by matching last week assignment number.';
 
 const WEEK_PATTERN = /week\[([0-9]+)\]/i;
 
 /**
- * Searches all unassigned submissions to check if they could also be 'intro' assignments.
+ * Searches all 'week[n]' submissions (where n is the last week's assignment number) to check if they could also be 'last' assignments.
  * @param {Database} db The database.
  * @param {Config} config The config.
  */
@@ -11316,7 +11316,6 @@ async function review$3(db, config)
                     }
                 }
                 const lastWeekNumber = maxAssignmentNumber + 1;
-                console.log(lastWeekNumber, getUserByID(db, userID).schedule.weeks);
         
                 const assignedSubmissions = getAssignedSubmissionsByOwnerKey(db, ownerKey);
                 const key = `week[${lastWeekNumber}]`;
@@ -12194,7 +12193,8 @@ async function review$f(db, config)
                 {
                     throw new Error(`Invalid review target '${reviewID}' - cannot ignore another ignore_review type.`);
                 }
-                removeReviewByID(db, reviewID);
+                review.type = review.type + '#IGNORED';
+                // ReviewDatabase.removeReviewByID(db, reviewID);
             })
             .review(db, config);
     }

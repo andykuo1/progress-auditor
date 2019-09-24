@@ -6,6 +6,8 @@ import { createBuilder } from '../helper/ReviewBuilder.js';
 export const TYPE = 'ignore_review';
 export const DESCRIPTION = 'Ignore another review (cannot ignore another ignore_review).';
 
+const IGNORE_SUFFIX = '#IGNORE';
+
 /**
  * This is a reflection review, as in it reviews (action) reviews (object).
  * Therefore, it must run first. Please refer to VacationReview for specifics.
@@ -22,11 +24,16 @@ export async function review(db, config)
                 const { id, type, params } = value;
                 const reviewID = params[0];
                 const review = ReviewDatabase.getReviewByID(db, reviewID);
+                if (review.type.endsWith(IGNORE_SUFFIX)) continue;
                 if (review.type === TYPE)
                 {
                     throw new Error(`Invalid review target '${reviewID}' - cannot ignore another ignore_review type.`);
                 }
-                ReviewDatabase.removeReviewByID(db, reviewID);
+                // NOTE: We should not REMOVE the old review, just in case we want to refer to it later.
+                // This is important because, if removed, the old review will no longer be saved to file.
+                // So just change the type instead.
+                // ReviewDatabase.removeReviewByID(db, reviewID);
+                review.type = review.type + IGNORE_SUFFIX;
             })
             .review(db, config);
     }
