@@ -1,5 +1,6 @@
 import * as MathHelper from '../util/MathHelper.js';
 import * as ProgressOtter from './helper/ProgressOtter.js';
+import { ask } from './ClientPrompt.js';
 import chalk from 'chalk';
 import figlet from 'figlet';
 

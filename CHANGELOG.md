@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2020-06-07
+### Added
+- Users can now restart on error instead of force exit.
+
+### Fixed
+- Missing input files should now properly ask to skip instead of error out.
+- Show proper error message for missing parser type.
+
 ## [1.0.0] - 2019-09-24
 ### Fixed
 - Auto-assign for last week or week[n + 1] now assigns properly.
@@ -155,7 +163,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Generic review process system
 - Process submissions for assignments
 
-[Unreleased]: https://github.com/andykuo1/progress-auditor/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/andykuo1/progress-auditor/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/andykuo1/progress-auditor/releases/tag/v1.0.1
 [1.0.0]: https://github.com/andykuo1/progress-auditor/releases/tag/v1.0.0
 [0.4.3]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.4.3
 [0.4.2]: https://github.com/andykuo1/progress-auditor/releases/tag/v0.4.2

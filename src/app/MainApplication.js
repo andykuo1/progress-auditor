@@ -92,7 +92,7 @@ export async function resolveDatabase(config)
     // Check with the user if it is okay to continue, based on some data stats...
     if (!await DatabaseHandler.verifyDatabaseWithClient(db, config))
     {
-        throw new Error('Could not resolve database for program. Please update the config to match your specifications, then try again. Stopping program...');
+        throw new Error('Could not resolve database for program. Please update the config to match your specifications, then try again.');
     }
     return db;
 }

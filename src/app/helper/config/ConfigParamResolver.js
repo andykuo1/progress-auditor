@@ -65,9 +65,11 @@ export async function resolveInputs(directory)
 
 export async function resolveOutputs(directory)
 {
+    let choices = OutputLoader.getOutputTypes();
     const outputs = await Client.askPrompt("Which outputs do you want to generate?", 'select', {
         multiple: true,
-        choices: OutputLoader.getOutputTypes(),
+        choices,
+        initial: choices.slice(),
     });
 
     // TODO: This is should somehow allow loading custom output scripts.
@@ -152,14 +154,14 @@ export async function resolveAssignments(directory)
 export async function resolveInputPath(directory)
 {
     const path = require('path');
-    const inputPath = await Client.askPath("Specify a new input path", directory, true, true);
+    const inputPath = await Client.askPath("Specify a new input path (directory with your input files)", directory, true, true);
     return path.resolve(directory, inputPath);
 }
 
 export async function resolveOutputPath(directory)
 {
     const path = require('path');
-    const outputPath = await Client.askPath("Specify a new output path", directory, false, true);
+    const outputPath = await Client.askPath("Specify a new output path (directory for your output files)", directory, false, true);
     return path.resolve(directory, outputPath);
 }
 

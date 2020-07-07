@@ -38,8 +38,17 @@ export async function main(args)
     }
     catch(e)
     {
-        await ClientApplication.onError(db, config, e);
-        return false;
+        await ClientApplication.showError(db, config, e);
+
+        if (await ClientApplication.tryRestartOnError(db, config, e))
+        {
+            return await main(args);
+        }
+        else
+        {
+            await ClientApplication.onError(db, config, e);
+            return false;
+        }
     }
 
     await ClientApplication.onStop(db, config);

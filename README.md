@@ -14,6 +14,7 @@ To make a program that streamlines and tracks the grading and logistics of discu
 * [Usage](#usage)
 * [Getting Started](#setting-up-the-workspace)
 * [Running the Program](#running-the-program)
+* [Building for Production](#building-for-production)
 * [Project Structure](#project-structure)
   * [Entry Point](#entry-point)
 
@@ -306,6 +307,37 @@ npm start
 
 ### Development Build
 Currently there is no other way to build the project. Due to its rather small size, building the production build every time is not a huge concern.
+
+---
+
+## Building for Production
+First, bump the version number in `package.json` and update the `CHANGELOG.md` with the new additions, removals, and fixes.
+
+Then, run this to make sure all dependencies are installed correctly (or update them if necessary). 
+
+```
+npm install
+```
+
+Then, build and make sure it compiles:
+
+```
+npm run start
+```
+
+Then, compile build files for production.
+
+```
+npm run build-all
+```
+
+This will generate the files in `dist` for each supported platform. These files should be not be pushed, but keep these files for later.
+
+You should now be able to commit and push your these changes.
+
+Once done, we will upload the output files generated earlier as a release (be sure the version is correct).
+
+And that should be all :)
 
 ---
 

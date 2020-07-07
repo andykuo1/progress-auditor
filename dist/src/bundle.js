@@ -2,12 +2,12 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var os = _interopDefault(require('os'));
-var fs$2 = _interopDefault(require('fs'));
-var path$6 = _interopDefault(require('path'));
 var assert = _interopDefault(require('assert'));
 var events = _interopDefault(require('events'));
 var readline$1 = _interopDefault(require('readline'));
+var os = _interopDefault(require('os'));
+var fs$2 = _interopDefault(require('fs'));
+var path$6 = _interopDefault(require('path'));
 
 /**
  * @param {Date} dueDate The date the assignment is due.
@@ -1855,3082 +1855,6 @@ function otter(message)
 
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
-
-var matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
-
-var escapeStringRegexp = function (str) {
-	if (typeof str !== 'string') {
-		throw new TypeError('Expected a string');
-	}
-
-	return str.replace(matchOperatorsRe, '\\$&');
-};
-
-var colorName = {
-	"aliceblue": [240, 248, 255],
-	"antiquewhite": [250, 235, 215],
-	"aqua": [0, 255, 255],
-	"aquamarine": [127, 255, 212],
-	"azure": [240, 255, 255],
-	"beige": [245, 245, 220],
-	"bisque": [255, 228, 196],
-	"black": [0, 0, 0],
-	"blanchedalmond": [255, 235, 205],
-	"blue": [0, 0, 255],
-	"blueviolet": [138, 43, 226],
-	"brown": [165, 42, 42],
-	"burlywood": [222, 184, 135],
-	"cadetblue": [95, 158, 160],
-	"chartreuse": [127, 255, 0],
-	"chocolate": [210, 105, 30],
-	"coral": [255, 127, 80],
-	"cornflowerblue": [100, 149, 237],
-	"cornsilk": [255, 248, 220],
-	"crimson": [220, 20, 60],
-	"cyan": [0, 255, 255],
-	"darkblue": [0, 0, 139],
-	"darkcyan": [0, 139, 139],
-	"darkgoldenrod": [184, 134, 11],
-	"darkgray": [169, 169, 169],
-	"darkgreen": [0, 100, 0],
-	"darkgrey": [169, 169, 169],
-	"darkkhaki": [189, 183, 107],
-	"darkmagenta": [139, 0, 139],
-	"darkolivegreen": [85, 107, 47],
-	"darkorange": [255, 140, 0],
-	"darkorchid": [153, 50, 204],
-	"darkred": [139, 0, 0],
-	"darksalmon": [233, 150, 122],
-	"darkseagreen": [143, 188, 143],
-	"darkslateblue": [72, 61, 139],
-	"darkslategray": [47, 79, 79],
-	"darkslategrey": [47, 79, 79],
-	"darkturquoise": [0, 206, 209],
-	"darkviolet": [148, 0, 211],
-	"deeppink": [255, 20, 147],
-	"deepskyblue": [0, 191, 255],
-	"dimgray": [105, 105, 105],
-	"dimgrey": [105, 105, 105],
-	"dodgerblue": [30, 144, 255],
-	"firebrick": [178, 34, 34],
-	"floralwhite": [255, 250, 240],
-	"forestgreen": [34, 139, 34],
-	"fuchsia": [255, 0, 255],
-	"gainsboro": [220, 220, 220],
-	"ghostwhite": [248, 248, 255],
-	"gold": [255, 215, 0],
-	"goldenrod": [218, 165, 32],
-	"gray": [128, 128, 128],
-	"green": [0, 128, 0],
-	"greenyellow": [173, 255, 47],
-	"grey": [128, 128, 128],
-	"honeydew": [240, 255, 240],
-	"hotpink": [255, 105, 180],
-	"indianred": [205, 92, 92],
-	"indigo": [75, 0, 130],
-	"ivory": [255, 255, 240],
-	"khaki": [240, 230, 140],
-	"lavender": [230, 230, 250],
-	"lavenderblush": [255, 240, 245],
-	"lawngreen": [124, 252, 0],
-	"lemonchiffon": [255, 250, 205],
-	"lightblue": [173, 216, 230],
-	"lightcoral": [240, 128, 128],
-	"lightcyan": [224, 255, 255],
-	"lightgoldenrodyellow": [250, 250, 210],
-	"lightgray": [211, 211, 211],
-	"lightgreen": [144, 238, 144],
-	"lightgrey": [211, 211, 211],
-	"lightpink": [255, 182, 193],
-	"lightsalmon": [255, 160, 122],
-	"lightseagreen": [32, 178, 170],
-	"lightskyblue": [135, 206, 250],
-	"lightslategray": [119, 136, 153],
-	"lightslategrey": [119, 136, 153],
-	"lightsteelblue": [176, 196, 222],
-	"lightyellow": [255, 255, 224],
-	"lime": [0, 255, 0],
-	"limegreen": [50, 205, 50],
-	"linen": [250, 240, 230],
-	"magenta": [255, 0, 255],
-	"maroon": [128, 0, 0],
-	"mediumaquamarine": [102, 205, 170],
-	"mediumblue": [0, 0, 205],
-	"mediumorchid": [186, 85, 211],
-	"mediumpurple": [147, 112, 219],
-	"mediumseagreen": [60, 179, 113],
-	"mediumslateblue": [123, 104, 238],
-	"mediumspringgreen": [0, 250, 154],
-	"mediumturquoise": [72, 209, 204],
-	"mediumvioletred": [199, 21, 133],
-	"midnightblue": [25, 25, 112],
-	"mintcream": [245, 255, 250],
-	"mistyrose": [255, 228, 225],
-	"moccasin": [255, 228, 181],
-	"navajowhite": [255, 222, 173],
-	"navy": [0, 0, 128],
-	"oldlace": [253, 245, 230],
-	"olive": [128, 128, 0],
-	"olivedrab": [107, 142, 35],
-	"orange": [255, 165, 0],
-	"orangered": [255, 69, 0],
-	"orchid": [218, 112, 214],
-	"palegoldenrod": [238, 232, 170],
-	"palegreen": [152, 251, 152],
-	"paleturquoise": [175, 238, 238],
-	"palevioletred": [219, 112, 147],
-	"papayawhip": [255, 239, 213],
-	"peachpuff": [255, 218, 185],
-	"peru": [205, 133, 63],
-	"pink": [255, 192, 203],
-	"plum": [221, 160, 221],
-	"powderblue": [176, 224, 230],
-	"purple": [128, 0, 128],
-	"rebeccapurple": [102, 51, 153],
-	"red": [255, 0, 0],
-	"rosybrown": [188, 143, 143],
-	"royalblue": [65, 105, 225],
-	"saddlebrown": [139, 69, 19],
-	"salmon": [250, 128, 114],
-	"sandybrown": [244, 164, 96],
-	"seagreen": [46, 139, 87],
-	"seashell": [255, 245, 238],
-	"sienna": [160, 82, 45],
-	"silver": [192, 192, 192],
-	"skyblue": [135, 206, 235],
-	"slateblue": [106, 90, 205],
-	"slategray": [112, 128, 144],
-	"slategrey": [112, 128, 144],
-	"snow": [255, 250, 250],
-	"springgreen": [0, 255, 127],
-	"steelblue": [70, 130, 180],
-	"tan": [210, 180, 140],
-	"teal": [0, 128, 128],
-	"thistle": [216, 191, 216],
-	"tomato": [255, 99, 71],
-	"turquoise": [64, 224, 208],
-	"violet": [238, 130, 238],
-	"wheat": [245, 222, 179],
-	"white": [255, 255, 255],
-	"whitesmoke": [245, 245, 245],
-	"yellow": [255, 255, 0],
-	"yellowgreen": [154, 205, 50]
-};
-
-var conversions = createCommonjsModule(function (module) {
-/* MIT license */
-
-
-// NOTE: conversions should only return primitive values (i.e. arrays, or
-//       values that give correct `typeof` results).
-//       do not use box values types (i.e. Number(), String(), etc.)
-
-var reverseKeywords = {};
-for (var key in colorName) {
-	if (colorName.hasOwnProperty(key)) {
-		reverseKeywords[colorName[key]] = key;
-	}
-}
-
-var convert = module.exports = {
-	rgb: {channels: 3, labels: 'rgb'},
-	hsl: {channels: 3, labels: 'hsl'},
-	hsv: {channels: 3, labels: 'hsv'},
-	hwb: {channels: 3, labels: 'hwb'},
-	cmyk: {channels: 4, labels: 'cmyk'},
-	xyz: {channels: 3, labels: 'xyz'},
-	lab: {channels: 3, labels: 'lab'},
-	lch: {channels: 3, labels: 'lch'},
-	hex: {channels: 1, labels: ['hex']},
-	keyword: {channels: 1, labels: ['keyword']},
-	ansi16: {channels: 1, labels: ['ansi16']},
-	ansi256: {channels: 1, labels: ['ansi256']},
-	hcg: {channels: 3, labels: ['h', 'c', 'g']},
-	apple: {channels: 3, labels: ['r16', 'g16', 'b16']},
-	gray: {channels: 1, labels: ['gray']}
-};
-
-// hide .channels and .labels properties
-for (var model in convert) {
-	if (convert.hasOwnProperty(model)) {
-		if (!('channels' in convert[model])) {
-			throw new Error('missing channels property: ' + model);
-		}
-
-		if (!('labels' in convert[model])) {
-			throw new Error('missing channel labels property: ' + model);
-		}
-
-		if (convert[model].labels.length !== convert[model].channels) {
-			throw new Error('channel and label counts mismatch: ' + model);
-		}
-
-		var channels = convert[model].channels;
-		var labels = convert[model].labels;
-		delete convert[model].channels;
-		delete convert[model].labels;
-		Object.defineProperty(convert[model], 'channels', {value: channels});
-		Object.defineProperty(convert[model], 'labels', {value: labels});
-	}
-}
-
-convert.rgb.hsl = function (rgb) {
-	var r = rgb[0] / 255;
-	var g = rgb[1] / 255;
-	var b = rgb[2] / 255;
-	var min = Math.min(r, g, b);
-	var max = Math.max(r, g, b);
-	var delta = max - min;
-	var h;
-	var s;
-	var l;
-
-	if (max === min) {
-		h = 0;
-	} else if (r === max) {
-		h = (g - b) / delta;
-	} else if (g === max) {
-		h = 2 + (b - r) / delta;
-	} else if (b === max) {
-		h = 4 + (r - g) / delta;
-	}
-
-	h = Math.min(h * 60, 360);
-
-	if (h < 0) {
-		h += 360;
-	}
-
-	l = (min + max) / 2;
-
-	if (max === min) {
-		s = 0;
-	} else if (l <= 0.5) {
-		s = delta / (max + min);
-	} else {
-		s = delta / (2 - max - min);
-	}
-
-	return [h, s * 100, l * 100];
-};
-
-convert.rgb.hsv = function (rgb) {
-	var rdif;
-	var gdif;
-	var bdif;
-	var h;
-	var s;
-
-	var r = rgb[0] / 255;
-	var g = rgb[1] / 255;
-	var b = rgb[2] / 255;
-	var v = Math.max(r, g, b);
-	var diff = v - Math.min(r, g, b);
-	var diffc = function (c) {
-		return (v - c) / 6 / diff + 1 / 2;
-	};
-
-	if (diff === 0) {
-		h = s = 0;
-	} else {
-		s = diff / v;
-		rdif = diffc(r);
-		gdif = diffc(g);
-		bdif = diffc(b);
-
-		if (r === v) {
-			h = bdif - gdif;
-		} else if (g === v) {
-			h = (1 / 3) + rdif - bdif;
-		} else if (b === v) {
-			h = (2 / 3) + gdif - rdif;
-		}
-		if (h < 0) {
-			h += 1;
-		} else if (h > 1) {
-			h -= 1;
-		}
-	}
-
-	return [
-		h * 360,
-		s * 100,
-		v * 100
-	];
-};
-
-convert.rgb.hwb = function (rgb) {
-	var r = rgb[0];
-	var g = rgb[1];
-	var b = rgb[2];
-	var h = convert.rgb.hsl(rgb)[0];
-	var w = 1 / 255 * Math.min(r, Math.min(g, b));
-
-	b = 1 - 1 / 255 * Math.max(r, Math.max(g, b));
-
-	return [h, w * 100, b * 100];
-};
-
-convert.rgb.cmyk = function (rgb) {
-	var r = rgb[0] / 255;
-	var g = rgb[1] / 255;
-	var b = rgb[2] / 255;
-	var c;
-	var m;
-	var y;
-	var k;
-
-	k = Math.min(1 - r, 1 - g, 1 - b);
-	c = (1 - r - k) / (1 - k) || 0;
-	m = (1 - g - k) / (1 - k) || 0;
-	y = (1 - b - k) / (1 - k) || 0;
-
-	return [c * 100, m * 100, y * 100, k * 100];
-};
-
-/**
- * See https://en.m.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance
- * */
-function comparativeDistance(x, y) {
-	return (
-		Math.pow(x[0] - y[0], 2) +
-		Math.pow(x[1] - y[1], 2) +
-		Math.pow(x[2] - y[2], 2)
-	);
-}
-
-convert.rgb.keyword = function (rgb) {
-	var reversed = reverseKeywords[rgb];
-	if (reversed) {
-		return reversed;
-	}
-
-	var currentClosestDistance = Infinity;
-	var currentClosestKeyword;
-
-	for (var keyword in colorName) {
-		if (colorName.hasOwnProperty(keyword)) {
-			var value = colorName[keyword];
-
-			// Compute comparative distance
-			var distance = comparativeDistance(rgb, value);
-
-			// Check if its less, if so set as closest
-			if (distance < currentClosestDistance) {
-				currentClosestDistance = distance;
-				currentClosestKeyword = keyword;
-			}
-		}
-	}
-
-	return currentClosestKeyword;
-};
-
-convert.keyword.rgb = function (keyword) {
-	return colorName[keyword];
-};
-
-convert.rgb.xyz = function (rgb) {
-	var r = rgb[0] / 255;
-	var g = rgb[1] / 255;
-	var b = rgb[2] / 255;
-
-	// assume sRGB
-	r = r > 0.04045 ? Math.pow(((r + 0.055) / 1.055), 2.4) : (r / 12.92);
-	g = g > 0.04045 ? Math.pow(((g + 0.055) / 1.055), 2.4) : (g / 12.92);
-	b = b > 0.04045 ? Math.pow(((b + 0.055) / 1.055), 2.4) : (b / 12.92);
-
-	var x = (r * 0.4124) + (g * 0.3576) + (b * 0.1805);
-	var y = (r * 0.2126) + (g * 0.7152) + (b * 0.0722);
-	var z = (r * 0.0193) + (g * 0.1192) + (b * 0.9505);
-
-	return [x * 100, y * 100, z * 100];
-};
-
-convert.rgb.lab = function (rgb) {
-	var xyz = convert.rgb.xyz(rgb);
-	var x = xyz[0];
-	var y = xyz[1];
-	var z = xyz[2];
-	var l;
-	var a;
-	var b;
-
-	x /= 95.047;
-	y /= 100;
-	z /= 108.883;
-
-	x = x > 0.008856 ? Math.pow(x, 1 / 3) : (7.787 * x) + (16 / 116);
-	y = y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + (16 / 116);
-	z = z > 0.008856 ? Math.pow(z, 1 / 3) : (7.787 * z) + (16 / 116);
-
-	l = (116 * y) - 16;
-	a = 500 * (x - y);
-	b = 200 * (y - z);
-
-	return [l, a, b];
-};
-
-convert.hsl.rgb = function (hsl) {
-	var h = hsl[0] / 360;
-	var s = hsl[1] / 100;
-	var l = hsl[2] / 100;
-	var t1;
-	var t2;
-	var t3;
-	var rgb;
-	var val;
-
-	if (s === 0) {
-		val = l * 255;
-		return [val, val, val];
-	}
-
-	if (l < 0.5) {
-		t2 = l * (1 + s);
-	} else {
-		t2 = l + s - l * s;
-	}
-
-	t1 = 2 * l - t2;
-
-	rgb = [0, 0, 0];
-	for (var i = 0; i < 3; i++) {
-		t3 = h + 1 / 3 * -(i - 1);
-		if (t3 < 0) {
-			t3++;
-		}
-		if (t3 > 1) {
-			t3--;
-		}
-
-		if (6 * t3 < 1) {
-			val = t1 + (t2 - t1) * 6 * t3;
-		} else if (2 * t3 < 1) {
-			val = t2;
-		} else if (3 * t3 < 2) {
-			val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
-		} else {
-			val = t1;
-		}
-
-		rgb[i] = val * 255;
-	}
-
-	return rgb;
-};
-
-convert.hsl.hsv = function (hsl) {
-	var h = hsl[0];
-	var s = hsl[1] / 100;
-	var l = hsl[2] / 100;
-	var smin = s;
-	var lmin = Math.max(l, 0.01);
-	var sv;
-	var v;
-
-	l *= 2;
-	s *= (l <= 1) ? l : 2 - l;
-	smin *= lmin <= 1 ? lmin : 2 - lmin;
-	v = (l + s) / 2;
-	sv = l === 0 ? (2 * smin) / (lmin + smin) : (2 * s) / (l + s);
-
-	return [h, sv * 100, v * 100];
-};
-
-convert.hsv.rgb = function (hsv) {
-	var h = hsv[0] / 60;
-	var s = hsv[1] / 100;
-	var v = hsv[2] / 100;
-	var hi = Math.floor(h) % 6;
-
-	var f = h - Math.floor(h);
-	var p = 255 * v * (1 - s);
-	var q = 255 * v * (1 - (s * f));
-	var t = 255 * v * (1 - (s * (1 - f)));
-	v *= 255;
-
-	switch (hi) {
-		case 0:
-			return [v, t, p];
-		case 1:
-			return [q, v, p];
-		case 2:
-			return [p, v, t];
-		case 3:
-			return [p, q, v];
-		case 4:
-			return [t, p, v];
-		case 5:
-			return [v, p, q];
-	}
-};
-
-convert.hsv.hsl = function (hsv) {
-	var h = hsv[0];
-	var s = hsv[1] / 100;
-	var v = hsv[2] / 100;
-	var vmin = Math.max(v, 0.01);
-	var lmin;
-	var sl;
-	var l;
-
-	l = (2 - s) * v;
-	lmin = (2 - s) * vmin;
-	sl = s * vmin;
-	sl /= (lmin <= 1) ? lmin : 2 - lmin;
-	sl = sl || 0;
-	l /= 2;
-
-	return [h, sl * 100, l * 100];
-};
-
-// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
-convert.hwb.rgb = function (hwb) {
-	var h = hwb[0] / 360;
-	var wh = hwb[1] / 100;
-	var bl = hwb[2] / 100;
-	var ratio = wh + bl;
-	var i;
-	var v;
-	var f;
-	var n;
-
-	// wh + bl cant be > 1
-	if (ratio > 1) {
-		wh /= ratio;
-		bl /= ratio;
-	}
-
-	i = Math.floor(6 * h);
-	v = 1 - bl;
-	f = 6 * h - i;
-
-	if ((i & 0x01) !== 0) {
-		f = 1 - f;
-	}
-
-	n = wh + f * (v - wh); // linear interpolation
-
-	var r;
-	var g;
-	var b;
-	switch (i) {
-		default:
-		case 6:
-		case 0: r = v; g = n; b = wh; break;
-		case 1: r = n; g = v; b = wh; break;
-		case 2: r = wh; g = v; b = n; break;
-		case 3: r = wh; g = n; b = v; break;
-		case 4: r = n; g = wh; b = v; break;
-		case 5: r = v; g = wh; b = n; break;
-	}
-
-	return [r * 255, g * 255, b * 255];
-};
-
-convert.cmyk.rgb = function (cmyk) {
-	var c = cmyk[0] / 100;
-	var m = cmyk[1] / 100;
-	var y = cmyk[2] / 100;
-	var k = cmyk[3] / 100;
-	var r;
-	var g;
-	var b;
-
-	r = 1 - Math.min(1, c * (1 - k) + k);
-	g = 1 - Math.min(1, m * (1 - k) + k);
-	b = 1 - Math.min(1, y * (1 - k) + k);
-
-	return [r * 255, g * 255, b * 255];
-};
-
-convert.xyz.rgb = function (xyz) {
-	var x = xyz[0] / 100;
-	var y = xyz[1] / 100;
-	var z = xyz[2] / 100;
-	var r;
-	var g;
-	var b;
-
-	r = (x * 3.2406) + (y * -1.5372) + (z * -0.4986);
-	g = (x * -0.9689) + (y * 1.8758) + (z * 0.0415);
-	b = (x * 0.0557) + (y * -0.2040) + (z * 1.0570);
-
-	// assume sRGB
-	r = r > 0.0031308
-		? ((1.055 * Math.pow(r, 1.0 / 2.4)) - 0.055)
-		: r * 12.92;
-
-	g = g > 0.0031308
-		? ((1.055 * Math.pow(g, 1.0 / 2.4)) - 0.055)
-		: g * 12.92;
-
-	b = b > 0.0031308
-		? ((1.055 * Math.pow(b, 1.0 / 2.4)) - 0.055)
-		: b * 12.92;
-
-	r = Math.min(Math.max(0, r), 1);
-	g = Math.min(Math.max(0, g), 1);
-	b = Math.min(Math.max(0, b), 1);
-
-	return [r * 255, g * 255, b * 255];
-};
-
-convert.xyz.lab = function (xyz) {
-	var x = xyz[0];
-	var y = xyz[1];
-	var z = xyz[2];
-	var l;
-	var a;
-	var b;
-
-	x /= 95.047;
-	y /= 100;
-	z /= 108.883;
-
-	x = x > 0.008856 ? Math.pow(x, 1 / 3) : (7.787 * x) + (16 / 116);
-	y = y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + (16 / 116);
-	z = z > 0.008856 ? Math.pow(z, 1 / 3) : (7.787 * z) + (16 / 116);
-
-	l = (116 * y) - 16;
-	a = 500 * (x - y);
-	b = 200 * (y - z);
-
-	return [l, a, b];
-};
-
-convert.lab.xyz = function (lab) {
-	var l = lab[0];
-	var a = lab[1];
-	var b = lab[2];
-	var x;
-	var y;
-	var z;
-
-	y = (l + 16) / 116;
-	x = a / 500 + y;
-	z = y - b / 200;
-
-	var y2 = Math.pow(y, 3);
-	var x2 = Math.pow(x, 3);
-	var z2 = Math.pow(z, 3);
-	y = y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787;
-	x = x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787;
-	z = z2 > 0.008856 ? z2 : (z - 16 / 116) / 7.787;
-
-	x *= 95.047;
-	y *= 100;
-	z *= 108.883;
-
-	return [x, y, z];
-};
-
-convert.lab.lch = function (lab) {
-	var l = lab[0];
-	var a = lab[1];
-	var b = lab[2];
-	var hr;
-	var h;
-	var c;
-
-	hr = Math.atan2(b, a);
-	h = hr * 360 / 2 / Math.PI;
-
-	if (h < 0) {
-		h += 360;
-	}
-
-	c = Math.sqrt(a * a + b * b);
-
-	return [l, c, h];
-};
-
-convert.lch.lab = function (lch) {
-	var l = lch[0];
-	var c = lch[1];
-	var h = lch[2];
-	var a;
-	var b;
-	var hr;
-
-	hr = h / 360 * 2 * Math.PI;
-	a = c * Math.cos(hr);
-	b = c * Math.sin(hr);
-
-	return [l, a, b];
-};
-
-convert.rgb.ansi16 = function (args) {
-	var r = args[0];
-	var g = args[1];
-	var b = args[2];
-	var value = 1 in arguments ? arguments[1] : convert.rgb.hsv(args)[2]; // hsv -> ansi16 optimization
-
-	value = Math.round(value / 50);
-
-	if (value === 0) {
-		return 30;
-	}
-
-	var ansi = 30
-		+ ((Math.round(b / 255) << 2)
-		| (Math.round(g / 255) << 1)
-		| Math.round(r / 255));
-
-	if (value === 2) {
-		ansi += 60;
-	}
-
-	return ansi;
-};
-
-convert.hsv.ansi16 = function (args) {
-	// optimization here; we already know the value and don't need to get
-	// it converted for us.
-	return convert.rgb.ansi16(convert.hsv.rgb(args), args[2]);
-};
-
-convert.rgb.ansi256 = function (args) {
-	var r = args[0];
-	var g = args[1];
-	var b = args[2];
-
-	// we use the extended greyscale palette here, with the exception of
-	// black and white. normal palette only has 4 greyscale shades.
-	if (r === g && g === b) {
-		if (r < 8) {
-			return 16;
-		}
-
-		if (r > 248) {
-			return 231;
-		}
-
-		return Math.round(((r - 8) / 247) * 24) + 232;
-	}
-
-	var ansi = 16
-		+ (36 * Math.round(r / 255 * 5))
-		+ (6 * Math.round(g / 255 * 5))
-		+ Math.round(b / 255 * 5);
-
-	return ansi;
-};
-
-convert.ansi16.rgb = function (args) {
-	var color = args % 10;
-
-	// handle greyscale
-	if (color === 0 || color === 7) {
-		if (args > 50) {
-			color += 3.5;
-		}
-
-		color = color / 10.5 * 255;
-
-		return [color, color, color];
-	}
-
-	var mult = (~~(args > 50) + 1) * 0.5;
-	var r = ((color & 1) * mult) * 255;
-	var g = (((color >> 1) & 1) * mult) * 255;
-	var b = (((color >> 2) & 1) * mult) * 255;
-
-	return [r, g, b];
-};
-
-convert.ansi256.rgb = function (args) {
-	// handle greyscale
-	if (args >= 232) {
-		var c = (args - 232) * 10 + 8;
-		return [c, c, c];
-	}
-
-	args -= 16;
-
-	var rem;
-	var r = Math.floor(args / 36) / 5 * 255;
-	var g = Math.floor((rem = args % 36) / 6) / 5 * 255;
-	var b = (rem % 6) / 5 * 255;
-
-	return [r, g, b];
-};
-
-convert.rgb.hex = function (args) {
-	var integer = ((Math.round(args[0]) & 0xFF) << 16)
-		+ ((Math.round(args[1]) & 0xFF) << 8)
-		+ (Math.round(args[2]) & 0xFF);
-
-	var string = integer.toString(16).toUpperCase();
-	return '000000'.substring(string.length) + string;
-};
-
-convert.hex.rgb = function (args) {
-	var match = args.toString(16).match(/[a-f0-9]{6}|[a-f0-9]{3}/i);
-	if (!match) {
-		return [0, 0, 0];
-	}
-
-	var colorString = match[0];
-
-	if (match[0].length === 3) {
-		colorString = colorString.split('').map(function (char) {
-			return char + char;
-		}).join('');
-	}
-
-	var integer = parseInt(colorString, 16);
-	var r = (integer >> 16) & 0xFF;
-	var g = (integer >> 8) & 0xFF;
-	var b = integer & 0xFF;
-
-	return [r, g, b];
-};
-
-convert.rgb.hcg = function (rgb) {
-	var r = rgb[0] / 255;
-	var g = rgb[1] / 255;
-	var b = rgb[2] / 255;
-	var max = Math.max(Math.max(r, g), b);
-	var min = Math.min(Math.min(r, g), b);
-	var chroma = (max - min);
-	var grayscale;
-	var hue;
-
-	if (chroma < 1) {
-		grayscale = min / (1 - chroma);
-	} else {
-		grayscale = 0;
-	}
-
-	if (chroma <= 0) {
-		hue = 0;
-	} else
-	if (max === r) {
-		hue = ((g - b) / chroma) % 6;
-	} else
-	if (max === g) {
-		hue = 2 + (b - r) / chroma;
-	} else {
-		hue = 4 + (r - g) / chroma + 4;
-	}
-
-	hue /= 6;
-	hue %= 1;
-
-	return [hue * 360, chroma * 100, grayscale * 100];
-};
-
-convert.hsl.hcg = function (hsl) {
-	var s = hsl[1] / 100;
-	var l = hsl[2] / 100;
-	var c = 1;
-	var f = 0;
-
-	if (l < 0.5) {
-		c = 2.0 * s * l;
-	} else {
-		c = 2.0 * s * (1.0 - l);
-	}
-
-	if (c < 1.0) {
-		f = (l - 0.5 * c) / (1.0 - c);
-	}
-
-	return [hsl[0], c * 100, f * 100];
-};
-
-convert.hsv.hcg = function (hsv) {
-	var s = hsv[1] / 100;
-	var v = hsv[2] / 100;
-
-	var c = s * v;
-	var f = 0;
-
-	if (c < 1.0) {
-		f = (v - c) / (1 - c);
-	}
-
-	return [hsv[0], c * 100, f * 100];
-};
-
-convert.hcg.rgb = function (hcg) {
-	var h = hcg[0] / 360;
-	var c = hcg[1] / 100;
-	var g = hcg[2] / 100;
-
-	if (c === 0.0) {
-		return [g * 255, g * 255, g * 255];
-	}
-
-	var pure = [0, 0, 0];
-	var hi = (h % 1) * 6;
-	var v = hi % 1;
-	var w = 1 - v;
-	var mg = 0;
-
-	switch (Math.floor(hi)) {
-		case 0:
-			pure[0] = 1; pure[1] = v; pure[2] = 0; break;
-		case 1:
-			pure[0] = w; pure[1] = 1; pure[2] = 0; break;
-		case 2:
-			pure[0] = 0; pure[1] = 1; pure[2] = v; break;
-		case 3:
-			pure[0] = 0; pure[1] = w; pure[2] = 1; break;
-		case 4:
-			pure[0] = v; pure[1] = 0; pure[2] = 1; break;
-		default:
-			pure[0] = 1; pure[1] = 0; pure[2] = w;
-	}
-
-	mg = (1.0 - c) * g;
-
-	return [
-		(c * pure[0] + mg) * 255,
-		(c * pure[1] + mg) * 255,
-		(c * pure[2] + mg) * 255
-	];
-};
-
-convert.hcg.hsv = function (hcg) {
-	var c = hcg[1] / 100;
-	var g = hcg[2] / 100;
-
-	var v = c + g * (1.0 - c);
-	var f = 0;
-
-	if (v > 0.0) {
-		f = c / v;
-	}
-
-	return [hcg[0], f * 100, v * 100];
-};
-
-convert.hcg.hsl = function (hcg) {
-	var c = hcg[1] / 100;
-	var g = hcg[2] / 100;
-
-	var l = g * (1.0 - c) + 0.5 * c;
-	var s = 0;
-
-	if (l > 0.0 && l < 0.5) {
-		s = c / (2 * l);
-	} else
-	if (l >= 0.5 && l < 1.0) {
-		s = c / (2 * (1 - l));
-	}
-
-	return [hcg[0], s * 100, l * 100];
-};
-
-convert.hcg.hwb = function (hcg) {
-	var c = hcg[1] / 100;
-	var g = hcg[2] / 100;
-	var v = c + g * (1.0 - c);
-	return [hcg[0], (v - c) * 100, (1 - v) * 100];
-};
-
-convert.hwb.hcg = function (hwb) {
-	var w = hwb[1] / 100;
-	var b = hwb[2] / 100;
-	var v = 1 - b;
-	var c = v - w;
-	var g = 0;
-
-	if (c < 1) {
-		g = (v - c) / (1 - c);
-	}
-
-	return [hwb[0], c * 100, g * 100];
-};
-
-convert.apple.rgb = function (apple) {
-	return [(apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255];
-};
-
-convert.rgb.apple = function (rgb) {
-	return [(rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535];
-};
-
-convert.gray.rgb = function (args) {
-	return [args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255];
-};
-
-convert.gray.hsl = convert.gray.hsv = function (args) {
-	return [0, 0, args[0]];
-};
-
-convert.gray.hwb = function (gray) {
-	return [0, 100, gray[0]];
-};
-
-convert.gray.cmyk = function (gray) {
-	return [0, 0, 0, gray[0]];
-};
-
-convert.gray.lab = function (gray) {
-	return [gray[0], 0, 0];
-};
-
-convert.gray.hex = function (gray) {
-	var val = Math.round(gray[0] / 100 * 255) & 0xFF;
-	var integer = (val << 16) + (val << 8) + val;
-
-	var string = integer.toString(16).toUpperCase();
-	return '000000'.substring(string.length) + string;
-};
-
-convert.rgb.gray = function (rgb) {
-	var val = (rgb[0] + rgb[1] + rgb[2]) / 3;
-	return [val / 255 * 100];
-};
-});
-var conversions_1 = conversions.rgb;
-var conversions_2 = conversions.hsl;
-var conversions_3 = conversions.hsv;
-var conversions_4 = conversions.hwb;
-var conversions_5 = conversions.cmyk;
-var conversions_6 = conversions.xyz;
-var conversions_7 = conversions.lab;
-var conversions_8 = conversions.lch;
-var conversions_9 = conversions.hex;
-var conversions_10 = conversions.keyword;
-var conversions_11 = conversions.ansi16;
-var conversions_12 = conversions.ansi256;
-var conversions_13 = conversions.hcg;
-var conversions_14 = conversions.apple;
-var conversions_15 = conversions.gray;
-
-/*
-	this function routes a model to all other models.
-
-	all functions that are routed have a property `.conversion` attached
-	to the returned synthetic function. This property is an array
-	of strings, each with the steps in between the 'from' and 'to'
-	color models (inclusive).
-
-	conversions that are not possible simply are not included.
-*/
-
-function buildGraph() {
-	var graph = {};
-	// https://jsperf.com/object-keys-vs-for-in-with-closure/3
-	var models = Object.keys(conversions);
-
-	for (var len = models.length, i = 0; i < len; i++) {
-		graph[models[i]] = {
-			// http://jsperf.com/1-vs-infinity
-			// micro-opt, but this is simple.
-			distance: -1,
-			parent: null
-		};
-	}
-
-	return graph;
-}
-
-// https://en.wikipedia.org/wiki/Breadth-first_search
-function deriveBFS(fromModel) {
-	var graph = buildGraph();
-	var queue = [fromModel]; // unshift -> queue -> pop
-
-	graph[fromModel].distance = 0;
-
-	while (queue.length) {
-		var current = queue.pop();
-		var adjacents = Object.keys(conversions[current]);
-
-		for (var len = adjacents.length, i = 0; i < len; i++) {
-			var adjacent = adjacents[i];
-			var node = graph[adjacent];
-
-			if (node.distance === -1) {
-				node.distance = graph[current].distance + 1;
-				node.parent = current;
-				queue.unshift(adjacent);
-			}
-		}
-	}
-
-	return graph;
-}
-
-function link(from, to) {
-	return function (args) {
-		return to(from(args));
-	};
-}
-
-function wrapConversion(toModel, graph) {
-	var path = [graph[toModel].parent, toModel];
-	var fn = conversions[graph[toModel].parent][toModel];
-
-	var cur = graph[toModel].parent;
-	while (graph[cur].parent) {
-		path.unshift(graph[cur].parent);
-		fn = link(conversions[graph[cur].parent][cur], fn);
-		cur = graph[cur].parent;
-	}
-
-	fn.conversion = path;
-	return fn;
-}
-
-var route = function (fromModel) {
-	var graph = deriveBFS(fromModel);
-	var conversion = {};
-
-	var models = Object.keys(graph);
-	for (var len = models.length, i = 0; i < len; i++) {
-		var toModel = models[i];
-		var node = graph[toModel];
-
-		if (node.parent === null) {
-			// no possible conversion, or this node is the source model.
-			continue;
-		}
-
-		conversion[toModel] = wrapConversion(toModel, graph);
-	}
-
-	return conversion;
-};
-
-var convert = {};
-
-var models = Object.keys(conversions);
-
-function wrapRaw(fn) {
-	var wrappedFn = function (args) {
-		if (args === undefined || args === null) {
-			return args;
-		}
-
-		if (arguments.length > 1) {
-			args = Array.prototype.slice.call(arguments);
-		}
-
-		return fn(args);
-	};
-
-	// preserve .conversion property if there is one
-	if ('conversion' in fn) {
-		wrappedFn.conversion = fn.conversion;
-	}
-
-	return wrappedFn;
-}
-
-function wrapRounded(fn) {
-	var wrappedFn = function (args) {
-		if (args === undefined || args === null) {
-			return args;
-		}
-
-		if (arguments.length > 1) {
-			args = Array.prototype.slice.call(arguments);
-		}
-
-		var result = fn(args);
-
-		// we're assuming the result is an array here.
-		// see notice in conversions.js; don't use box types
-		// in conversion functions.
-		if (typeof result === 'object') {
-			for (var len = result.length, i = 0; i < len; i++) {
-				result[i] = Math.round(result[i]);
-			}
-		}
-
-		return result;
-	};
-
-	// preserve .conversion property if there is one
-	if ('conversion' in fn) {
-		wrappedFn.conversion = fn.conversion;
-	}
-
-	return wrappedFn;
-}
-
-models.forEach(function (fromModel) {
-	convert[fromModel] = {};
-
-	Object.defineProperty(convert[fromModel], 'channels', {value: conversions[fromModel].channels});
-	Object.defineProperty(convert[fromModel], 'labels', {value: conversions[fromModel].labels});
-
-	var routes = route(fromModel);
-	var routeModels = Object.keys(routes);
-
-	routeModels.forEach(function (toModel) {
-		var fn = routes[toModel];
-
-		convert[fromModel][toModel] = wrapRounded(fn);
-		convert[fromModel][toModel].raw = wrapRaw(fn);
-	});
-});
-
-var colorConvert = convert;
-
-var ansiStyles = createCommonjsModule(function (module) {
-
-
-const wrapAnsi16 = (fn, offset) => function () {
-	const code = fn.apply(colorConvert, arguments);
-	return `\u001B[${code + offset}m`;
-};
-
-const wrapAnsi256 = (fn, offset) => function () {
-	const code = fn.apply(colorConvert, arguments);
-	return `\u001B[${38 + offset};5;${code}m`;
-};
-
-const wrapAnsi16m = (fn, offset) => function () {
-	const rgb = fn.apply(colorConvert, arguments);
-	return `\u001B[${38 + offset};2;${rgb[0]};${rgb[1]};${rgb[2]}m`;
-};
-
-function assembleStyles() {
-	const codes = new Map();
-	const styles = {
-		modifier: {
-			reset: [0, 0],
-			// 21 isn't widely supported and 22 does the same thing
-			bold: [1, 22],
-			dim: [2, 22],
-			italic: [3, 23],
-			underline: [4, 24],
-			inverse: [7, 27],
-			hidden: [8, 28],
-			strikethrough: [9, 29]
-		},
-		color: {
-			black: [30, 39],
-			red: [31, 39],
-			green: [32, 39],
-			yellow: [33, 39],
-			blue: [34, 39],
-			magenta: [35, 39],
-			cyan: [36, 39],
-			white: [37, 39],
-			gray: [90, 39],
-
-			// Bright color
-			redBright: [91, 39],
-			greenBright: [92, 39],
-			yellowBright: [93, 39],
-			blueBright: [94, 39],
-			magentaBright: [95, 39],
-			cyanBright: [96, 39],
-			whiteBright: [97, 39]
-		},
-		bgColor: {
-			bgBlack: [40, 49],
-			bgRed: [41, 49],
-			bgGreen: [42, 49],
-			bgYellow: [43, 49],
-			bgBlue: [44, 49],
-			bgMagenta: [45, 49],
-			bgCyan: [46, 49],
-			bgWhite: [47, 49],
-
-			// Bright color
-			bgBlackBright: [100, 49],
-			bgRedBright: [101, 49],
-			bgGreenBright: [102, 49],
-			bgYellowBright: [103, 49],
-			bgBlueBright: [104, 49],
-			bgMagentaBright: [105, 49],
-			bgCyanBright: [106, 49],
-			bgWhiteBright: [107, 49]
-		}
-	};
-
-	// Fix humans
-	styles.color.grey = styles.color.gray;
-
-	for (const groupName of Object.keys(styles)) {
-		const group = styles[groupName];
-
-		for (const styleName of Object.keys(group)) {
-			const style = group[styleName];
-
-			styles[styleName] = {
-				open: `\u001B[${style[0]}m`,
-				close: `\u001B[${style[1]}m`
-			};
-
-			group[styleName] = styles[styleName];
-
-			codes.set(style[0], style[1]);
-		}
-
-		Object.defineProperty(styles, groupName, {
-			value: group,
-			enumerable: false
-		});
-
-		Object.defineProperty(styles, 'codes', {
-			value: codes,
-			enumerable: false
-		});
-	}
-
-	const ansi2ansi = n => n;
-	const rgb2rgb = (r, g, b) => [r, g, b];
-
-	styles.color.close = '\u001B[39m';
-	styles.bgColor.close = '\u001B[49m';
-
-	styles.color.ansi = {
-		ansi: wrapAnsi16(ansi2ansi, 0)
-	};
-	styles.color.ansi256 = {
-		ansi256: wrapAnsi256(ansi2ansi, 0)
-	};
-	styles.color.ansi16m = {
-		rgb: wrapAnsi16m(rgb2rgb, 0)
-	};
-
-	styles.bgColor.ansi = {
-		ansi: wrapAnsi16(ansi2ansi, 10)
-	};
-	styles.bgColor.ansi256 = {
-		ansi256: wrapAnsi256(ansi2ansi, 10)
-	};
-	styles.bgColor.ansi16m = {
-		rgb: wrapAnsi16m(rgb2rgb, 10)
-	};
-
-	for (let key of Object.keys(colorConvert)) {
-		if (typeof colorConvert[key] !== 'object') {
-			continue;
-		}
-
-		const suite = colorConvert[key];
-
-		if (key === 'ansi16') {
-			key = 'ansi';
-		}
-
-		if ('ansi16' in suite) {
-			styles.color.ansi[key] = wrapAnsi16(suite.ansi16, 0);
-			styles.bgColor.ansi[key] = wrapAnsi16(suite.ansi16, 10);
-		}
-
-		if ('ansi256' in suite) {
-			styles.color.ansi256[key] = wrapAnsi256(suite.ansi256, 0);
-			styles.bgColor.ansi256[key] = wrapAnsi256(suite.ansi256, 10);
-		}
-
-		if ('rgb' in suite) {
-			styles.color.ansi16m[key] = wrapAnsi16m(suite.rgb, 0);
-			styles.bgColor.ansi16m[key] = wrapAnsi16m(suite.rgb, 10);
-		}
-	}
-
-	return styles;
-}
-
-// Make the export immutable
-Object.defineProperty(module, 'exports', {
-	enumerable: true,
-	get: assembleStyles
-});
-});
-
-var hasFlag = (flag, argv) => {
-	argv = argv || process.argv;
-	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
-	const pos = argv.indexOf(prefix + flag);
-	const terminatorPos = argv.indexOf('--');
-	return pos !== -1 && (terminatorPos === -1 ? true : pos < terminatorPos);
-};
-
-const env = process.env;
-
-let forceColor;
-if (hasFlag('no-color') ||
-	hasFlag('no-colors') ||
-	hasFlag('color=false')) {
-	forceColor = false;
-} else if (hasFlag('color') ||
-	hasFlag('colors') ||
-	hasFlag('color=true') ||
-	hasFlag('color=always')) {
-	forceColor = true;
-}
-if ('FORCE_COLOR' in env) {
-	forceColor = env.FORCE_COLOR.length === 0 || parseInt(env.FORCE_COLOR, 10) !== 0;
-}
-
-function translateLevel(level) {
-	if (level === 0) {
-		return false;
-	}
-
-	return {
-		level,
-		hasBasic: true,
-		has256: level >= 2,
-		has16m: level >= 3
-	};
-}
-
-function supportsColor(stream) {
-	if (forceColor === false) {
-		return 0;
-	}
-
-	if (hasFlag('color=16m') ||
-		hasFlag('color=full') ||
-		hasFlag('color=truecolor')) {
-		return 3;
-	}
-
-	if (hasFlag('color=256')) {
-		return 2;
-	}
-
-	if (stream && !stream.isTTY && forceColor !== true) {
-		return 0;
-	}
-
-	const min = forceColor ? 1 : 0;
-
-	if (process.platform === 'win32') {
-		// Node.js 7.5.0 is the first version of Node.js to include a patch to
-		// libuv that enables 256 color output on Windows. Anything earlier and it
-		// won't work. However, here we target Node.js 8 at minimum as it is an LTS
-		// release, and Node.js 7 is not. Windows 10 build 10586 is the first Windows
-		// release that supports 256 colors. Windows 10 build 14931 is the first release
-		// that supports 16m/TrueColor.
-		const osRelease = os.release().split('.');
-		if (
-			Number(process.versions.node.split('.')[0]) >= 8 &&
-			Number(osRelease[0]) >= 10 &&
-			Number(osRelease[2]) >= 10586
-		) {
-			return Number(osRelease[2]) >= 14931 ? 3 : 2;
-		}
-
-		return 1;
-	}
-
-	if ('CI' in env) {
-		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
-			return 1;
-		}
-
-		return min;
-	}
-
-	if ('TEAMCITY_VERSION' in env) {
-		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
-	}
-
-	if (env.COLORTERM === 'truecolor') {
-		return 3;
-	}
-
-	if ('TERM_PROGRAM' in env) {
-		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
-
-		switch (env.TERM_PROGRAM) {
-			case 'iTerm.app':
-				return version >= 3 ? 3 : 2;
-			case 'Apple_Terminal':
-				return 2;
-			// No default
-		}
-	}
-
-	if (/-256(color)?$/i.test(env.TERM)) {
-		return 2;
-	}
-
-	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
-		return 1;
-	}
-
-	if ('COLORTERM' in env) {
-		return 1;
-	}
-
-	if (env.TERM === 'dumb') {
-		return min;
-	}
-
-	return min;
-}
-
-function getSupportLevel(stream) {
-	const level = supportsColor(stream);
-	return translateLevel(level);
-}
-
-var supportsColor_1 = {
-	supportsColor: getSupportLevel,
-	stdout: getSupportLevel(process.stdout),
-	stderr: getSupportLevel(process.stderr)
-};
-
-const TEMPLATE_REGEX = /(?:\\(u[a-f\d]{4}|x[a-f\d]{2}|.))|(?:\{(~)?(\w+(?:\([^)]*\))?(?:\.\w+(?:\([^)]*\))?)*)(?:[ \t]|(?=\r?\n)))|(\})|((?:.|[\r\n\f])+?)/gi;
-const STYLE_REGEX = /(?:^|\.)(\w+)(?:\(([^)]*)\))?/g;
-const STRING_REGEX = /^(['"])((?:\\.|(?!\1)[^\\])*)\1$/;
-const ESCAPE_REGEX = /\\(u[a-f\d]{4}|x[a-f\d]{2}|.)|([^\\])/gi;
-
-const ESCAPES = new Map([
-	['n', '\n'],
-	['r', '\r'],
-	['t', '\t'],
-	['b', '\b'],
-	['f', '\f'],
-	['v', '\v'],
-	['0', '\0'],
-	['\\', '\\'],
-	['e', '\u001B'],
-	['a', '\u0007']
-]);
-
-function unescape(c) {
-	if ((c[0] === 'u' && c.length === 5) || (c[0] === 'x' && c.length === 3)) {
-		return String.fromCharCode(parseInt(c.slice(1), 16));
-	}
-
-	return ESCAPES.get(c) || c;
-}
-
-function parseArguments(name, args) {
-	const results = [];
-	const chunks = args.trim().split(/\s*,\s*/g);
-	let matches;
-
-	for (const chunk of chunks) {
-		if (!isNaN(chunk)) {
-			results.push(Number(chunk));
-		} else if ((matches = chunk.match(STRING_REGEX))) {
-			results.push(matches[2].replace(ESCAPE_REGEX, (m, escape, chr) => escape ? unescape(escape) : chr));
-		} else {
-			throw new Error(`Invalid Chalk template style argument: ${chunk} (in style '${name}')`);
-		}
-	}
-
-	return results;
-}
-
-function parseStyle(style) {
-	STYLE_REGEX.lastIndex = 0;
-
-	const results = [];
-	let matches;
-
-	while ((matches = STYLE_REGEX.exec(style)) !== null) {
-		const name = matches[1];
-
-		if (matches[2]) {
-			const args = parseArguments(name, matches[2]);
-			results.push([name].concat(args));
-		} else {
-			results.push([name]);
-		}
-	}
-
-	return results;
-}
-
-function buildStyle(chalk, styles) {
-	const enabled = {};
-
-	for (const layer of styles) {
-		for (const style of layer.styles) {
-			enabled[style[0]] = layer.inverse ? null : style.slice(1);
-		}
-	}
-
-	let current = chalk;
-	for (const styleName of Object.keys(enabled)) {
-		if (Array.isArray(enabled[styleName])) {
-			if (!(styleName in current)) {
-				throw new Error(`Unknown Chalk style: ${styleName}`);
-			}
-
-			if (enabled[styleName].length > 0) {
-				current = current[styleName].apply(current, enabled[styleName]);
-			} else {
-				current = current[styleName];
-			}
-		}
-	}
-
-	return current;
-}
-
-var templates = (chalk, tmp) => {
-	const styles = [];
-	const chunks = [];
-	let chunk = [];
-
-	// eslint-disable-next-line max-params
-	tmp.replace(TEMPLATE_REGEX, (m, escapeChar, inverse, style, close, chr) => {
-		if (escapeChar) {
-			chunk.push(unescape(escapeChar));
-		} else if (style) {
-			const str = chunk.join('');
-			chunk = [];
-			chunks.push(styles.length === 0 ? str : buildStyle(chalk, styles)(str));
-			styles.push({inverse, styles: parseStyle(style)});
-		} else if (close) {
-			if (styles.length === 0) {
-				throw new Error('Found extraneous } in Chalk template literal');
-			}
-
-			chunks.push(buildStyle(chalk, styles)(chunk.join('')));
-			chunk = [];
-			styles.pop();
-		} else {
-			chunk.push(chr);
-		}
-	});
-
-	chunks.push(chunk.join(''));
-
-	if (styles.length > 0) {
-		const errMsg = `Chalk template literal is missing ${styles.length} closing bracket${styles.length === 1 ? '' : 's'} (\`}\`)`;
-		throw new Error(errMsg);
-	}
-
-	return chunks.join('');
-};
-
-var chalk$1 = createCommonjsModule(function (module) {
-
-
-const stdoutColor = supportsColor_1.stdout;
-
-
-
-const isSimpleWindowsTerm = process.platform === 'win32' && !(process.env.TERM || '').toLowerCase().startsWith('xterm');
-
-// `supportsColor.level` → `ansiStyles.color[name]` mapping
-const levelMapping = ['ansi', 'ansi', 'ansi256', 'ansi16m'];
-
-// `color-convert` models to exclude from the Chalk API due to conflicts and such
-const skipModels = new Set(['gray']);
-
-const styles = Object.create(null);
-
-function applyOptions(obj, options) {
-	options = options || {};
-
-	// Detect level if not set manually
-	const scLevel = stdoutColor ? stdoutColor.level : 0;
-	obj.level = options.level === undefined ? scLevel : options.level;
-	obj.enabled = 'enabled' in options ? options.enabled : obj.level > 0;
-}
-
-function Chalk(options) {
-	// We check for this.template here since calling `chalk.constructor()`
-	// by itself will have a `this` of a previously constructed chalk object
-	if (!this || !(this instanceof Chalk) || this.template) {
-		const chalk = {};
-		applyOptions(chalk, options);
-
-		chalk.template = function () {
-			const args = [].slice.call(arguments);
-			return chalkTag.apply(null, [chalk.template].concat(args));
-		};
-
-		Object.setPrototypeOf(chalk, Chalk.prototype);
-		Object.setPrototypeOf(chalk.template, chalk);
-
-		chalk.template.constructor = Chalk;
-
-		return chalk.template;
-	}
-
-	applyOptions(this, options);
-}
-
-// Use bright blue on Windows as the normal blue color is illegible
-if (isSimpleWindowsTerm) {
-	ansiStyles.blue.open = '\u001B[94m';
-}
-
-for (const key of Object.keys(ansiStyles)) {
-	ansiStyles[key].closeRe = new RegExp(escapeStringRegexp(ansiStyles[key].close), 'g');
-
-	styles[key] = {
-		get() {
-			const codes = ansiStyles[key];
-			return build.call(this, this._styles ? this._styles.concat(codes) : [codes], this._empty, key);
-		}
-	};
-}
-
-styles.visible = {
-	get() {
-		return build.call(this, this._styles || [], true, 'visible');
-	}
-};
-
-ansiStyles.color.closeRe = new RegExp(escapeStringRegexp(ansiStyles.color.close), 'g');
-for (const model of Object.keys(ansiStyles.color.ansi)) {
-	if (skipModels.has(model)) {
-		continue;
-	}
-
-	styles[model] = {
-		get() {
-			const level = this.level;
-			return function () {
-				const open = ansiStyles.color[levelMapping[level]][model].apply(null, arguments);
-				const codes = {
-					open,
-					close: ansiStyles.color.close,
-					closeRe: ansiStyles.color.closeRe
-				};
-				return build.call(this, this._styles ? this._styles.concat(codes) : [codes], this._empty, model);
-			};
-		}
-	};
-}
-
-ansiStyles.bgColor.closeRe = new RegExp(escapeStringRegexp(ansiStyles.bgColor.close), 'g');
-for (const model of Object.keys(ansiStyles.bgColor.ansi)) {
-	if (skipModels.has(model)) {
-		continue;
-	}
-
-	const bgModel = 'bg' + model[0].toUpperCase() + model.slice(1);
-	styles[bgModel] = {
-		get() {
-			const level = this.level;
-			return function () {
-				const open = ansiStyles.bgColor[levelMapping[level]][model].apply(null, arguments);
-				const codes = {
-					open,
-					close: ansiStyles.bgColor.close,
-					closeRe: ansiStyles.bgColor.closeRe
-				};
-				return build.call(this, this._styles ? this._styles.concat(codes) : [codes], this._empty, model);
-			};
-		}
-	};
-}
-
-const proto = Object.defineProperties(() => {}, styles);
-
-function build(_styles, _empty, key) {
-	const builder = function () {
-		return applyStyle.apply(builder, arguments);
-	};
-
-	builder._styles = _styles;
-	builder._empty = _empty;
-
-	const self = this;
-
-	Object.defineProperty(builder, 'level', {
-		enumerable: true,
-		get() {
-			return self.level;
-		},
-		set(level) {
-			self.level = level;
-		}
-	});
-
-	Object.defineProperty(builder, 'enabled', {
-		enumerable: true,
-		get() {
-			return self.enabled;
-		},
-		set(enabled) {
-			self.enabled = enabled;
-		}
-	});
-
-	// See below for fix regarding invisible grey/dim combination on Windows
-	builder.hasGrey = this.hasGrey || key === 'gray' || key === 'grey';
-
-	// `__proto__` is used because we must return a function, but there is
-	// no way to create a function with a different prototype
-	builder.__proto__ = proto; // eslint-disable-line no-proto
-
-	return builder;
-}
-
-function applyStyle() {
-	// Support varags, but simply cast to string in case there's only one arg
-	const args = arguments;
-	const argsLen = args.length;
-	let str = String(arguments[0]);
-
-	if (argsLen === 0) {
-		return '';
-	}
-
-	if (argsLen > 1) {
-		// Don't slice `arguments`, it prevents V8 optimizations
-		for (let a = 1; a < argsLen; a++) {
-			str += ' ' + args[a];
-		}
-	}
-
-	if (!this.enabled || this.level <= 0 || !str) {
-		return this._empty ? '' : str;
-	}
-
-	// Turns out that on Windows dimmed gray text becomes invisible in cmd.exe,
-	// see https://github.com/chalk/chalk/issues/58
-	// If we're on Windows and we're dealing with a gray color, temporarily make 'dim' a noop.
-	const originalDim = ansiStyles.dim.open;
-	if (isSimpleWindowsTerm && this.hasGrey) {
-		ansiStyles.dim.open = '';
-	}
-
-	for (const code of this._styles.slice().reverse()) {
-		// Replace any instances already present with a re-opening code
-		// otherwise only the part of the string until said closing code
-		// will be colored, and the rest will simply be 'plain'.
-		str = code.open + str.replace(code.closeRe, code.open) + code.close;
-
-		// Close the styling before a linebreak and reopen
-		// after next line to fix a bleed issue on macOS
-		// https://github.com/chalk/chalk/pull/92
-		str = str.replace(/\r?\n/g, `${code.close}$&${code.open}`);
-	}
-
-	// Reset the original `dim` if we changed it to work around the Windows dimmed gray issue
-	ansiStyles.dim.open = originalDim;
-
-	return str;
-}
-
-function chalkTag(chalk, strings) {
-	if (!Array.isArray(strings)) {
-		// If chalk() was called by itself or with a string,
-		// return the string itself as a string.
-		return [].slice.call(arguments, 1).join(' ');
-	}
-
-	const args = [].slice.call(arguments, 2);
-	const parts = [strings.raw[0]];
-
-	for (let i = 1; i < strings.length; i++) {
-		parts.push(String(args[i - 1]).replace(/[{}\\]/g, '\\$&'));
-		parts.push(String(strings.raw[i]));
-	}
-
-	return templates(chalk, parts.join(''));
-}
-
-Object.defineProperties(Chalk.prototype, styles);
-
-module.exports = Chalk(); // eslint-disable-line new-cap
-module.exports.supportsColor = stdoutColor;
-module.exports.default = module.exports; // For TypeScript
-});
-var chalk_1 = chalk$1.supportsColor;
-
-var figlet_1 = createCommonjsModule(function (module) {
-
-var figlet = figlet || (function() {
-    
-    // ---------------------------------------------------------------------
-    // Private static variables
-
-    var FULL_WIDTH = 0,
-        FITTING = 1,
-        SMUSHING = 2,
-        CONTROLLED_SMUSHING = 3;
-
-    // ---------------------------------------------------------------------
-    // Variable that will hold information about the fonts
-
-    var figFonts = {}; // What stores all of the FIGlet font data
-    var figDefaults = {
-        font: 'Standard',
-        fontPath: './fonts'
-    };
-
-    // ---------------------------------------------------------------------
-    // Private static methods
-
-    /*
-        This method takes in the oldLayout and newLayout data from the FIGfont header file and returns
-        the layout information.
-    */
-    function getSmushingRules(oldLayout, newLayout) {
-        var rules = {};
-        var val, index, len, code;
-        var codes = [[16384,"vLayout",SMUSHING], [8192,"vLayout",FITTING], [4096, "vRule5", true], [2048, "vRule4", true],
-                     [1024, "vRule3", true], [512, "vRule2", true], [256, "vRule1", true], [128, "hLayout", SMUSHING],
-                     [64, "hLayout", FITTING], [32, "hRule6", true], [16, "hRule5", true], [8, "hRule4", true], [4, "hRule3", true],
-                     [2, "hRule2", true], [1, "hRule1", true]];
-
-        val = (newLayout !== null) ? newLayout : oldLayout;
-        index = 0;
-        len = codes.length;
-        while ( index < len ) {
-            code = codes[index];
-            if (val >= code[0]) {
-                val = val - code[0];
-                rules[code[1]] = (typeof rules[code[1]] === "undefined") ? code[2] : rules[code[1]];
-            } else if (code[1] !== "vLayout" && code[1] !== "hLayout") {
-                rules[code[1]] = false;
-            }
-            index++;
-        }
-
-        if (typeof rules["hLayout"] === "undefined") {
-            if (oldLayout === 0) {
-                rules["hLayout"] = FITTING;
-            } else if (oldLayout === -1) {
-                rules["hLayout"] = FULL_WIDTH;
-            } else {
-                if (rules["hRule1"] || rules["hRule2"] || rules["hRule3"] || rules["hRule4"] ||rules["hRule5"] || rules["hRule6"] ) {
-                    rules["hLayout"] = CONTROLLED_SMUSHING;
-                } else {
-                    rules["hLayout"] = SMUSHING;
-                }
-            }
-        } else if (rules["hLayout"] === SMUSHING) {
-            if (rules["hRule1"] || rules["hRule2"] || rules["hRule3"] || rules["hRule4"] ||rules["hRule5"] || rules["hRule6"] ) {
-                rules["hLayout"] = CONTROLLED_SMUSHING;
-            }
-        }
-
-        if (typeof rules["vLayout"] === "undefined") {
-            if (rules["vRule1"] || rules["vRule2"] || rules["vRule3"] || rules["vRule4"] ||rules["vRule5"]  ) {
-                rules["vLayout"] = CONTROLLED_SMUSHING;
-            } else {
-                rules["vLayout"] = FULL_WIDTH;
-            }
-        } else if (rules["vLayout"] === SMUSHING) {
-            if (rules["vRule1"] || rules["vRule2"] || rules["vRule3"] || rules["vRule4"] ||rules["vRule5"]  ) {
-                rules["vLayout"] = CONTROLLED_SMUSHING;
-            }
-        }
-
-        return rules;
-    }
-
-    /* The [vh]Rule[1-6]_Smush functions return the smushed character OR false if the two characters can't be smushed */
-
-    /*
-        Rule 1: EQUAL CHARACTER SMUSHING (code value 1)
-
-            Two sub-characters are smushed into a single sub-character
-            if they are the same.  This rule does not smush
-            hardblanks.  (See rule 6 on hardblanks below)
-    */
-    function hRule1_Smush(ch1, ch2, hardBlank) {
-        if (ch1 === ch2 && ch1 !== hardBlank) {return ch1;}
-        return false;
-    }
-
-    /*
-        Rule 2: UNDERSCORE SMUSHING (code value 2)
-
-            An underscore ("_") will be replaced by any of: "|", "/",
-            "\", "[", "]", "{", "}", "(", ")", "<" or ">".
-    */
-    function hRule2_Smush(ch1, ch2) {
-        var rule2Str = "|/\\[]{}()<>";
-        if (ch1 === "_") {
-            if (rule2Str.indexOf(ch2) !== -1) {return ch2;}
-        } else if (ch2 === "_") {
-            if (rule2Str.indexOf(ch1) !== -1) {return ch1;}
-        }
-        return false;
-    }
-
-    /*
-        Rule 3: HIERARCHY SMUSHING (code value 4)
-
-            A hierarchy of six classes is used: "|", "/\", "[]", "{}",
-            "()", and "<>".  When two smushing sub-characters are
-            from different classes, the one from the latter class
-            will be used.
-    */
-    function hRule3_Smush(ch1, ch2) {
-        var rule3Classes = "| /\\ [] {} () <>";
-        var r3_pos1 = rule3Classes.indexOf(ch1);
-        var r3_pos2 = rule3Classes.indexOf(ch2);
-        if (r3_pos1 !== -1 && r3_pos2 !== -1) {
-            if (r3_pos1 !== r3_pos2 && Math.abs(r3_pos1-r3_pos2) !== 1) {
-                return rule3Classes.substr(Math.max(r3_pos1,r3_pos2), 1);
-            }
-        }
-        return false;
-    }
-
-    /*
-        Rule 4: OPPOSITE PAIR SMUSHING (code value 8)
-
-            Smushes opposing brackets ("[]" or "]["), braces ("{}" or
-            "}{") and parentheses ("()" or ")(") together, replacing
-            any such pair with a vertical bar ("|").
-    */
-    function hRule4_Smush(ch1, ch2) {
-        var rule4Str = "[] {} ()";
-        var r4_pos1 = rule4Str.indexOf(ch1);
-        var r4_pos2 = rule4Str.indexOf(ch2);
-        if (r4_pos1 !== -1 && r4_pos2 !== -1) {
-            if (Math.abs(r4_pos1-r4_pos2) <= 1) {
-                return "|";
-            }
-        }
-        return false;
-    }
-
-    /*
-        Rule 5: BIG X SMUSHING (code value 16)
-
-            Smushes "/\" into "|", "\/" into "Y", and "><" into "X".
-            Note that "<>" is not smushed in any way by this rule.
-            The name "BIG X" is historical; originally all three pairs
-            were smushed into "X".
-    */
-    function hRule5_Smush(ch1, ch2) {
-        var rule5Str = "/\\ \\/ ><";
-        var rule5Hash = {"0": "|", "3": "Y", "6": "X"};
-        var r5_pos1 = rule5Str.indexOf(ch1);
-        var r5_pos2 = rule5Str.indexOf(ch2);
-        if (r5_pos1 !== -1 && r5_pos2 !== -1) {
-            if ((r5_pos2-r5_pos1) === 1) {
-                return rule5Hash[r5_pos1];
-            }
-        }
-        return false;
-    }
-
-    /*
-        Rule 6: HARDBLANK SMUSHING (code value 32)
-
-            Smushes two hardblanks together, replacing them with a
-            single hardblank.  (See "Hardblanks" below.)
-    */
-    function hRule6_Smush(ch1, ch2, hardBlank) {
-        if (ch1 === hardBlank && ch2 === hardBlank) {
-            return hardBlank;
-        }
-        return false;
-    }
-
-    /*
-        Rule 1: EQUAL CHARACTER SMUSHING (code value 256)
-
-            Same as horizontal smushing rule 1.
-    */
-    function vRule1_Smush(ch1, ch2) {
-        if (ch1 === ch2) {return ch1;}
-        return false;
-    }
-
-    /*
-        Rule 2: UNDERSCORE SMUSHING (code value 512)
-
-            Same as horizontal smushing rule 2.
-    */
-    function vRule2_Smush(ch1, ch2) {
-        var rule2Str = "|/\\[]{}()<>";
-        if (ch1 === "_") {
-            if (rule2Str.indexOf(ch2) !== -1) {return ch2;}
-        } else if (ch2 === "_") {
-            if (rule2Str.indexOf(ch1) !== -1) {return ch1;}
-        }
-        return false;
-    }
-
-    /*
-        Rule 3: HIERARCHY SMUSHING (code value 1024)
-
-            Same as horizontal smushing rule 3.
-    */
-    function vRule3_Smush(ch1, ch2) {
-        var rule3Classes = "| /\\ [] {} () <>";
-        var r3_pos1 = rule3Classes.indexOf(ch1);
-        var r3_pos2 = rule3Classes.indexOf(ch2);
-        if (r3_pos1 !== -1 && r3_pos2 !== -1) {
-            if (r3_pos1 !== r3_pos2 && Math.abs(r3_pos1-r3_pos2) !== 1) {
-                return rule3Classes.substr(Math.max(r3_pos1,r3_pos2), 1);
-            }
-        }
-        return false;
-    }
-
-    /*
-        Rule 4: HORIZONTAL LINE SMUSHING (code value 2048)
-
-            Smushes stacked pairs of "-" and "_", replacing them with
-            a single "=" sub-character.  It does not matter which is
-            found above the other.  Note that vertical smushing rule 1
-            will smush IDENTICAL pairs of horizontal lines, while this
-            rule smushes horizontal lines consisting of DIFFERENT
-            sub-characters.
-    */
-    function vRule4_Smush(ch1, ch2) {
-        if ( (ch1 === "-" && ch2 === "_") || (ch1 === "_" && ch2 === "-") ) {
-            return "=";
-        }
-        return false;
-    }
-
-    /*
-        Rule 5: VERTICAL LINE SUPERSMUSHING (code value 4096)
-
-            This one rule is different from all others, in that it
-            "supersmushes" vertical lines consisting of several
-            vertical bars ("|").  This creates the illusion that
-            FIGcharacters have slid vertically against each other.
-            Supersmushing continues until any sub-characters other
-            than "|" would have to be smushed.  Supersmushing can
-            produce impressive results, but it is seldom possible,
-            since other sub-characters would usually have to be
-            considered for smushing as soon as any such stacked
-            vertical lines are encountered.
-    */
-    function vRule5_Smush(ch1, ch2) {
-        if ( ch1 === "|" && ch2 === "|" ) {
-            return "|";
-        }
-        return false;
-    }
-
-    /*
-        Universal smushing simply overrides the sub-character from the
-        earlier FIGcharacter with the sub-character from the later
-        FIGcharacter.  This produces an "overlapping" effect with some
-        FIGfonts, wherin the latter FIGcharacter may appear to be "in
-        front".
-    */
-    function uni_Smush(ch1, ch2, hardBlank) {
-        if (ch2 === " " || ch2 === "") {
-            return ch1;
-        } else if (ch2 === hardBlank && ch1 !== " ") {
-            return ch1;
-        } else {
-            return ch2;
-        }
-    }
-
-    // --------------------------------------------------------------------------
-    // main vertical smush routines (excluding rules)
-
-    /*
-        txt1 - A line of text
-        txt2 - A line of text
-        opts - FIGlet options array
-
-        About: Takes in two lines of text and returns one of the following:
-        "valid" - These lines can be smushed together given the current smushing rules
-        "end" - The lines can be smushed, but we're at a stopping point
-        "invalid" - The two lines cannot be smushed together
-    */
-    function canVerticalSmush(txt1, txt2, opts) {
-        if (opts.fittingRules.vLayout === FULL_WIDTH) {return "invalid";}
-        var ii, len = Math.min(txt1.length, txt2.length);
-        var ch1, ch2, endSmush = false, validSmush;
-        if (len===0) {return "invalid";}
-
-        for (ii = 0; ii < len; ii++) {
-            ch1 = txt1.substr(ii,1);
-            ch2 = txt2.substr(ii,1);
-            if (ch1 !== " " && ch2 !== " ") {
-                if (opts.fittingRules.vLayout === FITTING) {
-                    return "invalid";
-                } else if (opts.fittingRules.vLayout === SMUSHING) {
-                    return "end";
-                } else {
-                    if (vRule5_Smush(ch1,ch2)) {endSmush = endSmush || false; continue;} // rule 5 allow for "super" smushing, but only if we're not already ending this smush
-                    validSmush = false;
-                    validSmush = (opts.fittingRules.vRule1) ? vRule1_Smush(ch1,ch2) : validSmush;
-                    validSmush = (!validSmush && opts.fittingRules.vRule2) ? vRule2_Smush(ch1,ch2) : validSmush;
-                    validSmush = (!validSmush && opts.fittingRules.vRule3) ? vRule3_Smush(ch1,ch2) : validSmush;
-                    validSmush = (!validSmush && opts.fittingRules.vRule4) ? vRule4_Smush(ch1,ch2) : validSmush;
-                    endSmush = true;
-                    if (!validSmush) {return "invalid";}
-                }
-            }
-        }
-        if (endSmush) {
-            return "end";
-        } else {
-            return "valid";
-        }
-    }
-
-    function getVerticalSmushDist(lines1, lines2, opts) {
-        var maxDist = lines1.length;
-        var len1 = lines1.length;
-        var len2 = lines2.length;
-        var subLines1, subLines2, slen;
-        var curDist = 1;
-        var ii, ret, result;
-        while (curDist <= maxDist) {
-
-            subLines1 = lines1.slice(Math.max(0,len1-curDist), len1);
-            subLines2 = lines2.slice(0, Math.min(maxDist, curDist));
-
-            slen = subLines2.length;//TODO:check this
-            result = "";
-            for (ii = 0; ii < slen; ii++) {
-                ret = canVerticalSmush(subLines1[ii], subLines2[ii], opts);
-                if (ret === "end") {
-                    result = ret;
-                } else if (ret === "invalid") {
-                    result = ret;
-                    break;
-                } else {
-                    if (result === "") {
-                        result = "valid";
-                    }
-                }
-            }
-
-            if (result === "invalid") {curDist--;break;}
-            if (result === "end") {break;}
-            if (result === "valid") {curDist++;}
-        }
-
-        return Math.min(maxDist,curDist);
-    }
-
-    function verticallySmushLines(line1, line2, opts) {
-        var ii, len = Math.min(line1.length, line2.length);
-        var ch1, ch2, result = "", validSmush;
-
-        for (ii = 0; ii < len; ii++) {
-            ch1 = line1.substr(ii,1);
-            ch2 = line2.substr(ii,1);
-            if (ch1 !== " " && ch2 !== " ") {
-                if (opts.fittingRules.vLayout === FITTING) {
-                    result += uni_Smush(ch1,ch2);
-                } else if (opts.fittingRules.vLayout === SMUSHING) {
-                    result += uni_Smush(ch1,ch2);
-                } else {
-                    validSmush = (opts.fittingRules.vRule5) ? vRule5_Smush(ch1,ch2) : validSmush;
-                    validSmush = (!validSmush && opts.fittingRules.vRule1) ? vRule1_Smush(ch1,ch2) : validSmush;
-                    validSmush = (!validSmush && opts.fittingRules.vRule2) ? vRule2_Smush(ch1,ch2) : validSmush;
-                    validSmush = (!validSmush && opts.fittingRules.vRule3) ? vRule3_Smush(ch1,ch2) : validSmush;
-                    validSmush = (!validSmush && opts.fittingRules.vRule4) ? vRule4_Smush(ch1,ch2) : validSmush;
-                    result += validSmush;
-                }
-            } else {
-                result += uni_Smush(ch1,ch2);
-            }
-        }
-        return result;
-    }
-
-    function verticalSmush(lines1, lines2, overlap, opts) {
-        var len1 = lines1.length;
-        var len2 = lines2.length;
-        var piece1 = lines1.slice(0, Math.max(0,len1-overlap));
-        var piece2_1 = lines1.slice(Math.max(0,len1-overlap), len1);
-        var piece2_2 = lines2.slice(0, Math.min(overlap, len2));
-        var ii, len, line, piece2 = [], piece3, result = [];
-
-        len = piece2_1.length;
-        for (ii = 0; ii < len; ii++) {
-            if (ii >= len2) {
-                line = piece2_1[ii];
-            } else {
-                line = verticallySmushLines(piece2_1[ii], piece2_2[ii], opts);
-            }
-            piece2.push(line);
-        }
-
-        piece3 = lines2.slice(Math.min(overlap,len2), len2);
-
-        return result.concat(piece1,piece2,piece3);
-    }
-
-    function padLines(lines, numSpaces) {
-        var ii, len = lines.length, padding = "";
-        for (ii = 0; ii < numSpaces; ii++) {
-            padding += " ";
-        }
-        for (ii = 0; ii < len; ii++) {
-            lines[ii] += padding;
-        }
-    }
-
-    function smushVerticalFigLines(output, lines, opts) {
-        var len1 = output[0].length;
-        var len2 = lines[0].length;
-        var overlap;
-        if (len1 > len2) {
-            padLines(lines, len1-len2);
-        } else if (len2 > len1) {
-            padLines(output, len2-len1);
-        }
-        overlap = getVerticalSmushDist(output, lines, opts);
-        return verticalSmush(output, lines, overlap,opts);
-    }
-
-    // -------------------------------------------------------------------------
-    // Main horizontal smush routines (excluding rules)
-
-    function getHorizontalSmushLength(txt1, txt2, opts) {
-        if (opts.fittingRules.hLayout === FULL_WIDTH) {return 0;}
-        var ii, len1 = txt1.length, len2 = txt2.length;
-        var maxDist = len1;
-        var curDist = 1;
-        var breakAfter = false;
-        var validSmush = false;
-        var seg1, seg2, ch1, ch2;
-        if (len1 === 0) {return 0;}
-
-        distCal: while (curDist <= maxDist) {
-            seg1 = txt1.substr(len1-curDist,curDist);
-            seg2 = txt2.substr(0,Math.min(curDist,len2));
-            for (ii = 0; ii < Math.min(curDist,len2); ii++) {
-                ch1 = seg1.substr(ii,1);
-                ch2 = seg2.substr(ii,1);
-                if (ch1 !== " " && ch2 !== " " ) {
-                    if (opts.fittingRules.hLayout === FITTING) {
-                        curDist = curDist - 1;
-                        break distCal;
-                    } else if (opts.fittingRules.hLayout === SMUSHING) {
-                        if (ch1 === opts.hardBlank || ch2 === opts.hardBlank) {
-                            curDist = curDist - 1; // universal smushing does not smush hardblanks
-                        }
-                        break distCal;
-                    } else {
-                        breakAfter = true; // we know we need to break, but we need to check if our smushing rules will allow us to smush the overlapped characters
-                        validSmush = false; // the below checks will let us know if we can smush these characters
-
-                        validSmush = (opts.fittingRules.hRule1) ? hRule1_Smush(ch1,ch2,opts.hardBlank) : validSmush;
-                        validSmush = (!validSmush && opts.fittingRules.hRule2) ? hRule2_Smush(ch1,ch2,opts.hardBlank) : validSmush;
-                        validSmush = (!validSmush && opts.fittingRules.hRule3) ? hRule3_Smush(ch1,ch2,opts.hardBlank) : validSmush;
-                        validSmush = (!validSmush && opts.fittingRules.hRule4) ? hRule4_Smush(ch1,ch2,opts.hardBlank) : validSmush;
-                        validSmush = (!validSmush && opts.fittingRules.hRule5) ? hRule5_Smush(ch1,ch2,opts.hardBlank) : validSmush;
-                        validSmush = (!validSmush && opts.fittingRules.hRule6) ? hRule6_Smush(ch1,ch2,opts.hardBlank) : validSmush;
-
-                        if (!validSmush) {
-                            curDist = curDist - 1;
-                            break distCal;
-                        }
-                    }
-                }
-            }
-            if (breakAfter) {break;}
-            curDist++;
-        }
-        return Math.min(maxDist,curDist);
-    }
-
-    function horizontalSmush(textBlock1, textBlock2, overlap, opts) {
-        var ii, jj, outputFig = [],
-            overlapStart,piece1,piece2,piece3,len1,len2,txt1,txt2;
-
-        for (ii = 0; ii < opts.height; ii++) {
-            txt1 = textBlock1[ii];
-            txt2 = textBlock2[ii];
-            len1 = txt1.length;
-            len2 = txt2.length;
-            overlapStart = len1-overlap;
-            piece1 = txt1.substr(0,Math.max(0,overlapStart));
-            piece2 = "";
-
-            // determine overlap piece
-            var seg1 = txt1.substr(Math.max(0,len1-overlap),overlap);
-            var seg2 = txt2.substr(0,Math.min(overlap,len2));
-
-            for (jj = 0; jj < overlap; jj++) {
-                var ch1 = (jj < len1) ? seg1.substr(jj,1) : " ";
-                var ch2 = (jj < len2) ? seg2.substr(jj,1) : " ";
-
-                if (ch1 !== " " && ch2 !== " ") {
-                    if (opts.fittingRules.hLayout === FITTING) {
-                        piece2 += uni_Smush(ch1, ch2, opts.hardBlank);
-                    } else if (opts.fittingRules.hLayout === SMUSHING) {
-                        piece2 += uni_Smush(ch1, ch2, opts.hardBlank);
-                    } else {
-                        // Controlled Smushing
-                        var nextCh = "";
-                        nextCh = (!nextCh && opts.fittingRules.hRule1) ? hRule1_Smush(ch1,ch2,opts.hardBlank) : nextCh;
-                        nextCh = (!nextCh && opts.fittingRules.hRule2) ? hRule2_Smush(ch1,ch2,opts.hardBlank) : nextCh;
-                        nextCh = (!nextCh && opts.fittingRules.hRule3) ? hRule3_Smush(ch1,ch2,opts.hardBlank) : nextCh;
-                        nextCh = (!nextCh && opts.fittingRules.hRule4) ? hRule4_Smush(ch1,ch2,opts.hardBlank) : nextCh;
-                        nextCh = (!nextCh && opts.fittingRules.hRule5) ? hRule5_Smush(ch1,ch2,opts.hardBlank) : nextCh;
-                        nextCh = (!nextCh && opts.fittingRules.hRule6) ? hRule6_Smush(ch1,ch2,opts.hardBlank) : nextCh;
-                        nextCh = nextCh || uni_Smush(ch1, ch2, opts.hardBlank);
-                        piece2 += nextCh;
-                    }
-                } else {
-                    piece2 += uni_Smush(ch1, ch2, opts.hardBlank);
-                }
-            }
-
-            if (overlap >= len2) {
-                piece3 = "";
-            } else {
-                piece3 = txt2.substr(overlap,Math.max(0,len2-overlap));
-            }
-            outputFig[ii] = piece1 + piece2 + piece3;
-        }
-        return outputFig;
-    }
-
-    function generateFigTextLine(txt, figChars, opts) {
-        var charIndex, figChar, overlap = 0, row, outputFigText = [], len=opts.height;
-        for (row = 0; row < len; row++) {
-            outputFigText[row] = "";
-        }
-        if (opts.printDirection === 1) {
-            txt = txt.split('').reverse().join('');
-        }
-        len=txt.length;
-        for (charIndex = 0; charIndex < len; charIndex++) {
-            figChar = figChars[txt.substr(charIndex,1).charCodeAt(0)];
-            if (figChar) {
-                if (opts.fittingRules.hLayout !== FULL_WIDTH) {
-                    overlap = 10000;// a value too high to be the overlap
-                    for (row = 0; row < opts.height; row++) {
-                        overlap = Math.min(overlap, getHorizontalSmushLength(outputFigText[row], figChar[row], opts));
-                    }
-                    overlap = (overlap === 10000) ? 0 : overlap;
-                }
-                outputFigText = horizontalSmush(outputFigText, figChar, overlap, opts);
-            }
-        }
-        // remove hardblanks
-        if (opts.showHardBlanks !== true) {
-            len = outputFigText.length;
-            for (row = 0; row < len; row++) {
-                outputFigText[row] = outputFigText[row].replace(new RegExp("\\"+opts.hardBlank,"g")," ");
-            }
-        }
-        return outputFigText;
-    }
-
-    // -------------------------------------------------------------------------
-    // Parsing and Generation methods
-
-    var getHorizontalFittingRules = function(layout, options) {
-        var props = ["hLayout", "hRule1","hRule2","hRule3","hRule4","hRule5","hRule6"],
-            params = {}, ii;
-        if (layout === "default") {
-            for (ii = 0; ii < props.length; ii++) {
-                params[props[ii]] = options.fittingRules[props[ii]];
-            }
-        } else if (layout === "full") {
-            params = {"hLayout": FULL_WIDTH,"hRule1":false,"hRule2":false,"hRule3":false,"hRule4":false,"hRule5":false,"hRule6":false};
-        } else if (layout === "fitted") {
-            params = {"hLayout": FITTING,"hRule1":false,"hRule2":false,"hRule3":false,"hRule4":false,"hRule5":false,"hRule6":false};
-        } else if (layout === "controlled smushing") {
-            params = {"hLayout": CONTROLLED_SMUSHING,"hRule1":true,"hRule2":true,"hRule3":true,"hRule4":true,"hRule5":true,"hRule6":true};
-        } else if (layout === "universal smushing") {
-            params = {"hLayout": SMUSHING,"hRule1":false,"hRule2":false,"hRule3":false,"hRule4":false,"hRule5":false,"hRule6":false};
-        } else {
-            return;
-        }
-        return params;
-    };
-
-    var getVerticalFittingRules = function(layout, options) {
-        var props = ["vLayout", "vRule1","vRule2","vRule3","vRule4","vRule5"],
-            params = {}, ii;
-        if (layout === "default") {
-            for (ii = 0; ii < props.length; ii++) {
-                params[props[ii]] = options.fittingRules[props[ii]];
-            }
-        } else if (layout === "full") {
-            params = {"vLayout": FULL_WIDTH,"vRule1":false,"vRule2":false,"vRule3":false,"vRule4":false,"vRule5":false};
-        } else if (layout === "fitted") {
-            params = {"vLayout": FITTING,"vRule1":false,"vRule2":false,"vRule3":false,"vRule4":false,"vRule5":false};
-        } else if (layout === "controlled smushing") {
-            params = {"vLayout": CONTROLLED_SMUSHING,"vRule1":true,"vRule2":true,"vRule3":true,"vRule4":true,"vRule5":true};
-        } else if (layout === "universal smushing") {
-            params = {"vLayout": SMUSHING,"vRule1":false,"vRule2":false,"vRule3":false,"vRule4":false,"vRule5":false};
-        } else {
-            return;
-        }
-        return params;
-    };
-
-    /*
-        Generates the ASCII Art
-        - fontName: Font to use
-        - option: Options to override the defaults
-        - txt: The text to make into ASCII Art
-    */
-    var generateText = function(fontName, options, txt) {
-        txt = txt.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
-        var lines = txt.split("\n");
-        var figLines = [];
-        var ii, len, output;
-        len = lines.length;
-        for (ii = 0; ii < len; ii++) {
-            figLines.push( generateFigTextLine(lines[ii], figFonts[fontName], options) );
-        }
-        len = figLines.length;
-        output = figLines[0];
-        for (ii = 1; ii < len; ii++) {
-            output = smushVerticalFigLines(output, figLines[ii], options);
-        }
-
-        return output.join("\n");
-    };
-
-    // -------------------------------------------------------------------------
-    // Public methods
-
-    /*
-        A short-cut for the figlet.text method
-
-        Parameters:
-        - txt (string): The text to make into ASCII Art
-        - options (object/string - optional): Options that will override the current font's default options.
-          If a string is provided instead of an object, it is assumed to be the font name.
-
-            * font
-            * horizontalLayout
-            * verticalLayout
-            * showHardBlanks - Wont remove hardblank characters
-
-        - next (function): A callback function, it will contained the outputted ASCII Art.
-    */
-    var me = function(txt, options, next) {
-        me.text(txt, options, next);
-    };
-    me.text = function(txt, options, next) {
-        var fontName = '';
-
-        // Validate inputs
-        txt = txt + '';
-
-        if (typeof arguments[1] === 'function') {
-            next = options;
-            options = {};
-            options.font = figDefaults.font; // default font
-        }
-
-        if (typeof options === 'string') {
-            fontName = options;
-            options = {};
-        } else {
-            options = options || {};
-            fontName = options.font || figDefaults.font;
-        }
-
-        /*
-            Load the font. If it loads, it's data will be contained in the figFonts object.
-            The callback will recieve a fontsOpts object, which contains the default
-            options of the font (its fitting rules, etc etc).
-        */
-        me.loadFont(fontName, function(err, fontOpts) {
-            if (err) {
-                return next(err);
-            }
-
-            next(null, generateText(fontName, _reworkFontOpts(fontOpts, options), txt));
-        });
-    };
-
-    /*
-        Synchronous version of figlet.text.
-        Accepts the same parameters.
-     */
-    me.textSync = function(txt, options) {
-        var fontName = '';
-
-        // Validate inputs
-        txt = txt + '';
-
-        if (typeof options === 'string') {
-            fontName = options;
-            options = {};
-        } else {
-            options = options || {};
-            fontName = options.font || figDefaults.font;
-        }
-
-        var fontOpts = _reworkFontOpts(me.loadFontSync(fontName), options);
-        return generateText(fontName, fontOpts, txt);
-    };
-
-    /*
-      takes assigned options and merges them with the default options from the choosen font
-     */
-    function _reworkFontOpts(fontOpts, options) {
-        var myOpts = JSON.parse(JSON.stringify(fontOpts)), // make a copy because we may edit this (see below)
-            params,
-            prop;
-
-        /*
-         If the user is chosing to use a specific type of layout (e.g., 'full', 'fitted', etc etc)
-         Then we need to override the default font options.
-         */
-        if (typeof options.horizontalLayout !== 'undefined') {
-            params = getHorizontalFittingRules(options.horizontalLayout, fontOpts);
-            for (prop in params) {
-                myOpts.fittingRules[prop] = params[prop];
-            }
-        }
-        if (typeof options.verticalLayout !== 'undefined') {
-            params = getVerticalFittingRules(options.verticalLayout, fontOpts);
-            for (prop in params) {
-                myOpts.fittingRules[prop] = params[prop];
-            }
-        }
-        myOpts.printDirection = (typeof options.printDirection !== 'undefined') ? options.printDirection : fontOpts.printDirection;
-        myOpts.showHardBlanks = options.showHardBlanks || false;
-
-        return myOpts;
-    }
-
-    /*
-        Returns metadata about a specfic FIGlet font.
-
-        Returns:
-            next(err, options, headerComment)
-            - err: The error if an error occurred, otherwise null/falsey.
-            - options (object): The options defined for the font.
-            - headerComment (string): The font's header comment.
-    */
-    me.metadata = function(fontName, next) {
-        fontName = fontName + '';
-
-        /*
-            Load the font. If it loads, it's data will be contained in the figFonts object.
-            The callback will recieve a fontsOpts object, which contains the default
-            options of the font (its fitting rules, etc etc).
-        */
-        me.loadFont(fontName, function(err, fontOpts) {
-            if (err) {
-                next(err);
-                return;
-            }
-
-            next(null, fontOpts, figFonts[fontName].comment);
-        });
-    };
-
-    /*
-        Allows you to override defaults. See the definition of the figDefaults object up above
-        to see what properties can be overridden.
-        Returns the options for the font.
-    */
-    me.defaults = function(opts) {
-        if (typeof opts === 'object' && opts !== null) {
-            for (var prop in opts) {
-                if (opts.hasOwnProperty(prop)) {
-                    figDefaults[prop] = opts[prop];
-                }
-            }
-        }
-        return JSON.parse(JSON.stringify(figDefaults));
-    };
-
-    /*
-        Parses data from a FIGlet font file and places it into the figFonts object.
-    */
-    me.parseFont = function(fontName, data) {
-        data = data.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
-        figFonts[fontName] = {};
-
-        var lines = data.split("\n");
-        var headerData = lines.splice(0,1)[0].split(" ");
-        var figFont = figFonts[fontName];
-        var opts = {};
-
-        opts.hardBlank = headerData[0].substr(5,1);
-        opts.height = parseInt(headerData[1], 10);
-        opts.baseline = parseInt(headerData[2], 10);
-        opts.maxLength = parseInt(headerData[3], 10);
-        opts.oldLayout = parseInt(headerData[4], 10);
-        opts.numCommentLines = parseInt(headerData[5], 10);
-        opts.printDirection = (headerData.length >= 6) ? parseInt(headerData[6], 10) : 0;
-        opts.fullLayout = (headerData.length >= 7) ? parseInt(headerData[7], 10) : null;
-        opts.codeTagCount = (headerData.length >= 8) ? parseInt(headerData[8], 10) : null;
-        opts.fittingRules = getSmushingRules(opts.oldLayout, opts.fullLayout);
-
-        figFont.options = opts;
-
-        // error check
-        if (opts.hardBlank.length !== 1 ||
-            isNaN(opts.height) ||
-            isNaN(opts.baseline) ||
-            isNaN(opts.maxLength) ||
-            isNaN(opts.oldLayout) ||
-            isNaN(opts.numCommentLines) )
-        {
-            throw new Error('FIGlet header contains invalid values.');
-        }
-
-        /*
-            All FIGlet fonts must contain chars 32-126, 196, 214, 220, 228, 246, 252, 223
-        */
-
-        var charNums = [], ii;
-        for (ii = 32; ii <= 126; ii++) {
-            charNums.push(ii);
-        }
-        charNums = charNums.concat(196, 214, 220, 228, 246, 252, 223);
-
-        // error check - validate that there are enough lines in the file
-        if (lines.length < (opts.numCommentLines + (opts.height * charNums.length)) ) {
-            throw new Error('FIGlet file is missing data.');
-        }
-
-        /*
-            Parse out the context of the file and put it into our figFont object
-        */
-
-        var cNum, endCharRegEx, parseError = false;
-
-        figFont.comment = lines.splice(0,opts.numCommentLines).join("\n");
-        figFont.numChars = 0;
-
-        while (lines.length > 0 && figFont.numChars < charNums.length) {
-            cNum = charNums[figFont.numChars];
-            figFont[cNum] = lines.splice(0,opts.height);
-            // remove end sub-chars
-            for (ii = 0; ii < opts.height; ii++) {
-                if (typeof figFont[cNum][ii] === "undefined") {
-                    figFont[cNum][ii] = "";
-                } else {
-                    endCharRegEx = new RegExp("\\"+figFont[cNum][ii].substr(figFont[cNum][ii].length-1,1)+"+$");
-                    figFont[cNum][ii] = figFont[cNum][ii].replace(endCharRegEx,"");
-                }
-            }
-            figFont.numChars++;
-        }
-
-        /*
-            Now we check to see if any additional characters are present
-        */
-
-        while (lines.length > 0) {
-            cNum = lines.splice(0,1)[0].split(" ")[0];
-            if ( /^0[xX][0-9a-fA-F]+$/.test(cNum) ) {
-                cNum = parseInt(cNum, 16);
-            } else if ( /^0[0-7]+$/.test(cNum) ) {
-                cNum = parseInt(cNum, 8);
-            } else if ( /^[0-9]+$/.test(cNum) ) {
-                cNum = parseInt(cNum, 10);
-            } else if ( /^-0[xX][0-9a-fA-F]+$/.test(cNum) ) {
-                cNum = parseInt(cNum, 16);
-            } else {
-                if (cNum === "") {break;}
-                // something's wrong
-                console.log("Invalid data:"+cNum);
-                parseError = true;
-                break;
-            }
-
-            figFont[cNum] = lines.splice(0,opts.height);
-            // remove end sub-chars
-            for (ii = 0; ii < opts.height; ii++) {
-                if (typeof figFont[cNum][ii] === "undefined") {
-                    figFont[cNum][ii] = "";
-                } else {
-                    endCharRegEx = new RegExp("\\"+figFont[cNum][ii].substr(figFont[cNum][ii].length-1,1)+"+$");
-                    figFont[cNum][ii] = figFont[cNum][ii].replace(endCharRegEx,"");
-                }
-            }
-            figFont.numChars++;
-        }
-
-        // error check
-        if (parseError === true) {
-            throw new Error('Error parsing data.');
-        }
-
-        return opts;
-    };
-
-    /*
-        Loads a font.
-    */
-    me.loadFont = function(fontName, next) {
-        if (figFonts[fontName]) {
-            next(null, figFonts[fontName].options);
-            return;
-        }
-
-        if (typeof fetch !== 'function') {
-          console.error('figlet.js requires the fetch API or a fetch polyfill such as https://cdnjs.com/libraries/fetch');
-          throw new Error('fetch is required for figlet.js to work.')
-        }
-
-        fetch(figDefaults.fontPath + '/' + fontName + '.flf')
-            .then(function(response) {
-                if(response.ok) {
-                    return response.text();
-                }
-            
-                console.log('Unexpected response', response);
-                throw new Error('Network response was not ok.');
-            })
-            .then(function(text) {
-                next(null, me.parseFont(fontName, text));
-            })
-            .catch(next);
-    };
-
-    /*
-        loads a font synchronously, not implemented for the browser
-     */
-    me.loadFontSync = function(name) {
-        if (figFonts[name]) {
-          return figFonts[name].options;
-        }
-        throw new Error('synchronous font loading is not implemented for the browser');
-    };
-
-    /*
-        preloads a list of fonts prior to using textSync
-        - fonts: an array of font names (i.e. ["Standard","Soft"])
-        - next: callback function
-     */
-    me.preloadFonts = function(fonts, next) {
-
-      if (typeof jQuery === 'undefined') { /* TODO: create common function for jQuery checks */
-          throw new Error('jQuery is required for ajax method to work.');
-      }
-
-      jQuery.when.apply(this, fonts.map(function(name){
-            return jQuery.get(figDefaults.fontPath + '/' + name + '.flf')
-          })).then(function() {
-                      var args = fonts.length > 1 ? arguments : [arguments];
-                      for(var i in fonts){
-                        me.parseFont(fonts[i], args[i][0]);
-                      }
-                      if(next)next();
-          });
-    };
-
-    me.figFonts = figFonts;
-    
-    return me;
-})();
-
-// for node.js
-{
-    {
-        module.exports = figlet;
-    }
-}
-});
-
-/*
-	Node plugin for figlet.js
-*/
-
-var fontDir = path$6.join(__dirname, '/../fonts/');
-
-/*
-    Loads a font into the figlet object.
-
-    Parameters:
-    - name (string): Name of the font to load.
-    - next (function): Callback function.
-*/
-figlet_1.loadFont = function(name, next) {
-    if (figlet_1.figFonts[name]) {
-        next(null, figlet_1.figFonts[name].options);
-        return;
-    }
-
-    fs$2.readFile( path$6.join(fontDir, name + '.flf'),  {encoding: 'utf-8'}, function(err, fontData) {
-        if (err) {
-            return next(err);
-        }
-
-        fontData = fontData + '';
-        try {
-            next(null, figlet_1.parseFont(name, fontData));
-        } catch(error) {
-            next(error);
-        }
-    });
-};
-
-/*
- Loads a font synchronously into the figlet object.
-
- Parameters:
- - name (string): Name of the font to load.
- */
-figlet_1.loadFontSync = function(name) {
-    if (figlet_1.figFonts[name]) {
-        return figlet_1.figFonts[name].options;
-    }
-
-    var fontData = fs$2.readFileSync( path$6.join(fontDir, name + '.flf'),  {encoding: 'utf-8'});
-
-    fontData = fontData + '';
-    return figlet_1.parseFont(name, fontData);
-};
-
-/*
-    Returns an array containing all of the font names
-*/
-figlet_1.fonts = function(next) {
-    var fontList = [];
-    fs$2.readdir(fontDir, function (err, files) { // '/' denotes the root folder
-        if (err) {
-            return next(err);
-        }
-
-        files.forEach( function (file) {
-            if ( /\.flf$/.test(file) ) {
-                fontList.push( file.replace(/\.flf$/,'') );
-            }
-        });
-
-        next(null, fontList);
-    });
-
-};
-
-figlet_1.fontsSync = function() {
-    var fontList = [];
-    fs$2.readdirSync(fontDir).forEach(function(file) {
-        if ( /\.flf$/.test(file) ) {
-            fontList.push( file.replace(/\.flf$/,'') );
-        }
-    });
-
-    return fontList;
-};
-
-var nodeFiglet = figlet_1;
-
-const DIVIDER_LENGTH = 80;
-const CHOICE_SEPARATOR = { message: "\n=-=-= END " + "=-".repeat(35) + "\n", role: 'separator' };
-const SHOW_STACK_TRACE = true;
-
-function log(message)
-{
-    console.log(message);
-}
-
-function debug(message)
-{
-    console.log(chalk$1.gray(message));
-}
-
-function error(message, expected = false)
-{
-    console.error(chalk$1.redBright(message));
-    
-    if (!expected && SHOW_STACK_TRACE)
-    {
-        console.trace(chalk$1.red(message));
-    }
-}
-
-function success(message)
-{
-    console.log(chalk$1.green(message));
-}
-
-function motivation()
-{
-    say(getMotivation());
-}
-
-function formattedError(errorMessage, depth = 0)
-{
-    if (Array.isArray(errorMessage))
-    {
-        for(const message of errorMessage)
-        {
-            if (message === '=>')
-            {
-                depth += 1;
-            }
-            else if (message === '<=')
-            {
-                depth -= 1;
-            }
-            else
-            {
-                formattedError(message, depth);
-            }
-        }
-    }
-    else
-    {
-        error('  '.repeat(depth) + ' ' + ((depth <= 0) ? '+' : '-') + ' ' + errorMessage);
-    }
-}
-
-const MAX_SKIPPED_ERRORS = 100;
-const SKIPPED_ERRORS = new Set();
-const NO_SKIP_ERRORS = new Set();
-const FORCE_SKIP_ERRORS = new Set();
-async function skippedError(message, reason = undefined)
-{
-    const errorMessage = message + " - " + (reason instanceof Error ? reason.message : reason);
-    error(errorMessage, true);
-
-    const errorHash = stringHash(errorMessage);
-    if (FORCE_SKIP_ERRORS.has(errorHash))
-    {
-        debug("...Auto-skipping error...");
-    }
-    else if (!(await ask("...Skip the error?", true).catch(e => false)))
-    {
-        throw new Error("Failed error. Aborting...");
-    }
-    else if (SKIPPED_ERRORS.has(errorHash))
-    {
-        try
-        {
-            if (await ask("...Skip this error in the future?"))
-            {
-                FORCE_SKIP_ERRORS.add(errorHash);
-            }
-            else
-            {
-                NO_SKIP_ERRORS.add(errorHash);
-            }
-        }
-        catch(e)
-        {
-            // Just ignore it.
-        }
-    }
-    else
-    {
-        if (SKIPPED_ERRORS.size > MAX_SKIPPED_ERRORS)
-        {
-            SKIPPED_ERRORS.clear();
-        }
-
-        SKIPPED_ERRORS.add(errorHash);
-    }
-}
-
-function divider(token = 'nu')
-{
-    log(chalk$1.gray(
-        token.repeat(Math.floor(DIVIDER_LENGTH / token.length))
-        + token.substring(0, DIVIDER_LENGTH % token.length)
-    ));
-}
-
-function doTheBigTitleThing(title = 'Progress Auditor', subtitle = 'Version v?.?.?')
-{
-    divider();
-    log(chalk$1.green(nodeFiglet.textSync(title, { font: 'Big' })));
-    if (subtitle)
-    {
-        log(subtitle.padStart(DIVIDER_LENGTH, ' '));
-    }
-    divider();
 }
 
 var symbols = createCommonjsModule(function (module) {
@@ -9845,7 +6769,7 @@ async function askPrompt(message, type, opts = {})
     return answer;
 }
 
-async function ask$1(message, defaultValue = false)
+async function ask(message, defaultValue = false)
 {
     const { answer } =  await enquirer.prompt({
         type: 'confirm',
@@ -10052,6 +6976,3082 @@ async function askDate(message, defaultValue = undefined)
     return parse(result);
 }
 
+var matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
+
+var escapeStringRegexp = function (str) {
+	if (typeof str !== 'string') {
+		throw new TypeError('Expected a string');
+	}
+
+	return str.replace(matchOperatorsRe, '\\$&');
+};
+
+var colorName = {
+	"aliceblue": [240, 248, 255],
+	"antiquewhite": [250, 235, 215],
+	"aqua": [0, 255, 255],
+	"aquamarine": [127, 255, 212],
+	"azure": [240, 255, 255],
+	"beige": [245, 245, 220],
+	"bisque": [255, 228, 196],
+	"black": [0, 0, 0],
+	"blanchedalmond": [255, 235, 205],
+	"blue": [0, 0, 255],
+	"blueviolet": [138, 43, 226],
+	"brown": [165, 42, 42],
+	"burlywood": [222, 184, 135],
+	"cadetblue": [95, 158, 160],
+	"chartreuse": [127, 255, 0],
+	"chocolate": [210, 105, 30],
+	"coral": [255, 127, 80],
+	"cornflowerblue": [100, 149, 237],
+	"cornsilk": [255, 248, 220],
+	"crimson": [220, 20, 60],
+	"cyan": [0, 255, 255],
+	"darkblue": [0, 0, 139],
+	"darkcyan": [0, 139, 139],
+	"darkgoldenrod": [184, 134, 11],
+	"darkgray": [169, 169, 169],
+	"darkgreen": [0, 100, 0],
+	"darkgrey": [169, 169, 169],
+	"darkkhaki": [189, 183, 107],
+	"darkmagenta": [139, 0, 139],
+	"darkolivegreen": [85, 107, 47],
+	"darkorange": [255, 140, 0],
+	"darkorchid": [153, 50, 204],
+	"darkred": [139, 0, 0],
+	"darksalmon": [233, 150, 122],
+	"darkseagreen": [143, 188, 143],
+	"darkslateblue": [72, 61, 139],
+	"darkslategray": [47, 79, 79],
+	"darkslategrey": [47, 79, 79],
+	"darkturquoise": [0, 206, 209],
+	"darkviolet": [148, 0, 211],
+	"deeppink": [255, 20, 147],
+	"deepskyblue": [0, 191, 255],
+	"dimgray": [105, 105, 105],
+	"dimgrey": [105, 105, 105],
+	"dodgerblue": [30, 144, 255],
+	"firebrick": [178, 34, 34],
+	"floralwhite": [255, 250, 240],
+	"forestgreen": [34, 139, 34],
+	"fuchsia": [255, 0, 255],
+	"gainsboro": [220, 220, 220],
+	"ghostwhite": [248, 248, 255],
+	"gold": [255, 215, 0],
+	"goldenrod": [218, 165, 32],
+	"gray": [128, 128, 128],
+	"green": [0, 128, 0],
+	"greenyellow": [173, 255, 47],
+	"grey": [128, 128, 128],
+	"honeydew": [240, 255, 240],
+	"hotpink": [255, 105, 180],
+	"indianred": [205, 92, 92],
+	"indigo": [75, 0, 130],
+	"ivory": [255, 255, 240],
+	"khaki": [240, 230, 140],
+	"lavender": [230, 230, 250],
+	"lavenderblush": [255, 240, 245],
+	"lawngreen": [124, 252, 0],
+	"lemonchiffon": [255, 250, 205],
+	"lightblue": [173, 216, 230],
+	"lightcoral": [240, 128, 128],
+	"lightcyan": [224, 255, 255],
+	"lightgoldenrodyellow": [250, 250, 210],
+	"lightgray": [211, 211, 211],
+	"lightgreen": [144, 238, 144],
+	"lightgrey": [211, 211, 211],
+	"lightpink": [255, 182, 193],
+	"lightsalmon": [255, 160, 122],
+	"lightseagreen": [32, 178, 170],
+	"lightskyblue": [135, 206, 250],
+	"lightslategray": [119, 136, 153],
+	"lightslategrey": [119, 136, 153],
+	"lightsteelblue": [176, 196, 222],
+	"lightyellow": [255, 255, 224],
+	"lime": [0, 255, 0],
+	"limegreen": [50, 205, 50],
+	"linen": [250, 240, 230],
+	"magenta": [255, 0, 255],
+	"maroon": [128, 0, 0],
+	"mediumaquamarine": [102, 205, 170],
+	"mediumblue": [0, 0, 205],
+	"mediumorchid": [186, 85, 211],
+	"mediumpurple": [147, 112, 219],
+	"mediumseagreen": [60, 179, 113],
+	"mediumslateblue": [123, 104, 238],
+	"mediumspringgreen": [0, 250, 154],
+	"mediumturquoise": [72, 209, 204],
+	"mediumvioletred": [199, 21, 133],
+	"midnightblue": [25, 25, 112],
+	"mintcream": [245, 255, 250],
+	"mistyrose": [255, 228, 225],
+	"moccasin": [255, 228, 181],
+	"navajowhite": [255, 222, 173],
+	"navy": [0, 0, 128],
+	"oldlace": [253, 245, 230],
+	"olive": [128, 128, 0],
+	"olivedrab": [107, 142, 35],
+	"orange": [255, 165, 0],
+	"orangered": [255, 69, 0],
+	"orchid": [218, 112, 214],
+	"palegoldenrod": [238, 232, 170],
+	"palegreen": [152, 251, 152],
+	"paleturquoise": [175, 238, 238],
+	"palevioletred": [219, 112, 147],
+	"papayawhip": [255, 239, 213],
+	"peachpuff": [255, 218, 185],
+	"peru": [205, 133, 63],
+	"pink": [255, 192, 203],
+	"plum": [221, 160, 221],
+	"powderblue": [176, 224, 230],
+	"purple": [128, 0, 128],
+	"rebeccapurple": [102, 51, 153],
+	"red": [255, 0, 0],
+	"rosybrown": [188, 143, 143],
+	"royalblue": [65, 105, 225],
+	"saddlebrown": [139, 69, 19],
+	"salmon": [250, 128, 114],
+	"sandybrown": [244, 164, 96],
+	"seagreen": [46, 139, 87],
+	"seashell": [255, 245, 238],
+	"sienna": [160, 82, 45],
+	"silver": [192, 192, 192],
+	"skyblue": [135, 206, 235],
+	"slateblue": [106, 90, 205],
+	"slategray": [112, 128, 144],
+	"slategrey": [112, 128, 144],
+	"snow": [255, 250, 250],
+	"springgreen": [0, 255, 127],
+	"steelblue": [70, 130, 180],
+	"tan": [210, 180, 140],
+	"teal": [0, 128, 128],
+	"thistle": [216, 191, 216],
+	"tomato": [255, 99, 71],
+	"turquoise": [64, 224, 208],
+	"violet": [238, 130, 238],
+	"wheat": [245, 222, 179],
+	"white": [255, 255, 255],
+	"whitesmoke": [245, 245, 245],
+	"yellow": [255, 255, 0],
+	"yellowgreen": [154, 205, 50]
+};
+
+var conversions = createCommonjsModule(function (module) {
+/* MIT license */
+
+
+// NOTE: conversions should only return primitive values (i.e. arrays, or
+//       values that give correct `typeof` results).
+//       do not use box values types (i.e. Number(), String(), etc.)
+
+var reverseKeywords = {};
+for (var key in colorName) {
+	if (colorName.hasOwnProperty(key)) {
+		reverseKeywords[colorName[key]] = key;
+	}
+}
+
+var convert = module.exports = {
+	rgb: {channels: 3, labels: 'rgb'},
+	hsl: {channels: 3, labels: 'hsl'},
+	hsv: {channels: 3, labels: 'hsv'},
+	hwb: {channels: 3, labels: 'hwb'},
+	cmyk: {channels: 4, labels: 'cmyk'},
+	xyz: {channels: 3, labels: 'xyz'},
+	lab: {channels: 3, labels: 'lab'},
+	lch: {channels: 3, labels: 'lch'},
+	hex: {channels: 1, labels: ['hex']},
+	keyword: {channels: 1, labels: ['keyword']},
+	ansi16: {channels: 1, labels: ['ansi16']},
+	ansi256: {channels: 1, labels: ['ansi256']},
+	hcg: {channels: 3, labels: ['h', 'c', 'g']},
+	apple: {channels: 3, labels: ['r16', 'g16', 'b16']},
+	gray: {channels: 1, labels: ['gray']}
+};
+
+// hide .channels and .labels properties
+for (var model in convert) {
+	if (convert.hasOwnProperty(model)) {
+		if (!('channels' in convert[model])) {
+			throw new Error('missing channels property: ' + model);
+		}
+
+		if (!('labels' in convert[model])) {
+			throw new Error('missing channel labels property: ' + model);
+		}
+
+		if (convert[model].labels.length !== convert[model].channels) {
+			throw new Error('channel and label counts mismatch: ' + model);
+		}
+
+		var channels = convert[model].channels;
+		var labels = convert[model].labels;
+		delete convert[model].channels;
+		delete convert[model].labels;
+		Object.defineProperty(convert[model], 'channels', {value: channels});
+		Object.defineProperty(convert[model], 'labels', {value: labels});
+	}
+}
+
+convert.rgb.hsl = function (rgb) {
+	var r = rgb[0] / 255;
+	var g = rgb[1] / 255;
+	var b = rgb[2] / 255;
+	var min = Math.min(r, g, b);
+	var max = Math.max(r, g, b);
+	var delta = max - min;
+	var h;
+	var s;
+	var l;
+
+	if (max === min) {
+		h = 0;
+	} else if (r === max) {
+		h = (g - b) / delta;
+	} else if (g === max) {
+		h = 2 + (b - r) / delta;
+	} else if (b === max) {
+		h = 4 + (r - g) / delta;
+	}
+
+	h = Math.min(h * 60, 360);
+
+	if (h < 0) {
+		h += 360;
+	}
+
+	l = (min + max) / 2;
+
+	if (max === min) {
+		s = 0;
+	} else if (l <= 0.5) {
+		s = delta / (max + min);
+	} else {
+		s = delta / (2 - max - min);
+	}
+
+	return [h, s * 100, l * 100];
+};
+
+convert.rgb.hsv = function (rgb) {
+	var rdif;
+	var gdif;
+	var bdif;
+	var h;
+	var s;
+
+	var r = rgb[0] / 255;
+	var g = rgb[1] / 255;
+	var b = rgb[2] / 255;
+	var v = Math.max(r, g, b);
+	var diff = v - Math.min(r, g, b);
+	var diffc = function (c) {
+		return (v - c) / 6 / diff + 1 / 2;
+	};
+
+	if (diff === 0) {
+		h = s = 0;
+	} else {
+		s = diff / v;
+		rdif = diffc(r);
+		gdif = diffc(g);
+		bdif = diffc(b);
+
+		if (r === v) {
+			h = bdif - gdif;
+		} else if (g === v) {
+			h = (1 / 3) + rdif - bdif;
+		} else if (b === v) {
+			h = (2 / 3) + gdif - rdif;
+		}
+		if (h < 0) {
+			h += 1;
+		} else if (h > 1) {
+			h -= 1;
+		}
+	}
+
+	return [
+		h * 360,
+		s * 100,
+		v * 100
+	];
+};
+
+convert.rgb.hwb = function (rgb) {
+	var r = rgb[0];
+	var g = rgb[1];
+	var b = rgb[2];
+	var h = convert.rgb.hsl(rgb)[0];
+	var w = 1 / 255 * Math.min(r, Math.min(g, b));
+
+	b = 1 - 1 / 255 * Math.max(r, Math.max(g, b));
+
+	return [h, w * 100, b * 100];
+};
+
+convert.rgb.cmyk = function (rgb) {
+	var r = rgb[0] / 255;
+	var g = rgb[1] / 255;
+	var b = rgb[2] / 255;
+	var c;
+	var m;
+	var y;
+	var k;
+
+	k = Math.min(1 - r, 1 - g, 1 - b);
+	c = (1 - r - k) / (1 - k) || 0;
+	m = (1 - g - k) / (1 - k) || 0;
+	y = (1 - b - k) / (1 - k) || 0;
+
+	return [c * 100, m * 100, y * 100, k * 100];
+};
+
+/**
+ * See https://en.m.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_distance
+ * */
+function comparativeDistance(x, y) {
+	return (
+		Math.pow(x[0] - y[0], 2) +
+		Math.pow(x[1] - y[1], 2) +
+		Math.pow(x[2] - y[2], 2)
+	);
+}
+
+convert.rgb.keyword = function (rgb) {
+	var reversed = reverseKeywords[rgb];
+	if (reversed) {
+		return reversed;
+	}
+
+	var currentClosestDistance = Infinity;
+	var currentClosestKeyword;
+
+	for (var keyword in colorName) {
+		if (colorName.hasOwnProperty(keyword)) {
+			var value = colorName[keyword];
+
+			// Compute comparative distance
+			var distance = comparativeDistance(rgb, value);
+
+			// Check if its less, if so set as closest
+			if (distance < currentClosestDistance) {
+				currentClosestDistance = distance;
+				currentClosestKeyword = keyword;
+			}
+		}
+	}
+
+	return currentClosestKeyword;
+};
+
+convert.keyword.rgb = function (keyword) {
+	return colorName[keyword];
+};
+
+convert.rgb.xyz = function (rgb) {
+	var r = rgb[0] / 255;
+	var g = rgb[1] / 255;
+	var b = rgb[2] / 255;
+
+	// assume sRGB
+	r = r > 0.04045 ? Math.pow(((r + 0.055) / 1.055), 2.4) : (r / 12.92);
+	g = g > 0.04045 ? Math.pow(((g + 0.055) / 1.055), 2.4) : (g / 12.92);
+	b = b > 0.04045 ? Math.pow(((b + 0.055) / 1.055), 2.4) : (b / 12.92);
+
+	var x = (r * 0.4124) + (g * 0.3576) + (b * 0.1805);
+	var y = (r * 0.2126) + (g * 0.7152) + (b * 0.0722);
+	var z = (r * 0.0193) + (g * 0.1192) + (b * 0.9505);
+
+	return [x * 100, y * 100, z * 100];
+};
+
+convert.rgb.lab = function (rgb) {
+	var xyz = convert.rgb.xyz(rgb);
+	var x = xyz[0];
+	var y = xyz[1];
+	var z = xyz[2];
+	var l;
+	var a;
+	var b;
+
+	x /= 95.047;
+	y /= 100;
+	z /= 108.883;
+
+	x = x > 0.008856 ? Math.pow(x, 1 / 3) : (7.787 * x) + (16 / 116);
+	y = y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + (16 / 116);
+	z = z > 0.008856 ? Math.pow(z, 1 / 3) : (7.787 * z) + (16 / 116);
+
+	l = (116 * y) - 16;
+	a = 500 * (x - y);
+	b = 200 * (y - z);
+
+	return [l, a, b];
+};
+
+convert.hsl.rgb = function (hsl) {
+	var h = hsl[0] / 360;
+	var s = hsl[1] / 100;
+	var l = hsl[2] / 100;
+	var t1;
+	var t2;
+	var t3;
+	var rgb;
+	var val;
+
+	if (s === 0) {
+		val = l * 255;
+		return [val, val, val];
+	}
+
+	if (l < 0.5) {
+		t2 = l * (1 + s);
+	} else {
+		t2 = l + s - l * s;
+	}
+
+	t1 = 2 * l - t2;
+
+	rgb = [0, 0, 0];
+	for (var i = 0; i < 3; i++) {
+		t3 = h + 1 / 3 * -(i - 1);
+		if (t3 < 0) {
+			t3++;
+		}
+		if (t3 > 1) {
+			t3--;
+		}
+
+		if (6 * t3 < 1) {
+			val = t1 + (t2 - t1) * 6 * t3;
+		} else if (2 * t3 < 1) {
+			val = t2;
+		} else if (3 * t3 < 2) {
+			val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
+		} else {
+			val = t1;
+		}
+
+		rgb[i] = val * 255;
+	}
+
+	return rgb;
+};
+
+convert.hsl.hsv = function (hsl) {
+	var h = hsl[0];
+	var s = hsl[1] / 100;
+	var l = hsl[2] / 100;
+	var smin = s;
+	var lmin = Math.max(l, 0.01);
+	var sv;
+	var v;
+
+	l *= 2;
+	s *= (l <= 1) ? l : 2 - l;
+	smin *= lmin <= 1 ? lmin : 2 - lmin;
+	v = (l + s) / 2;
+	sv = l === 0 ? (2 * smin) / (lmin + smin) : (2 * s) / (l + s);
+
+	return [h, sv * 100, v * 100];
+};
+
+convert.hsv.rgb = function (hsv) {
+	var h = hsv[0] / 60;
+	var s = hsv[1] / 100;
+	var v = hsv[2] / 100;
+	var hi = Math.floor(h) % 6;
+
+	var f = h - Math.floor(h);
+	var p = 255 * v * (1 - s);
+	var q = 255 * v * (1 - (s * f));
+	var t = 255 * v * (1 - (s * (1 - f)));
+	v *= 255;
+
+	switch (hi) {
+		case 0:
+			return [v, t, p];
+		case 1:
+			return [q, v, p];
+		case 2:
+			return [p, v, t];
+		case 3:
+			return [p, q, v];
+		case 4:
+			return [t, p, v];
+		case 5:
+			return [v, p, q];
+	}
+};
+
+convert.hsv.hsl = function (hsv) {
+	var h = hsv[0];
+	var s = hsv[1] / 100;
+	var v = hsv[2] / 100;
+	var vmin = Math.max(v, 0.01);
+	var lmin;
+	var sl;
+	var l;
+
+	l = (2 - s) * v;
+	lmin = (2 - s) * vmin;
+	sl = s * vmin;
+	sl /= (lmin <= 1) ? lmin : 2 - lmin;
+	sl = sl || 0;
+	l /= 2;
+
+	return [h, sl * 100, l * 100];
+};
+
+// http://dev.w3.org/csswg/css-color/#hwb-to-rgb
+convert.hwb.rgb = function (hwb) {
+	var h = hwb[0] / 360;
+	var wh = hwb[1] / 100;
+	var bl = hwb[2] / 100;
+	var ratio = wh + bl;
+	var i;
+	var v;
+	var f;
+	var n;
+
+	// wh + bl cant be > 1
+	if (ratio > 1) {
+		wh /= ratio;
+		bl /= ratio;
+	}
+
+	i = Math.floor(6 * h);
+	v = 1 - bl;
+	f = 6 * h - i;
+
+	if ((i & 0x01) !== 0) {
+		f = 1 - f;
+	}
+
+	n = wh + f * (v - wh); // linear interpolation
+
+	var r;
+	var g;
+	var b;
+	switch (i) {
+		default:
+		case 6:
+		case 0: r = v; g = n; b = wh; break;
+		case 1: r = n; g = v; b = wh; break;
+		case 2: r = wh; g = v; b = n; break;
+		case 3: r = wh; g = n; b = v; break;
+		case 4: r = n; g = wh; b = v; break;
+		case 5: r = v; g = wh; b = n; break;
+	}
+
+	return [r * 255, g * 255, b * 255];
+};
+
+convert.cmyk.rgb = function (cmyk) {
+	var c = cmyk[0] / 100;
+	var m = cmyk[1] / 100;
+	var y = cmyk[2] / 100;
+	var k = cmyk[3] / 100;
+	var r;
+	var g;
+	var b;
+
+	r = 1 - Math.min(1, c * (1 - k) + k);
+	g = 1 - Math.min(1, m * (1 - k) + k);
+	b = 1 - Math.min(1, y * (1 - k) + k);
+
+	return [r * 255, g * 255, b * 255];
+};
+
+convert.xyz.rgb = function (xyz) {
+	var x = xyz[0] / 100;
+	var y = xyz[1] / 100;
+	var z = xyz[2] / 100;
+	var r;
+	var g;
+	var b;
+
+	r = (x * 3.2406) + (y * -1.5372) + (z * -0.4986);
+	g = (x * -0.9689) + (y * 1.8758) + (z * 0.0415);
+	b = (x * 0.0557) + (y * -0.2040) + (z * 1.0570);
+
+	// assume sRGB
+	r = r > 0.0031308
+		? ((1.055 * Math.pow(r, 1.0 / 2.4)) - 0.055)
+		: r * 12.92;
+
+	g = g > 0.0031308
+		? ((1.055 * Math.pow(g, 1.0 / 2.4)) - 0.055)
+		: g * 12.92;
+
+	b = b > 0.0031308
+		? ((1.055 * Math.pow(b, 1.0 / 2.4)) - 0.055)
+		: b * 12.92;
+
+	r = Math.min(Math.max(0, r), 1);
+	g = Math.min(Math.max(0, g), 1);
+	b = Math.min(Math.max(0, b), 1);
+
+	return [r * 255, g * 255, b * 255];
+};
+
+convert.xyz.lab = function (xyz) {
+	var x = xyz[0];
+	var y = xyz[1];
+	var z = xyz[2];
+	var l;
+	var a;
+	var b;
+
+	x /= 95.047;
+	y /= 100;
+	z /= 108.883;
+
+	x = x > 0.008856 ? Math.pow(x, 1 / 3) : (7.787 * x) + (16 / 116);
+	y = y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + (16 / 116);
+	z = z > 0.008856 ? Math.pow(z, 1 / 3) : (7.787 * z) + (16 / 116);
+
+	l = (116 * y) - 16;
+	a = 500 * (x - y);
+	b = 200 * (y - z);
+
+	return [l, a, b];
+};
+
+convert.lab.xyz = function (lab) {
+	var l = lab[0];
+	var a = lab[1];
+	var b = lab[2];
+	var x;
+	var y;
+	var z;
+
+	y = (l + 16) / 116;
+	x = a / 500 + y;
+	z = y - b / 200;
+
+	var y2 = Math.pow(y, 3);
+	var x2 = Math.pow(x, 3);
+	var z2 = Math.pow(z, 3);
+	y = y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787;
+	x = x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787;
+	z = z2 > 0.008856 ? z2 : (z - 16 / 116) / 7.787;
+
+	x *= 95.047;
+	y *= 100;
+	z *= 108.883;
+
+	return [x, y, z];
+};
+
+convert.lab.lch = function (lab) {
+	var l = lab[0];
+	var a = lab[1];
+	var b = lab[2];
+	var hr;
+	var h;
+	var c;
+
+	hr = Math.atan2(b, a);
+	h = hr * 360 / 2 / Math.PI;
+
+	if (h < 0) {
+		h += 360;
+	}
+
+	c = Math.sqrt(a * a + b * b);
+
+	return [l, c, h];
+};
+
+convert.lch.lab = function (lch) {
+	var l = lch[0];
+	var c = lch[1];
+	var h = lch[2];
+	var a;
+	var b;
+	var hr;
+
+	hr = h / 360 * 2 * Math.PI;
+	a = c * Math.cos(hr);
+	b = c * Math.sin(hr);
+
+	return [l, a, b];
+};
+
+convert.rgb.ansi16 = function (args) {
+	var r = args[0];
+	var g = args[1];
+	var b = args[2];
+	var value = 1 in arguments ? arguments[1] : convert.rgb.hsv(args)[2]; // hsv -> ansi16 optimization
+
+	value = Math.round(value / 50);
+
+	if (value === 0) {
+		return 30;
+	}
+
+	var ansi = 30
+		+ ((Math.round(b / 255) << 2)
+		| (Math.round(g / 255) << 1)
+		| Math.round(r / 255));
+
+	if (value === 2) {
+		ansi += 60;
+	}
+
+	return ansi;
+};
+
+convert.hsv.ansi16 = function (args) {
+	// optimization here; we already know the value and don't need to get
+	// it converted for us.
+	return convert.rgb.ansi16(convert.hsv.rgb(args), args[2]);
+};
+
+convert.rgb.ansi256 = function (args) {
+	var r = args[0];
+	var g = args[1];
+	var b = args[2];
+
+	// we use the extended greyscale palette here, with the exception of
+	// black and white. normal palette only has 4 greyscale shades.
+	if (r === g && g === b) {
+		if (r < 8) {
+			return 16;
+		}
+
+		if (r > 248) {
+			return 231;
+		}
+
+		return Math.round(((r - 8) / 247) * 24) + 232;
+	}
+
+	var ansi = 16
+		+ (36 * Math.round(r / 255 * 5))
+		+ (6 * Math.round(g / 255 * 5))
+		+ Math.round(b / 255 * 5);
+
+	return ansi;
+};
+
+convert.ansi16.rgb = function (args) {
+	var color = args % 10;
+
+	// handle greyscale
+	if (color === 0 || color === 7) {
+		if (args > 50) {
+			color += 3.5;
+		}
+
+		color = color / 10.5 * 255;
+
+		return [color, color, color];
+	}
+
+	var mult = (~~(args > 50) + 1) * 0.5;
+	var r = ((color & 1) * mult) * 255;
+	var g = (((color >> 1) & 1) * mult) * 255;
+	var b = (((color >> 2) & 1) * mult) * 255;
+
+	return [r, g, b];
+};
+
+convert.ansi256.rgb = function (args) {
+	// handle greyscale
+	if (args >= 232) {
+		var c = (args - 232) * 10 + 8;
+		return [c, c, c];
+	}
+
+	args -= 16;
+
+	var rem;
+	var r = Math.floor(args / 36) / 5 * 255;
+	var g = Math.floor((rem = args % 36) / 6) / 5 * 255;
+	var b = (rem % 6) / 5 * 255;
+
+	return [r, g, b];
+};
+
+convert.rgb.hex = function (args) {
+	var integer = ((Math.round(args[0]) & 0xFF) << 16)
+		+ ((Math.round(args[1]) & 0xFF) << 8)
+		+ (Math.round(args[2]) & 0xFF);
+
+	var string = integer.toString(16).toUpperCase();
+	return '000000'.substring(string.length) + string;
+};
+
+convert.hex.rgb = function (args) {
+	var match = args.toString(16).match(/[a-f0-9]{6}|[a-f0-9]{3}/i);
+	if (!match) {
+		return [0, 0, 0];
+	}
+
+	var colorString = match[0];
+
+	if (match[0].length === 3) {
+		colorString = colorString.split('').map(function (char) {
+			return char + char;
+		}).join('');
+	}
+
+	var integer = parseInt(colorString, 16);
+	var r = (integer >> 16) & 0xFF;
+	var g = (integer >> 8) & 0xFF;
+	var b = integer & 0xFF;
+
+	return [r, g, b];
+};
+
+convert.rgb.hcg = function (rgb) {
+	var r = rgb[0] / 255;
+	var g = rgb[1] / 255;
+	var b = rgb[2] / 255;
+	var max = Math.max(Math.max(r, g), b);
+	var min = Math.min(Math.min(r, g), b);
+	var chroma = (max - min);
+	var grayscale;
+	var hue;
+
+	if (chroma < 1) {
+		grayscale = min / (1 - chroma);
+	} else {
+		grayscale = 0;
+	}
+
+	if (chroma <= 0) {
+		hue = 0;
+	} else
+	if (max === r) {
+		hue = ((g - b) / chroma) % 6;
+	} else
+	if (max === g) {
+		hue = 2 + (b - r) / chroma;
+	} else {
+		hue = 4 + (r - g) / chroma + 4;
+	}
+
+	hue /= 6;
+	hue %= 1;
+
+	return [hue * 360, chroma * 100, grayscale * 100];
+};
+
+convert.hsl.hcg = function (hsl) {
+	var s = hsl[1] / 100;
+	var l = hsl[2] / 100;
+	var c = 1;
+	var f = 0;
+
+	if (l < 0.5) {
+		c = 2.0 * s * l;
+	} else {
+		c = 2.0 * s * (1.0 - l);
+	}
+
+	if (c < 1.0) {
+		f = (l - 0.5 * c) / (1.0 - c);
+	}
+
+	return [hsl[0], c * 100, f * 100];
+};
+
+convert.hsv.hcg = function (hsv) {
+	var s = hsv[1] / 100;
+	var v = hsv[2] / 100;
+
+	var c = s * v;
+	var f = 0;
+
+	if (c < 1.0) {
+		f = (v - c) / (1 - c);
+	}
+
+	return [hsv[0], c * 100, f * 100];
+};
+
+convert.hcg.rgb = function (hcg) {
+	var h = hcg[0] / 360;
+	var c = hcg[1] / 100;
+	var g = hcg[2] / 100;
+
+	if (c === 0.0) {
+		return [g * 255, g * 255, g * 255];
+	}
+
+	var pure = [0, 0, 0];
+	var hi = (h % 1) * 6;
+	var v = hi % 1;
+	var w = 1 - v;
+	var mg = 0;
+
+	switch (Math.floor(hi)) {
+		case 0:
+			pure[0] = 1; pure[1] = v; pure[2] = 0; break;
+		case 1:
+			pure[0] = w; pure[1] = 1; pure[2] = 0; break;
+		case 2:
+			pure[0] = 0; pure[1] = 1; pure[2] = v; break;
+		case 3:
+			pure[0] = 0; pure[1] = w; pure[2] = 1; break;
+		case 4:
+			pure[0] = v; pure[1] = 0; pure[2] = 1; break;
+		default:
+			pure[0] = 1; pure[1] = 0; pure[2] = w;
+	}
+
+	mg = (1.0 - c) * g;
+
+	return [
+		(c * pure[0] + mg) * 255,
+		(c * pure[1] + mg) * 255,
+		(c * pure[2] + mg) * 255
+	];
+};
+
+convert.hcg.hsv = function (hcg) {
+	var c = hcg[1] / 100;
+	var g = hcg[2] / 100;
+
+	var v = c + g * (1.0 - c);
+	var f = 0;
+
+	if (v > 0.0) {
+		f = c / v;
+	}
+
+	return [hcg[0], f * 100, v * 100];
+};
+
+convert.hcg.hsl = function (hcg) {
+	var c = hcg[1] / 100;
+	var g = hcg[2] / 100;
+
+	var l = g * (1.0 - c) + 0.5 * c;
+	var s = 0;
+
+	if (l > 0.0 && l < 0.5) {
+		s = c / (2 * l);
+	} else
+	if (l >= 0.5 && l < 1.0) {
+		s = c / (2 * (1 - l));
+	}
+
+	return [hcg[0], s * 100, l * 100];
+};
+
+convert.hcg.hwb = function (hcg) {
+	var c = hcg[1] / 100;
+	var g = hcg[2] / 100;
+	var v = c + g * (1.0 - c);
+	return [hcg[0], (v - c) * 100, (1 - v) * 100];
+};
+
+convert.hwb.hcg = function (hwb) {
+	var w = hwb[1] / 100;
+	var b = hwb[2] / 100;
+	var v = 1 - b;
+	var c = v - w;
+	var g = 0;
+
+	if (c < 1) {
+		g = (v - c) / (1 - c);
+	}
+
+	return [hwb[0], c * 100, g * 100];
+};
+
+convert.apple.rgb = function (apple) {
+	return [(apple[0] / 65535) * 255, (apple[1] / 65535) * 255, (apple[2] / 65535) * 255];
+};
+
+convert.rgb.apple = function (rgb) {
+	return [(rgb[0] / 255) * 65535, (rgb[1] / 255) * 65535, (rgb[2] / 255) * 65535];
+};
+
+convert.gray.rgb = function (args) {
+	return [args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255];
+};
+
+convert.gray.hsl = convert.gray.hsv = function (args) {
+	return [0, 0, args[0]];
+};
+
+convert.gray.hwb = function (gray) {
+	return [0, 100, gray[0]];
+};
+
+convert.gray.cmyk = function (gray) {
+	return [0, 0, 0, gray[0]];
+};
+
+convert.gray.lab = function (gray) {
+	return [gray[0], 0, 0];
+};
+
+convert.gray.hex = function (gray) {
+	var val = Math.round(gray[0] / 100 * 255) & 0xFF;
+	var integer = (val << 16) + (val << 8) + val;
+
+	var string = integer.toString(16).toUpperCase();
+	return '000000'.substring(string.length) + string;
+};
+
+convert.rgb.gray = function (rgb) {
+	var val = (rgb[0] + rgb[1] + rgb[2]) / 3;
+	return [val / 255 * 100];
+};
+});
+var conversions_1 = conversions.rgb;
+var conversions_2 = conversions.hsl;
+var conversions_3 = conversions.hsv;
+var conversions_4 = conversions.hwb;
+var conversions_5 = conversions.cmyk;
+var conversions_6 = conversions.xyz;
+var conversions_7 = conversions.lab;
+var conversions_8 = conversions.lch;
+var conversions_9 = conversions.hex;
+var conversions_10 = conversions.keyword;
+var conversions_11 = conversions.ansi16;
+var conversions_12 = conversions.ansi256;
+var conversions_13 = conversions.hcg;
+var conversions_14 = conversions.apple;
+var conversions_15 = conversions.gray;
+
+/*
+	this function routes a model to all other models.
+
+	all functions that are routed have a property `.conversion` attached
+	to the returned synthetic function. This property is an array
+	of strings, each with the steps in between the 'from' and 'to'
+	color models (inclusive).
+
+	conversions that are not possible simply are not included.
+*/
+
+function buildGraph() {
+	var graph = {};
+	// https://jsperf.com/object-keys-vs-for-in-with-closure/3
+	var models = Object.keys(conversions);
+
+	for (var len = models.length, i = 0; i < len; i++) {
+		graph[models[i]] = {
+			// http://jsperf.com/1-vs-infinity
+			// micro-opt, but this is simple.
+			distance: -1,
+			parent: null
+		};
+	}
+
+	return graph;
+}
+
+// https://en.wikipedia.org/wiki/Breadth-first_search
+function deriveBFS(fromModel) {
+	var graph = buildGraph();
+	var queue = [fromModel]; // unshift -> queue -> pop
+
+	graph[fromModel].distance = 0;
+
+	while (queue.length) {
+		var current = queue.pop();
+		var adjacents = Object.keys(conversions[current]);
+
+		for (var len = adjacents.length, i = 0; i < len; i++) {
+			var adjacent = adjacents[i];
+			var node = graph[adjacent];
+
+			if (node.distance === -1) {
+				node.distance = graph[current].distance + 1;
+				node.parent = current;
+				queue.unshift(adjacent);
+			}
+		}
+	}
+
+	return graph;
+}
+
+function link(from, to) {
+	return function (args) {
+		return to(from(args));
+	};
+}
+
+function wrapConversion(toModel, graph) {
+	var path = [graph[toModel].parent, toModel];
+	var fn = conversions[graph[toModel].parent][toModel];
+
+	var cur = graph[toModel].parent;
+	while (graph[cur].parent) {
+		path.unshift(graph[cur].parent);
+		fn = link(conversions[graph[cur].parent][cur], fn);
+		cur = graph[cur].parent;
+	}
+
+	fn.conversion = path;
+	return fn;
+}
+
+var route = function (fromModel) {
+	var graph = deriveBFS(fromModel);
+	var conversion = {};
+
+	var models = Object.keys(graph);
+	for (var len = models.length, i = 0; i < len; i++) {
+		var toModel = models[i];
+		var node = graph[toModel];
+
+		if (node.parent === null) {
+			// no possible conversion, or this node is the source model.
+			continue;
+		}
+
+		conversion[toModel] = wrapConversion(toModel, graph);
+	}
+
+	return conversion;
+};
+
+var convert = {};
+
+var models = Object.keys(conversions);
+
+function wrapRaw(fn) {
+	var wrappedFn = function (args) {
+		if (args === undefined || args === null) {
+			return args;
+		}
+
+		if (arguments.length > 1) {
+			args = Array.prototype.slice.call(arguments);
+		}
+
+		return fn(args);
+	};
+
+	// preserve .conversion property if there is one
+	if ('conversion' in fn) {
+		wrappedFn.conversion = fn.conversion;
+	}
+
+	return wrappedFn;
+}
+
+function wrapRounded(fn) {
+	var wrappedFn = function (args) {
+		if (args === undefined || args === null) {
+			return args;
+		}
+
+		if (arguments.length > 1) {
+			args = Array.prototype.slice.call(arguments);
+		}
+
+		var result = fn(args);
+
+		// we're assuming the result is an array here.
+		// see notice in conversions.js; don't use box types
+		// in conversion functions.
+		if (typeof result === 'object') {
+			for (var len = result.length, i = 0; i < len; i++) {
+				result[i] = Math.round(result[i]);
+			}
+		}
+
+		return result;
+	};
+
+	// preserve .conversion property if there is one
+	if ('conversion' in fn) {
+		wrappedFn.conversion = fn.conversion;
+	}
+
+	return wrappedFn;
+}
+
+models.forEach(function (fromModel) {
+	convert[fromModel] = {};
+
+	Object.defineProperty(convert[fromModel], 'channels', {value: conversions[fromModel].channels});
+	Object.defineProperty(convert[fromModel], 'labels', {value: conversions[fromModel].labels});
+
+	var routes = route(fromModel);
+	var routeModels = Object.keys(routes);
+
+	routeModels.forEach(function (toModel) {
+		var fn = routes[toModel];
+
+		convert[fromModel][toModel] = wrapRounded(fn);
+		convert[fromModel][toModel].raw = wrapRaw(fn);
+	});
+});
+
+var colorConvert = convert;
+
+var ansiStyles = createCommonjsModule(function (module) {
+
+
+const wrapAnsi16 = (fn, offset) => function () {
+	const code = fn.apply(colorConvert, arguments);
+	return `\u001B[${code + offset}m`;
+};
+
+const wrapAnsi256 = (fn, offset) => function () {
+	const code = fn.apply(colorConvert, arguments);
+	return `\u001B[${38 + offset};5;${code}m`;
+};
+
+const wrapAnsi16m = (fn, offset) => function () {
+	const rgb = fn.apply(colorConvert, arguments);
+	return `\u001B[${38 + offset};2;${rgb[0]};${rgb[1]};${rgb[2]}m`;
+};
+
+function assembleStyles() {
+	const codes = new Map();
+	const styles = {
+		modifier: {
+			reset: [0, 0],
+			// 21 isn't widely supported and 22 does the same thing
+			bold: [1, 22],
+			dim: [2, 22],
+			italic: [3, 23],
+			underline: [4, 24],
+			inverse: [7, 27],
+			hidden: [8, 28],
+			strikethrough: [9, 29]
+		},
+		color: {
+			black: [30, 39],
+			red: [31, 39],
+			green: [32, 39],
+			yellow: [33, 39],
+			blue: [34, 39],
+			magenta: [35, 39],
+			cyan: [36, 39],
+			white: [37, 39],
+			gray: [90, 39],
+
+			// Bright color
+			redBright: [91, 39],
+			greenBright: [92, 39],
+			yellowBright: [93, 39],
+			blueBright: [94, 39],
+			magentaBright: [95, 39],
+			cyanBright: [96, 39],
+			whiteBright: [97, 39]
+		},
+		bgColor: {
+			bgBlack: [40, 49],
+			bgRed: [41, 49],
+			bgGreen: [42, 49],
+			bgYellow: [43, 49],
+			bgBlue: [44, 49],
+			bgMagenta: [45, 49],
+			bgCyan: [46, 49],
+			bgWhite: [47, 49],
+
+			// Bright color
+			bgBlackBright: [100, 49],
+			bgRedBright: [101, 49],
+			bgGreenBright: [102, 49],
+			bgYellowBright: [103, 49],
+			bgBlueBright: [104, 49],
+			bgMagentaBright: [105, 49],
+			bgCyanBright: [106, 49],
+			bgWhiteBright: [107, 49]
+		}
+	};
+
+	// Fix humans
+	styles.color.grey = styles.color.gray;
+
+	for (const groupName of Object.keys(styles)) {
+		const group = styles[groupName];
+
+		for (const styleName of Object.keys(group)) {
+			const style = group[styleName];
+
+			styles[styleName] = {
+				open: `\u001B[${style[0]}m`,
+				close: `\u001B[${style[1]}m`
+			};
+
+			group[styleName] = styles[styleName];
+
+			codes.set(style[0], style[1]);
+		}
+
+		Object.defineProperty(styles, groupName, {
+			value: group,
+			enumerable: false
+		});
+
+		Object.defineProperty(styles, 'codes', {
+			value: codes,
+			enumerable: false
+		});
+	}
+
+	const ansi2ansi = n => n;
+	const rgb2rgb = (r, g, b) => [r, g, b];
+
+	styles.color.close = '\u001B[39m';
+	styles.bgColor.close = '\u001B[49m';
+
+	styles.color.ansi = {
+		ansi: wrapAnsi16(ansi2ansi, 0)
+	};
+	styles.color.ansi256 = {
+		ansi256: wrapAnsi256(ansi2ansi, 0)
+	};
+	styles.color.ansi16m = {
+		rgb: wrapAnsi16m(rgb2rgb, 0)
+	};
+
+	styles.bgColor.ansi = {
+		ansi: wrapAnsi16(ansi2ansi, 10)
+	};
+	styles.bgColor.ansi256 = {
+		ansi256: wrapAnsi256(ansi2ansi, 10)
+	};
+	styles.bgColor.ansi16m = {
+		rgb: wrapAnsi16m(rgb2rgb, 10)
+	};
+
+	for (let key of Object.keys(colorConvert)) {
+		if (typeof colorConvert[key] !== 'object') {
+			continue;
+		}
+
+		const suite = colorConvert[key];
+
+		if (key === 'ansi16') {
+			key = 'ansi';
+		}
+
+		if ('ansi16' in suite) {
+			styles.color.ansi[key] = wrapAnsi16(suite.ansi16, 0);
+			styles.bgColor.ansi[key] = wrapAnsi16(suite.ansi16, 10);
+		}
+
+		if ('ansi256' in suite) {
+			styles.color.ansi256[key] = wrapAnsi256(suite.ansi256, 0);
+			styles.bgColor.ansi256[key] = wrapAnsi256(suite.ansi256, 10);
+		}
+
+		if ('rgb' in suite) {
+			styles.color.ansi16m[key] = wrapAnsi16m(suite.rgb, 0);
+			styles.bgColor.ansi16m[key] = wrapAnsi16m(suite.rgb, 10);
+		}
+	}
+
+	return styles;
+}
+
+// Make the export immutable
+Object.defineProperty(module, 'exports', {
+	enumerable: true,
+	get: assembleStyles
+});
+});
+
+var hasFlag = (flag, argv) => {
+	argv = argv || process.argv;
+	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
+	const pos = argv.indexOf(prefix + flag);
+	const terminatorPos = argv.indexOf('--');
+	return pos !== -1 && (terminatorPos === -1 ? true : pos < terminatorPos);
+};
+
+const env = process.env;
+
+let forceColor;
+if (hasFlag('no-color') ||
+	hasFlag('no-colors') ||
+	hasFlag('color=false')) {
+	forceColor = false;
+} else if (hasFlag('color') ||
+	hasFlag('colors') ||
+	hasFlag('color=true') ||
+	hasFlag('color=always')) {
+	forceColor = true;
+}
+if ('FORCE_COLOR' in env) {
+	forceColor = env.FORCE_COLOR.length === 0 || parseInt(env.FORCE_COLOR, 10) !== 0;
+}
+
+function translateLevel(level) {
+	if (level === 0) {
+		return false;
+	}
+
+	return {
+		level,
+		hasBasic: true,
+		has256: level >= 2,
+		has16m: level >= 3
+	};
+}
+
+function supportsColor(stream) {
+	if (forceColor === false) {
+		return 0;
+	}
+
+	if (hasFlag('color=16m') ||
+		hasFlag('color=full') ||
+		hasFlag('color=truecolor')) {
+		return 3;
+	}
+
+	if (hasFlag('color=256')) {
+		return 2;
+	}
+
+	if (stream && !stream.isTTY && forceColor !== true) {
+		return 0;
+	}
+
+	const min = forceColor ? 1 : 0;
+
+	if (process.platform === 'win32') {
+		// Node.js 7.5.0 is the first version of Node.js to include a patch to
+		// libuv that enables 256 color output on Windows. Anything earlier and it
+		// won't work. However, here we target Node.js 8 at minimum as it is an LTS
+		// release, and Node.js 7 is not. Windows 10 build 10586 is the first Windows
+		// release that supports 256 colors. Windows 10 build 14931 is the first release
+		// that supports 16m/TrueColor.
+		const osRelease = os.release().split('.');
+		if (
+			Number(process.versions.node.split('.')[0]) >= 8 &&
+			Number(osRelease[0]) >= 10 &&
+			Number(osRelease[2]) >= 10586
+		) {
+			return Number(osRelease[2]) >= 14931 ? 3 : 2;
+		}
+
+		return 1;
+	}
+
+	if ('CI' in env) {
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
+			return 1;
+		}
+
+		return min;
+	}
+
+	if ('TEAMCITY_VERSION' in env) {
+		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
+	}
+
+	if (env.COLORTERM === 'truecolor') {
+		return 3;
+	}
+
+	if ('TERM_PROGRAM' in env) {
+		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
+
+		switch (env.TERM_PROGRAM) {
+			case 'iTerm.app':
+				return version >= 3 ? 3 : 2;
+			case 'Apple_Terminal':
+				return 2;
+			// No default
+		}
+	}
+
+	if (/-256(color)?$/i.test(env.TERM)) {
+		return 2;
+	}
+
+	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
+		return 1;
+	}
+
+	if ('COLORTERM' in env) {
+		return 1;
+	}
+
+	if (env.TERM === 'dumb') {
+		return min;
+	}
+
+	return min;
+}
+
+function getSupportLevel(stream) {
+	const level = supportsColor(stream);
+	return translateLevel(level);
+}
+
+var supportsColor_1 = {
+	supportsColor: getSupportLevel,
+	stdout: getSupportLevel(process.stdout),
+	stderr: getSupportLevel(process.stderr)
+};
+
+const TEMPLATE_REGEX = /(?:\\(u[a-f\d]{4}|x[a-f\d]{2}|.))|(?:\{(~)?(\w+(?:\([^)]*\))?(?:\.\w+(?:\([^)]*\))?)*)(?:[ \t]|(?=\r?\n)))|(\})|((?:.|[\r\n\f])+?)/gi;
+const STYLE_REGEX = /(?:^|\.)(\w+)(?:\(([^)]*)\))?/g;
+const STRING_REGEX = /^(['"])((?:\\.|(?!\1)[^\\])*)\1$/;
+const ESCAPE_REGEX = /\\(u[a-f\d]{4}|x[a-f\d]{2}|.)|([^\\])/gi;
+
+const ESCAPES = new Map([
+	['n', '\n'],
+	['r', '\r'],
+	['t', '\t'],
+	['b', '\b'],
+	['f', '\f'],
+	['v', '\v'],
+	['0', '\0'],
+	['\\', '\\'],
+	['e', '\u001B'],
+	['a', '\u0007']
+]);
+
+function unescape(c) {
+	if ((c[0] === 'u' && c.length === 5) || (c[0] === 'x' && c.length === 3)) {
+		return String.fromCharCode(parseInt(c.slice(1), 16));
+	}
+
+	return ESCAPES.get(c) || c;
+}
+
+function parseArguments(name, args) {
+	const results = [];
+	const chunks = args.trim().split(/\s*,\s*/g);
+	let matches;
+
+	for (const chunk of chunks) {
+		if (!isNaN(chunk)) {
+			results.push(Number(chunk));
+		} else if ((matches = chunk.match(STRING_REGEX))) {
+			results.push(matches[2].replace(ESCAPE_REGEX, (m, escape, chr) => escape ? unescape(escape) : chr));
+		} else {
+			throw new Error(`Invalid Chalk template style argument: ${chunk} (in style '${name}')`);
+		}
+	}
+
+	return results;
+}
+
+function parseStyle(style) {
+	STYLE_REGEX.lastIndex = 0;
+
+	const results = [];
+	let matches;
+
+	while ((matches = STYLE_REGEX.exec(style)) !== null) {
+		const name = matches[1];
+
+		if (matches[2]) {
+			const args = parseArguments(name, matches[2]);
+			results.push([name].concat(args));
+		} else {
+			results.push([name]);
+		}
+	}
+
+	return results;
+}
+
+function buildStyle(chalk, styles) {
+	const enabled = {};
+
+	for (const layer of styles) {
+		for (const style of layer.styles) {
+			enabled[style[0]] = layer.inverse ? null : style.slice(1);
+		}
+	}
+
+	let current = chalk;
+	for (const styleName of Object.keys(enabled)) {
+		if (Array.isArray(enabled[styleName])) {
+			if (!(styleName in current)) {
+				throw new Error(`Unknown Chalk style: ${styleName}`);
+			}
+
+			if (enabled[styleName].length > 0) {
+				current = current[styleName].apply(current, enabled[styleName]);
+			} else {
+				current = current[styleName];
+			}
+		}
+	}
+
+	return current;
+}
+
+var templates = (chalk, tmp) => {
+	const styles = [];
+	const chunks = [];
+	let chunk = [];
+
+	// eslint-disable-next-line max-params
+	tmp.replace(TEMPLATE_REGEX, (m, escapeChar, inverse, style, close, chr) => {
+		if (escapeChar) {
+			chunk.push(unescape(escapeChar));
+		} else if (style) {
+			const str = chunk.join('');
+			chunk = [];
+			chunks.push(styles.length === 0 ? str : buildStyle(chalk, styles)(str));
+			styles.push({inverse, styles: parseStyle(style)});
+		} else if (close) {
+			if (styles.length === 0) {
+				throw new Error('Found extraneous } in Chalk template literal');
+			}
+
+			chunks.push(buildStyle(chalk, styles)(chunk.join('')));
+			chunk = [];
+			styles.pop();
+		} else {
+			chunk.push(chr);
+		}
+	});
+
+	chunks.push(chunk.join(''));
+
+	if (styles.length > 0) {
+		const errMsg = `Chalk template literal is missing ${styles.length} closing bracket${styles.length === 1 ? '' : 's'} (\`}\`)`;
+		throw new Error(errMsg);
+	}
+
+	return chunks.join('');
+};
+
+var chalk$1 = createCommonjsModule(function (module) {
+
+
+const stdoutColor = supportsColor_1.stdout;
+
+
+
+const isSimpleWindowsTerm = process.platform === 'win32' && !(process.env.TERM || '').toLowerCase().startsWith('xterm');
+
+// `supportsColor.level` → `ansiStyles.color[name]` mapping
+const levelMapping = ['ansi', 'ansi', 'ansi256', 'ansi16m'];
+
+// `color-convert` models to exclude from the Chalk API due to conflicts and such
+const skipModels = new Set(['gray']);
+
+const styles = Object.create(null);
+
+function applyOptions(obj, options) {
+	options = options || {};
+
+	// Detect level if not set manually
+	const scLevel = stdoutColor ? stdoutColor.level : 0;
+	obj.level = options.level === undefined ? scLevel : options.level;
+	obj.enabled = 'enabled' in options ? options.enabled : obj.level > 0;
+}
+
+function Chalk(options) {
+	// We check for this.template here since calling `chalk.constructor()`
+	// by itself will have a `this` of a previously constructed chalk object
+	if (!this || !(this instanceof Chalk) || this.template) {
+		const chalk = {};
+		applyOptions(chalk, options);
+
+		chalk.template = function () {
+			const args = [].slice.call(arguments);
+			return chalkTag.apply(null, [chalk.template].concat(args));
+		};
+
+		Object.setPrototypeOf(chalk, Chalk.prototype);
+		Object.setPrototypeOf(chalk.template, chalk);
+
+		chalk.template.constructor = Chalk;
+
+		return chalk.template;
+	}
+
+	applyOptions(this, options);
+}
+
+// Use bright blue on Windows as the normal blue color is illegible
+if (isSimpleWindowsTerm) {
+	ansiStyles.blue.open = '\u001B[94m';
+}
+
+for (const key of Object.keys(ansiStyles)) {
+	ansiStyles[key].closeRe = new RegExp(escapeStringRegexp(ansiStyles[key].close), 'g');
+
+	styles[key] = {
+		get() {
+			const codes = ansiStyles[key];
+			return build.call(this, this._styles ? this._styles.concat(codes) : [codes], this._empty, key);
+		}
+	};
+}
+
+styles.visible = {
+	get() {
+		return build.call(this, this._styles || [], true, 'visible');
+	}
+};
+
+ansiStyles.color.closeRe = new RegExp(escapeStringRegexp(ansiStyles.color.close), 'g');
+for (const model of Object.keys(ansiStyles.color.ansi)) {
+	if (skipModels.has(model)) {
+		continue;
+	}
+
+	styles[model] = {
+		get() {
+			const level = this.level;
+			return function () {
+				const open = ansiStyles.color[levelMapping[level]][model].apply(null, arguments);
+				const codes = {
+					open,
+					close: ansiStyles.color.close,
+					closeRe: ansiStyles.color.closeRe
+				};
+				return build.call(this, this._styles ? this._styles.concat(codes) : [codes], this._empty, model);
+			};
+		}
+	};
+}
+
+ansiStyles.bgColor.closeRe = new RegExp(escapeStringRegexp(ansiStyles.bgColor.close), 'g');
+for (const model of Object.keys(ansiStyles.bgColor.ansi)) {
+	if (skipModels.has(model)) {
+		continue;
+	}
+
+	const bgModel = 'bg' + model[0].toUpperCase() + model.slice(1);
+	styles[bgModel] = {
+		get() {
+			const level = this.level;
+			return function () {
+				const open = ansiStyles.bgColor[levelMapping[level]][model].apply(null, arguments);
+				const codes = {
+					open,
+					close: ansiStyles.bgColor.close,
+					closeRe: ansiStyles.bgColor.closeRe
+				};
+				return build.call(this, this._styles ? this._styles.concat(codes) : [codes], this._empty, model);
+			};
+		}
+	};
+}
+
+const proto = Object.defineProperties(() => {}, styles);
+
+function build(_styles, _empty, key) {
+	const builder = function () {
+		return applyStyle.apply(builder, arguments);
+	};
+
+	builder._styles = _styles;
+	builder._empty = _empty;
+
+	const self = this;
+
+	Object.defineProperty(builder, 'level', {
+		enumerable: true,
+		get() {
+			return self.level;
+		},
+		set(level) {
+			self.level = level;
+		}
+	});
+
+	Object.defineProperty(builder, 'enabled', {
+		enumerable: true,
+		get() {
+			return self.enabled;
+		},
+		set(enabled) {
+			self.enabled = enabled;
+		}
+	});
+
+	// See below for fix regarding invisible grey/dim combination on Windows
+	builder.hasGrey = this.hasGrey || key === 'gray' || key === 'grey';
+
+	// `__proto__` is used because we must return a function, but there is
+	// no way to create a function with a different prototype
+	builder.__proto__ = proto; // eslint-disable-line no-proto
+
+	return builder;
+}
+
+function applyStyle() {
+	// Support varags, but simply cast to string in case there's only one arg
+	const args = arguments;
+	const argsLen = args.length;
+	let str = String(arguments[0]);
+
+	if (argsLen === 0) {
+		return '';
+	}
+
+	if (argsLen > 1) {
+		// Don't slice `arguments`, it prevents V8 optimizations
+		for (let a = 1; a < argsLen; a++) {
+			str += ' ' + args[a];
+		}
+	}
+
+	if (!this.enabled || this.level <= 0 || !str) {
+		return this._empty ? '' : str;
+	}
+
+	// Turns out that on Windows dimmed gray text becomes invisible in cmd.exe,
+	// see https://github.com/chalk/chalk/issues/58
+	// If we're on Windows and we're dealing with a gray color, temporarily make 'dim' a noop.
+	const originalDim = ansiStyles.dim.open;
+	if (isSimpleWindowsTerm && this.hasGrey) {
+		ansiStyles.dim.open = '';
+	}
+
+	for (const code of this._styles.slice().reverse()) {
+		// Replace any instances already present with a re-opening code
+		// otherwise only the part of the string until said closing code
+		// will be colored, and the rest will simply be 'plain'.
+		str = code.open + str.replace(code.closeRe, code.open) + code.close;
+
+		// Close the styling before a linebreak and reopen
+		// after next line to fix a bleed issue on macOS
+		// https://github.com/chalk/chalk/pull/92
+		str = str.replace(/\r?\n/g, `${code.close}$&${code.open}`);
+	}
+
+	// Reset the original `dim` if we changed it to work around the Windows dimmed gray issue
+	ansiStyles.dim.open = originalDim;
+
+	return str;
+}
+
+function chalkTag(chalk, strings) {
+	if (!Array.isArray(strings)) {
+		// If chalk() was called by itself or with a string,
+		// return the string itself as a string.
+		return [].slice.call(arguments, 1).join(' ');
+	}
+
+	const args = [].slice.call(arguments, 2);
+	const parts = [strings.raw[0]];
+
+	for (let i = 1; i < strings.length; i++) {
+		parts.push(String(args[i - 1]).replace(/[{}\\]/g, '\\$&'));
+		parts.push(String(strings.raw[i]));
+	}
+
+	return templates(chalk, parts.join(''));
+}
+
+Object.defineProperties(Chalk.prototype, styles);
+
+module.exports = Chalk(); // eslint-disable-line new-cap
+module.exports.supportsColor = stdoutColor;
+module.exports.default = module.exports; // For TypeScript
+});
+var chalk_1 = chalk$1.supportsColor;
+
+var figlet_1 = createCommonjsModule(function (module) {
+
+var figlet = figlet || (function() {
+    
+    // ---------------------------------------------------------------------
+    // Private static variables
+
+    var FULL_WIDTH = 0,
+        FITTING = 1,
+        SMUSHING = 2,
+        CONTROLLED_SMUSHING = 3;
+
+    // ---------------------------------------------------------------------
+    // Variable that will hold information about the fonts
+
+    var figFonts = {}; // What stores all of the FIGlet font data
+    var figDefaults = {
+        font: 'Standard',
+        fontPath: './fonts'
+    };
+
+    // ---------------------------------------------------------------------
+    // Private static methods
+
+    /*
+        This method takes in the oldLayout and newLayout data from the FIGfont header file and returns
+        the layout information.
+    */
+    function getSmushingRules(oldLayout, newLayout) {
+        var rules = {};
+        var val, index, len, code;
+        var codes = [[16384,"vLayout",SMUSHING], [8192,"vLayout",FITTING], [4096, "vRule5", true], [2048, "vRule4", true],
+                     [1024, "vRule3", true], [512, "vRule2", true], [256, "vRule1", true], [128, "hLayout", SMUSHING],
+                     [64, "hLayout", FITTING], [32, "hRule6", true], [16, "hRule5", true], [8, "hRule4", true], [4, "hRule3", true],
+                     [2, "hRule2", true], [1, "hRule1", true]];
+
+        val = (newLayout !== null) ? newLayout : oldLayout;
+        index = 0;
+        len = codes.length;
+        while ( index < len ) {
+            code = codes[index];
+            if (val >= code[0]) {
+                val = val - code[0];
+                rules[code[1]] = (typeof rules[code[1]] === "undefined") ? code[2] : rules[code[1]];
+            } else if (code[1] !== "vLayout" && code[1] !== "hLayout") {
+                rules[code[1]] = false;
+            }
+            index++;
+        }
+
+        if (typeof rules["hLayout"] === "undefined") {
+            if (oldLayout === 0) {
+                rules["hLayout"] = FITTING;
+            } else if (oldLayout === -1) {
+                rules["hLayout"] = FULL_WIDTH;
+            } else {
+                if (rules["hRule1"] || rules["hRule2"] || rules["hRule3"] || rules["hRule4"] ||rules["hRule5"] || rules["hRule6"] ) {
+                    rules["hLayout"] = CONTROLLED_SMUSHING;
+                } else {
+                    rules["hLayout"] = SMUSHING;
+                }
+            }
+        } else if (rules["hLayout"] === SMUSHING) {
+            if (rules["hRule1"] || rules["hRule2"] || rules["hRule3"] || rules["hRule4"] ||rules["hRule5"] || rules["hRule6"] ) {
+                rules["hLayout"] = CONTROLLED_SMUSHING;
+            }
+        }
+
+        if (typeof rules["vLayout"] === "undefined") {
+            if (rules["vRule1"] || rules["vRule2"] || rules["vRule3"] || rules["vRule4"] ||rules["vRule5"]  ) {
+                rules["vLayout"] = CONTROLLED_SMUSHING;
+            } else {
+                rules["vLayout"] = FULL_WIDTH;
+            }
+        } else if (rules["vLayout"] === SMUSHING) {
+            if (rules["vRule1"] || rules["vRule2"] || rules["vRule3"] || rules["vRule4"] ||rules["vRule5"]  ) {
+                rules["vLayout"] = CONTROLLED_SMUSHING;
+            }
+        }
+
+        return rules;
+    }
+
+    /* The [vh]Rule[1-6]_Smush functions return the smushed character OR false if the two characters can't be smushed */
+
+    /*
+        Rule 1: EQUAL CHARACTER SMUSHING (code value 1)
+
+            Two sub-characters are smushed into a single sub-character
+            if they are the same.  This rule does not smush
+            hardblanks.  (See rule 6 on hardblanks below)
+    */
+    function hRule1_Smush(ch1, ch2, hardBlank) {
+        if (ch1 === ch2 && ch1 !== hardBlank) {return ch1;}
+        return false;
+    }
+
+    /*
+        Rule 2: UNDERSCORE SMUSHING (code value 2)
+
+            An underscore ("_") will be replaced by any of: "|", "/",
+            "\", "[", "]", "{", "}", "(", ")", "<" or ">".
+    */
+    function hRule2_Smush(ch1, ch2) {
+        var rule2Str = "|/\\[]{}()<>";
+        if (ch1 === "_") {
+            if (rule2Str.indexOf(ch2) !== -1) {return ch2;}
+        } else if (ch2 === "_") {
+            if (rule2Str.indexOf(ch1) !== -1) {return ch1;}
+        }
+        return false;
+    }
+
+    /*
+        Rule 3: HIERARCHY SMUSHING (code value 4)
+
+            A hierarchy of six classes is used: "|", "/\", "[]", "{}",
+            "()", and "<>".  When two smushing sub-characters are
+            from different classes, the one from the latter class
+            will be used.
+    */
+    function hRule3_Smush(ch1, ch2) {
+        var rule3Classes = "| /\\ [] {} () <>";
+        var r3_pos1 = rule3Classes.indexOf(ch1);
+        var r3_pos2 = rule3Classes.indexOf(ch2);
+        if (r3_pos1 !== -1 && r3_pos2 !== -1) {
+            if (r3_pos1 !== r3_pos2 && Math.abs(r3_pos1-r3_pos2) !== 1) {
+                return rule3Classes.substr(Math.max(r3_pos1,r3_pos2), 1);
+            }
+        }
+        return false;
+    }
+
+    /*
+        Rule 4: OPPOSITE PAIR SMUSHING (code value 8)
+
+            Smushes opposing brackets ("[]" or "]["), braces ("{}" or
+            "}{") and parentheses ("()" or ")(") together, replacing
+            any such pair with a vertical bar ("|").
+    */
+    function hRule4_Smush(ch1, ch2) {
+        var rule4Str = "[] {} ()";
+        var r4_pos1 = rule4Str.indexOf(ch1);
+        var r4_pos2 = rule4Str.indexOf(ch2);
+        if (r4_pos1 !== -1 && r4_pos2 !== -1) {
+            if (Math.abs(r4_pos1-r4_pos2) <= 1) {
+                return "|";
+            }
+        }
+        return false;
+    }
+
+    /*
+        Rule 5: BIG X SMUSHING (code value 16)
+
+            Smushes "/\" into "|", "\/" into "Y", and "><" into "X".
+            Note that "<>" is not smushed in any way by this rule.
+            The name "BIG X" is historical; originally all three pairs
+            were smushed into "X".
+    */
+    function hRule5_Smush(ch1, ch2) {
+        var rule5Str = "/\\ \\/ ><";
+        var rule5Hash = {"0": "|", "3": "Y", "6": "X"};
+        var r5_pos1 = rule5Str.indexOf(ch1);
+        var r5_pos2 = rule5Str.indexOf(ch2);
+        if (r5_pos1 !== -1 && r5_pos2 !== -1) {
+            if ((r5_pos2-r5_pos1) === 1) {
+                return rule5Hash[r5_pos1];
+            }
+        }
+        return false;
+    }
+
+    /*
+        Rule 6: HARDBLANK SMUSHING (code value 32)
+
+            Smushes two hardblanks together, replacing them with a
+            single hardblank.  (See "Hardblanks" below.)
+    */
+    function hRule6_Smush(ch1, ch2, hardBlank) {
+        if (ch1 === hardBlank && ch2 === hardBlank) {
+            return hardBlank;
+        }
+        return false;
+    }
+
+    /*
+        Rule 1: EQUAL CHARACTER SMUSHING (code value 256)
+
+            Same as horizontal smushing rule 1.
+    */
+    function vRule1_Smush(ch1, ch2) {
+        if (ch1 === ch2) {return ch1;}
+        return false;
+    }
+
+    /*
+        Rule 2: UNDERSCORE SMUSHING (code value 512)
+
+            Same as horizontal smushing rule 2.
+    */
+    function vRule2_Smush(ch1, ch2) {
+        var rule2Str = "|/\\[]{}()<>";
+        if (ch1 === "_") {
+            if (rule2Str.indexOf(ch2) !== -1) {return ch2;}
+        } else if (ch2 === "_") {
+            if (rule2Str.indexOf(ch1) !== -1) {return ch1;}
+        }
+        return false;
+    }
+
+    /*
+        Rule 3: HIERARCHY SMUSHING (code value 1024)
+
+            Same as horizontal smushing rule 3.
+    */
+    function vRule3_Smush(ch1, ch2) {
+        var rule3Classes = "| /\\ [] {} () <>";
+        var r3_pos1 = rule3Classes.indexOf(ch1);
+        var r3_pos2 = rule3Classes.indexOf(ch2);
+        if (r3_pos1 !== -1 && r3_pos2 !== -1) {
+            if (r3_pos1 !== r3_pos2 && Math.abs(r3_pos1-r3_pos2) !== 1) {
+                return rule3Classes.substr(Math.max(r3_pos1,r3_pos2), 1);
+            }
+        }
+        return false;
+    }
+
+    /*
+        Rule 4: HORIZONTAL LINE SMUSHING (code value 2048)
+
+            Smushes stacked pairs of "-" and "_", replacing them with
+            a single "=" sub-character.  It does not matter which is
+            found above the other.  Note that vertical smushing rule 1
+            will smush IDENTICAL pairs of horizontal lines, while this
+            rule smushes horizontal lines consisting of DIFFERENT
+            sub-characters.
+    */
+    function vRule4_Smush(ch1, ch2) {
+        if ( (ch1 === "-" && ch2 === "_") || (ch1 === "_" && ch2 === "-") ) {
+            return "=";
+        }
+        return false;
+    }
+
+    /*
+        Rule 5: VERTICAL LINE SUPERSMUSHING (code value 4096)
+
+            This one rule is different from all others, in that it
+            "supersmushes" vertical lines consisting of several
+            vertical bars ("|").  This creates the illusion that
+            FIGcharacters have slid vertically against each other.
+            Supersmushing continues until any sub-characters other
+            than "|" would have to be smushed.  Supersmushing can
+            produce impressive results, but it is seldom possible,
+            since other sub-characters would usually have to be
+            considered for smushing as soon as any such stacked
+            vertical lines are encountered.
+    */
+    function vRule5_Smush(ch1, ch2) {
+        if ( ch1 === "|" && ch2 === "|" ) {
+            return "|";
+        }
+        return false;
+    }
+
+    /*
+        Universal smushing simply overrides the sub-character from the
+        earlier FIGcharacter with the sub-character from the later
+        FIGcharacter.  This produces an "overlapping" effect with some
+        FIGfonts, wherin the latter FIGcharacter may appear to be "in
+        front".
+    */
+    function uni_Smush(ch1, ch2, hardBlank) {
+        if (ch2 === " " || ch2 === "") {
+            return ch1;
+        } else if (ch2 === hardBlank && ch1 !== " ") {
+            return ch1;
+        } else {
+            return ch2;
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    // main vertical smush routines (excluding rules)
+
+    /*
+        txt1 - A line of text
+        txt2 - A line of text
+        opts - FIGlet options array
+
+        About: Takes in two lines of text and returns one of the following:
+        "valid" - These lines can be smushed together given the current smushing rules
+        "end" - The lines can be smushed, but we're at a stopping point
+        "invalid" - The two lines cannot be smushed together
+    */
+    function canVerticalSmush(txt1, txt2, opts) {
+        if (opts.fittingRules.vLayout === FULL_WIDTH) {return "invalid";}
+        var ii, len = Math.min(txt1.length, txt2.length);
+        var ch1, ch2, endSmush = false, validSmush;
+        if (len===0) {return "invalid";}
+
+        for (ii = 0; ii < len; ii++) {
+            ch1 = txt1.substr(ii,1);
+            ch2 = txt2.substr(ii,1);
+            if (ch1 !== " " && ch2 !== " ") {
+                if (opts.fittingRules.vLayout === FITTING) {
+                    return "invalid";
+                } else if (opts.fittingRules.vLayout === SMUSHING) {
+                    return "end";
+                } else {
+                    if (vRule5_Smush(ch1,ch2)) {endSmush = endSmush || false; continue;} // rule 5 allow for "super" smushing, but only if we're not already ending this smush
+                    validSmush = false;
+                    validSmush = (opts.fittingRules.vRule1) ? vRule1_Smush(ch1,ch2) : validSmush;
+                    validSmush = (!validSmush && opts.fittingRules.vRule2) ? vRule2_Smush(ch1,ch2) : validSmush;
+                    validSmush = (!validSmush && opts.fittingRules.vRule3) ? vRule3_Smush(ch1,ch2) : validSmush;
+                    validSmush = (!validSmush && opts.fittingRules.vRule4) ? vRule4_Smush(ch1,ch2) : validSmush;
+                    endSmush = true;
+                    if (!validSmush) {return "invalid";}
+                }
+            }
+        }
+        if (endSmush) {
+            return "end";
+        } else {
+            return "valid";
+        }
+    }
+
+    function getVerticalSmushDist(lines1, lines2, opts) {
+        var maxDist = lines1.length;
+        var len1 = lines1.length;
+        var len2 = lines2.length;
+        var subLines1, subLines2, slen;
+        var curDist = 1;
+        var ii, ret, result;
+        while (curDist <= maxDist) {
+
+            subLines1 = lines1.slice(Math.max(0,len1-curDist), len1);
+            subLines2 = lines2.slice(0, Math.min(maxDist, curDist));
+
+            slen = subLines2.length;//TODO:check this
+            result = "";
+            for (ii = 0; ii < slen; ii++) {
+                ret = canVerticalSmush(subLines1[ii], subLines2[ii], opts);
+                if (ret === "end") {
+                    result = ret;
+                } else if (ret === "invalid") {
+                    result = ret;
+                    break;
+                } else {
+                    if (result === "") {
+                        result = "valid";
+                    }
+                }
+            }
+
+            if (result === "invalid") {curDist--;break;}
+            if (result === "end") {break;}
+            if (result === "valid") {curDist++;}
+        }
+
+        return Math.min(maxDist,curDist);
+    }
+
+    function verticallySmushLines(line1, line2, opts) {
+        var ii, len = Math.min(line1.length, line2.length);
+        var ch1, ch2, result = "", validSmush;
+
+        for (ii = 0; ii < len; ii++) {
+            ch1 = line1.substr(ii,1);
+            ch2 = line2.substr(ii,1);
+            if (ch1 !== " " && ch2 !== " ") {
+                if (opts.fittingRules.vLayout === FITTING) {
+                    result += uni_Smush(ch1,ch2);
+                } else if (opts.fittingRules.vLayout === SMUSHING) {
+                    result += uni_Smush(ch1,ch2);
+                } else {
+                    validSmush = (opts.fittingRules.vRule5) ? vRule5_Smush(ch1,ch2) : validSmush;
+                    validSmush = (!validSmush && opts.fittingRules.vRule1) ? vRule1_Smush(ch1,ch2) : validSmush;
+                    validSmush = (!validSmush && opts.fittingRules.vRule2) ? vRule2_Smush(ch1,ch2) : validSmush;
+                    validSmush = (!validSmush && opts.fittingRules.vRule3) ? vRule3_Smush(ch1,ch2) : validSmush;
+                    validSmush = (!validSmush && opts.fittingRules.vRule4) ? vRule4_Smush(ch1,ch2) : validSmush;
+                    result += validSmush;
+                }
+            } else {
+                result += uni_Smush(ch1,ch2);
+            }
+        }
+        return result;
+    }
+
+    function verticalSmush(lines1, lines2, overlap, opts) {
+        var len1 = lines1.length;
+        var len2 = lines2.length;
+        var piece1 = lines1.slice(0, Math.max(0,len1-overlap));
+        var piece2_1 = lines1.slice(Math.max(0,len1-overlap), len1);
+        var piece2_2 = lines2.slice(0, Math.min(overlap, len2));
+        var ii, len, line, piece2 = [], piece3, result = [];
+
+        len = piece2_1.length;
+        for (ii = 0; ii < len; ii++) {
+            if (ii >= len2) {
+                line = piece2_1[ii];
+            } else {
+                line = verticallySmushLines(piece2_1[ii], piece2_2[ii], opts);
+            }
+            piece2.push(line);
+        }
+
+        piece3 = lines2.slice(Math.min(overlap,len2), len2);
+
+        return result.concat(piece1,piece2,piece3);
+    }
+
+    function padLines(lines, numSpaces) {
+        var ii, len = lines.length, padding = "";
+        for (ii = 0; ii < numSpaces; ii++) {
+            padding += " ";
+        }
+        for (ii = 0; ii < len; ii++) {
+            lines[ii] += padding;
+        }
+    }
+
+    function smushVerticalFigLines(output, lines, opts) {
+        var len1 = output[0].length;
+        var len2 = lines[0].length;
+        var overlap;
+        if (len1 > len2) {
+            padLines(lines, len1-len2);
+        } else if (len2 > len1) {
+            padLines(output, len2-len1);
+        }
+        overlap = getVerticalSmushDist(output, lines, opts);
+        return verticalSmush(output, lines, overlap,opts);
+    }
+
+    // -------------------------------------------------------------------------
+    // Main horizontal smush routines (excluding rules)
+
+    function getHorizontalSmushLength(txt1, txt2, opts) {
+        if (opts.fittingRules.hLayout === FULL_WIDTH) {return 0;}
+        var ii, len1 = txt1.length, len2 = txt2.length;
+        var maxDist = len1;
+        var curDist = 1;
+        var breakAfter = false;
+        var validSmush = false;
+        var seg1, seg2, ch1, ch2;
+        if (len1 === 0) {return 0;}
+
+        distCal: while (curDist <= maxDist) {
+            seg1 = txt1.substr(len1-curDist,curDist);
+            seg2 = txt2.substr(0,Math.min(curDist,len2));
+            for (ii = 0; ii < Math.min(curDist,len2); ii++) {
+                ch1 = seg1.substr(ii,1);
+                ch2 = seg2.substr(ii,1);
+                if (ch1 !== " " && ch2 !== " " ) {
+                    if (opts.fittingRules.hLayout === FITTING) {
+                        curDist = curDist - 1;
+                        break distCal;
+                    } else if (opts.fittingRules.hLayout === SMUSHING) {
+                        if (ch1 === opts.hardBlank || ch2 === opts.hardBlank) {
+                            curDist = curDist - 1; // universal smushing does not smush hardblanks
+                        }
+                        break distCal;
+                    } else {
+                        breakAfter = true; // we know we need to break, but we need to check if our smushing rules will allow us to smush the overlapped characters
+                        validSmush = false; // the below checks will let us know if we can smush these characters
+
+                        validSmush = (opts.fittingRules.hRule1) ? hRule1_Smush(ch1,ch2,opts.hardBlank) : validSmush;
+                        validSmush = (!validSmush && opts.fittingRules.hRule2) ? hRule2_Smush(ch1,ch2,opts.hardBlank) : validSmush;
+                        validSmush = (!validSmush && opts.fittingRules.hRule3) ? hRule3_Smush(ch1,ch2,opts.hardBlank) : validSmush;
+                        validSmush = (!validSmush && opts.fittingRules.hRule4) ? hRule4_Smush(ch1,ch2,opts.hardBlank) : validSmush;
+                        validSmush = (!validSmush && opts.fittingRules.hRule5) ? hRule5_Smush(ch1,ch2,opts.hardBlank) : validSmush;
+                        validSmush = (!validSmush && opts.fittingRules.hRule6) ? hRule6_Smush(ch1,ch2,opts.hardBlank) : validSmush;
+
+                        if (!validSmush) {
+                            curDist = curDist - 1;
+                            break distCal;
+                        }
+                    }
+                }
+            }
+            if (breakAfter) {break;}
+            curDist++;
+        }
+        return Math.min(maxDist,curDist);
+    }
+
+    function horizontalSmush(textBlock1, textBlock2, overlap, opts) {
+        var ii, jj, outputFig = [],
+            overlapStart,piece1,piece2,piece3,len1,len2,txt1,txt2;
+
+        for (ii = 0; ii < opts.height; ii++) {
+            txt1 = textBlock1[ii];
+            txt2 = textBlock2[ii];
+            len1 = txt1.length;
+            len2 = txt2.length;
+            overlapStart = len1-overlap;
+            piece1 = txt1.substr(0,Math.max(0,overlapStart));
+            piece2 = "";
+
+            // determine overlap piece
+            var seg1 = txt1.substr(Math.max(0,len1-overlap),overlap);
+            var seg2 = txt2.substr(0,Math.min(overlap,len2));
+
+            for (jj = 0; jj < overlap; jj++) {
+                var ch1 = (jj < len1) ? seg1.substr(jj,1) : " ";
+                var ch2 = (jj < len2) ? seg2.substr(jj,1) : " ";
+
+                if (ch1 !== " " && ch2 !== " ") {
+                    if (opts.fittingRules.hLayout === FITTING) {
+                        piece2 += uni_Smush(ch1, ch2, opts.hardBlank);
+                    } else if (opts.fittingRules.hLayout === SMUSHING) {
+                        piece2 += uni_Smush(ch1, ch2, opts.hardBlank);
+                    } else {
+                        // Controlled Smushing
+                        var nextCh = "";
+                        nextCh = (!nextCh && opts.fittingRules.hRule1) ? hRule1_Smush(ch1,ch2,opts.hardBlank) : nextCh;
+                        nextCh = (!nextCh && opts.fittingRules.hRule2) ? hRule2_Smush(ch1,ch2,opts.hardBlank) : nextCh;
+                        nextCh = (!nextCh && opts.fittingRules.hRule3) ? hRule3_Smush(ch1,ch2,opts.hardBlank) : nextCh;
+                        nextCh = (!nextCh && opts.fittingRules.hRule4) ? hRule4_Smush(ch1,ch2,opts.hardBlank) : nextCh;
+                        nextCh = (!nextCh && opts.fittingRules.hRule5) ? hRule5_Smush(ch1,ch2,opts.hardBlank) : nextCh;
+                        nextCh = (!nextCh && opts.fittingRules.hRule6) ? hRule6_Smush(ch1,ch2,opts.hardBlank) : nextCh;
+                        nextCh = nextCh || uni_Smush(ch1, ch2, opts.hardBlank);
+                        piece2 += nextCh;
+                    }
+                } else {
+                    piece2 += uni_Smush(ch1, ch2, opts.hardBlank);
+                }
+            }
+
+            if (overlap >= len2) {
+                piece3 = "";
+            } else {
+                piece3 = txt2.substr(overlap,Math.max(0,len2-overlap));
+            }
+            outputFig[ii] = piece1 + piece2 + piece3;
+        }
+        return outputFig;
+    }
+
+    function generateFigTextLine(txt, figChars, opts) {
+        var charIndex, figChar, overlap = 0, row, outputFigText = [], len=opts.height;
+        for (row = 0; row < len; row++) {
+            outputFigText[row] = "";
+        }
+        if (opts.printDirection === 1) {
+            txt = txt.split('').reverse().join('');
+        }
+        len=txt.length;
+        for (charIndex = 0; charIndex < len; charIndex++) {
+            figChar = figChars[txt.substr(charIndex,1).charCodeAt(0)];
+            if (figChar) {
+                if (opts.fittingRules.hLayout !== FULL_WIDTH) {
+                    overlap = 10000;// a value too high to be the overlap
+                    for (row = 0; row < opts.height; row++) {
+                        overlap = Math.min(overlap, getHorizontalSmushLength(outputFigText[row], figChar[row], opts));
+                    }
+                    overlap = (overlap === 10000) ? 0 : overlap;
+                }
+                outputFigText = horizontalSmush(outputFigText, figChar, overlap, opts);
+            }
+        }
+        // remove hardblanks
+        if (opts.showHardBlanks !== true) {
+            len = outputFigText.length;
+            for (row = 0; row < len; row++) {
+                outputFigText[row] = outputFigText[row].replace(new RegExp("\\"+opts.hardBlank,"g")," ");
+            }
+        }
+        return outputFigText;
+    }
+
+    // -------------------------------------------------------------------------
+    // Parsing and Generation methods
+
+    var getHorizontalFittingRules = function(layout, options) {
+        var props = ["hLayout", "hRule1","hRule2","hRule3","hRule4","hRule5","hRule6"],
+            params = {}, ii;
+        if (layout === "default") {
+            for (ii = 0; ii < props.length; ii++) {
+                params[props[ii]] = options.fittingRules[props[ii]];
+            }
+        } else if (layout === "full") {
+            params = {"hLayout": FULL_WIDTH,"hRule1":false,"hRule2":false,"hRule3":false,"hRule4":false,"hRule5":false,"hRule6":false};
+        } else if (layout === "fitted") {
+            params = {"hLayout": FITTING,"hRule1":false,"hRule2":false,"hRule3":false,"hRule4":false,"hRule5":false,"hRule6":false};
+        } else if (layout === "controlled smushing") {
+            params = {"hLayout": CONTROLLED_SMUSHING,"hRule1":true,"hRule2":true,"hRule3":true,"hRule4":true,"hRule5":true,"hRule6":true};
+        } else if (layout === "universal smushing") {
+            params = {"hLayout": SMUSHING,"hRule1":false,"hRule2":false,"hRule3":false,"hRule4":false,"hRule5":false,"hRule6":false};
+        } else {
+            return;
+        }
+        return params;
+    };
+
+    var getVerticalFittingRules = function(layout, options) {
+        var props = ["vLayout", "vRule1","vRule2","vRule3","vRule4","vRule5"],
+            params = {}, ii;
+        if (layout === "default") {
+            for (ii = 0; ii < props.length; ii++) {
+                params[props[ii]] = options.fittingRules[props[ii]];
+            }
+        } else if (layout === "full") {
+            params = {"vLayout": FULL_WIDTH,"vRule1":false,"vRule2":false,"vRule3":false,"vRule4":false,"vRule5":false};
+        } else if (layout === "fitted") {
+            params = {"vLayout": FITTING,"vRule1":false,"vRule2":false,"vRule3":false,"vRule4":false,"vRule5":false};
+        } else if (layout === "controlled smushing") {
+            params = {"vLayout": CONTROLLED_SMUSHING,"vRule1":true,"vRule2":true,"vRule3":true,"vRule4":true,"vRule5":true};
+        } else if (layout === "universal smushing") {
+            params = {"vLayout": SMUSHING,"vRule1":false,"vRule2":false,"vRule3":false,"vRule4":false,"vRule5":false};
+        } else {
+            return;
+        }
+        return params;
+    };
+
+    /*
+        Generates the ASCII Art
+        - fontName: Font to use
+        - option: Options to override the defaults
+        - txt: The text to make into ASCII Art
+    */
+    var generateText = function(fontName, options, txt) {
+        txt = txt.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+        var lines = txt.split("\n");
+        var figLines = [];
+        var ii, len, output;
+        len = lines.length;
+        for (ii = 0; ii < len; ii++) {
+            figLines.push( generateFigTextLine(lines[ii], figFonts[fontName], options) );
+        }
+        len = figLines.length;
+        output = figLines[0];
+        for (ii = 1; ii < len; ii++) {
+            output = smushVerticalFigLines(output, figLines[ii], options);
+        }
+
+        return output.join("\n");
+    };
+
+    // -------------------------------------------------------------------------
+    // Public methods
+
+    /*
+        A short-cut for the figlet.text method
+
+        Parameters:
+        - txt (string): The text to make into ASCII Art
+        - options (object/string - optional): Options that will override the current font's default options.
+          If a string is provided instead of an object, it is assumed to be the font name.
+
+            * font
+            * horizontalLayout
+            * verticalLayout
+            * showHardBlanks - Wont remove hardblank characters
+
+        - next (function): A callback function, it will contained the outputted ASCII Art.
+    */
+    var me = function(txt, options, next) {
+        me.text(txt, options, next);
+    };
+    me.text = function(txt, options, next) {
+        var fontName = '';
+
+        // Validate inputs
+        txt = txt + '';
+
+        if (typeof arguments[1] === 'function') {
+            next = options;
+            options = {};
+            options.font = figDefaults.font; // default font
+        }
+
+        if (typeof options === 'string') {
+            fontName = options;
+            options = {};
+        } else {
+            options = options || {};
+            fontName = options.font || figDefaults.font;
+        }
+
+        /*
+            Load the font. If it loads, it's data will be contained in the figFonts object.
+            The callback will recieve a fontsOpts object, which contains the default
+            options of the font (its fitting rules, etc etc).
+        */
+        me.loadFont(fontName, function(err, fontOpts) {
+            if (err) {
+                return next(err);
+            }
+
+            next(null, generateText(fontName, _reworkFontOpts(fontOpts, options), txt));
+        });
+    };
+
+    /*
+        Synchronous version of figlet.text.
+        Accepts the same parameters.
+     */
+    me.textSync = function(txt, options) {
+        var fontName = '';
+
+        // Validate inputs
+        txt = txt + '';
+
+        if (typeof options === 'string') {
+            fontName = options;
+            options = {};
+        } else {
+            options = options || {};
+            fontName = options.font || figDefaults.font;
+        }
+
+        var fontOpts = _reworkFontOpts(me.loadFontSync(fontName), options);
+        return generateText(fontName, fontOpts, txt);
+    };
+
+    /*
+      takes assigned options and merges them with the default options from the choosen font
+     */
+    function _reworkFontOpts(fontOpts, options) {
+        var myOpts = JSON.parse(JSON.stringify(fontOpts)), // make a copy because we may edit this (see below)
+            params,
+            prop;
+
+        /*
+         If the user is chosing to use a specific type of layout (e.g., 'full', 'fitted', etc etc)
+         Then we need to override the default font options.
+         */
+        if (typeof options.horizontalLayout !== 'undefined') {
+            params = getHorizontalFittingRules(options.horizontalLayout, fontOpts);
+            for (prop in params) {
+                myOpts.fittingRules[prop] = params[prop];
+            }
+        }
+        if (typeof options.verticalLayout !== 'undefined') {
+            params = getVerticalFittingRules(options.verticalLayout, fontOpts);
+            for (prop in params) {
+                myOpts.fittingRules[prop] = params[prop];
+            }
+        }
+        myOpts.printDirection = (typeof options.printDirection !== 'undefined') ? options.printDirection : fontOpts.printDirection;
+        myOpts.showHardBlanks = options.showHardBlanks || false;
+
+        return myOpts;
+    }
+
+    /*
+        Returns metadata about a specfic FIGlet font.
+
+        Returns:
+            next(err, options, headerComment)
+            - err: The error if an error occurred, otherwise null/falsey.
+            - options (object): The options defined for the font.
+            - headerComment (string): The font's header comment.
+    */
+    me.metadata = function(fontName, next) {
+        fontName = fontName + '';
+
+        /*
+            Load the font. If it loads, it's data will be contained in the figFonts object.
+            The callback will recieve a fontsOpts object, which contains the default
+            options of the font (its fitting rules, etc etc).
+        */
+        me.loadFont(fontName, function(err, fontOpts) {
+            if (err) {
+                next(err);
+                return;
+            }
+
+            next(null, fontOpts, figFonts[fontName].comment);
+        });
+    };
+
+    /*
+        Allows you to override defaults. See the definition of the figDefaults object up above
+        to see what properties can be overridden.
+        Returns the options for the font.
+    */
+    me.defaults = function(opts) {
+        if (typeof opts === 'object' && opts !== null) {
+            for (var prop in opts) {
+                if (opts.hasOwnProperty(prop)) {
+                    figDefaults[prop] = opts[prop];
+                }
+            }
+        }
+        return JSON.parse(JSON.stringify(figDefaults));
+    };
+
+    /*
+        Parses data from a FIGlet font file and places it into the figFonts object.
+    */
+    me.parseFont = function(fontName, data) {
+        data = data.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+        figFonts[fontName] = {};
+
+        var lines = data.split("\n");
+        var headerData = lines.splice(0,1)[0].split(" ");
+        var figFont = figFonts[fontName];
+        var opts = {};
+
+        opts.hardBlank = headerData[0].substr(5,1);
+        opts.height = parseInt(headerData[1], 10);
+        opts.baseline = parseInt(headerData[2], 10);
+        opts.maxLength = parseInt(headerData[3], 10);
+        opts.oldLayout = parseInt(headerData[4], 10);
+        opts.numCommentLines = parseInt(headerData[5], 10);
+        opts.printDirection = (headerData.length >= 6) ? parseInt(headerData[6], 10) : 0;
+        opts.fullLayout = (headerData.length >= 7) ? parseInt(headerData[7], 10) : null;
+        opts.codeTagCount = (headerData.length >= 8) ? parseInt(headerData[8], 10) : null;
+        opts.fittingRules = getSmushingRules(opts.oldLayout, opts.fullLayout);
+
+        figFont.options = opts;
+
+        // error check
+        if (opts.hardBlank.length !== 1 ||
+            isNaN(opts.height) ||
+            isNaN(opts.baseline) ||
+            isNaN(opts.maxLength) ||
+            isNaN(opts.oldLayout) ||
+            isNaN(opts.numCommentLines) )
+        {
+            throw new Error('FIGlet header contains invalid values.');
+        }
+
+        /*
+            All FIGlet fonts must contain chars 32-126, 196, 214, 220, 228, 246, 252, 223
+        */
+
+        var charNums = [], ii;
+        for (ii = 32; ii <= 126; ii++) {
+            charNums.push(ii);
+        }
+        charNums = charNums.concat(196, 214, 220, 228, 246, 252, 223);
+
+        // error check - validate that there are enough lines in the file
+        if (lines.length < (opts.numCommentLines + (opts.height * charNums.length)) ) {
+            throw new Error('FIGlet file is missing data.');
+        }
+
+        /*
+            Parse out the context of the file and put it into our figFont object
+        */
+
+        var cNum, endCharRegEx, parseError = false;
+
+        figFont.comment = lines.splice(0,opts.numCommentLines).join("\n");
+        figFont.numChars = 0;
+
+        while (lines.length > 0 && figFont.numChars < charNums.length) {
+            cNum = charNums[figFont.numChars];
+            figFont[cNum] = lines.splice(0,opts.height);
+            // remove end sub-chars
+            for (ii = 0; ii < opts.height; ii++) {
+                if (typeof figFont[cNum][ii] === "undefined") {
+                    figFont[cNum][ii] = "";
+                } else {
+                    endCharRegEx = new RegExp("\\"+figFont[cNum][ii].substr(figFont[cNum][ii].length-1,1)+"+$");
+                    figFont[cNum][ii] = figFont[cNum][ii].replace(endCharRegEx,"");
+                }
+            }
+            figFont.numChars++;
+        }
+
+        /*
+            Now we check to see if any additional characters are present
+        */
+
+        while (lines.length > 0) {
+            cNum = lines.splice(0,1)[0].split(" ")[0];
+            if ( /^0[xX][0-9a-fA-F]+$/.test(cNum) ) {
+                cNum = parseInt(cNum, 16);
+            } else if ( /^0[0-7]+$/.test(cNum) ) {
+                cNum = parseInt(cNum, 8);
+            } else if ( /^[0-9]+$/.test(cNum) ) {
+                cNum = parseInt(cNum, 10);
+            } else if ( /^-0[xX][0-9a-fA-F]+$/.test(cNum) ) {
+                cNum = parseInt(cNum, 16);
+            } else {
+                if (cNum === "") {break;}
+                // something's wrong
+                console.log("Invalid data:"+cNum);
+                parseError = true;
+                break;
+            }
+
+            figFont[cNum] = lines.splice(0,opts.height);
+            // remove end sub-chars
+            for (ii = 0; ii < opts.height; ii++) {
+                if (typeof figFont[cNum][ii] === "undefined") {
+                    figFont[cNum][ii] = "";
+                } else {
+                    endCharRegEx = new RegExp("\\"+figFont[cNum][ii].substr(figFont[cNum][ii].length-1,1)+"+$");
+                    figFont[cNum][ii] = figFont[cNum][ii].replace(endCharRegEx,"");
+                }
+            }
+            figFont.numChars++;
+        }
+
+        // error check
+        if (parseError === true) {
+            throw new Error('Error parsing data.');
+        }
+
+        return opts;
+    };
+
+    /*
+        Loads a font.
+    */
+    me.loadFont = function(fontName, next) {
+        if (figFonts[fontName]) {
+            next(null, figFonts[fontName].options);
+            return;
+        }
+
+        if (typeof fetch !== 'function') {
+          console.error('figlet.js requires the fetch API or a fetch polyfill such as https://cdnjs.com/libraries/fetch');
+          throw new Error('fetch is required for figlet.js to work.')
+        }
+
+        fetch(figDefaults.fontPath + '/' + fontName + '.flf')
+            .then(function(response) {
+                if(response.ok) {
+                    return response.text();
+                }
+            
+                console.log('Unexpected response', response);
+                throw new Error('Network response was not ok.');
+            })
+            .then(function(text) {
+                next(null, me.parseFont(fontName, text));
+            })
+            .catch(next);
+    };
+
+    /*
+        loads a font synchronously, not implemented for the browser
+     */
+    me.loadFontSync = function(name) {
+        if (figFonts[name]) {
+          return figFonts[name].options;
+        }
+        throw new Error('synchronous font loading is not implemented for the browser');
+    };
+
+    /*
+        preloads a list of fonts prior to using textSync
+        - fonts: an array of font names (i.e. ["Standard","Soft"])
+        - next: callback function
+     */
+    me.preloadFonts = function(fonts, next) {
+
+      if (typeof jQuery === 'undefined') { /* TODO: create common function for jQuery checks */
+          throw new Error('jQuery is required for ajax method to work.');
+      }
+
+      jQuery.when.apply(this, fonts.map(function(name){
+            return jQuery.get(figDefaults.fontPath + '/' + name + '.flf')
+          })).then(function() {
+                      var args = fonts.length > 1 ? arguments : [arguments];
+                      for(var i in fonts){
+                        me.parseFont(fonts[i], args[i][0]);
+                      }
+                      if(next)next();
+          });
+    };
+
+    me.figFonts = figFonts;
+    
+    return me;
+})();
+
+// for node.js
+{
+    {
+        module.exports = figlet;
+    }
+}
+});
+
+/*
+	Node plugin for figlet.js
+*/
+
+var fontDir = path$6.join(__dirname, '/../fonts/');
+
+/*
+    Loads a font into the figlet object.
+
+    Parameters:
+    - name (string): Name of the font to load.
+    - next (function): Callback function.
+*/
+figlet_1.loadFont = function(name, next) {
+    if (figlet_1.figFonts[name]) {
+        next(null, figlet_1.figFonts[name].options);
+        return;
+    }
+
+    fs$2.readFile( path$6.join(fontDir, name + '.flf'),  {encoding: 'utf-8'}, function(err, fontData) {
+        if (err) {
+            return next(err);
+        }
+
+        fontData = fontData + '';
+        try {
+            next(null, figlet_1.parseFont(name, fontData));
+        } catch(error) {
+            next(error);
+        }
+    });
+};
+
+/*
+ Loads a font synchronously into the figlet object.
+
+ Parameters:
+ - name (string): Name of the font to load.
+ */
+figlet_1.loadFontSync = function(name) {
+    if (figlet_1.figFonts[name]) {
+        return figlet_1.figFonts[name].options;
+    }
+
+    var fontData = fs$2.readFileSync( path$6.join(fontDir, name + '.flf'),  {encoding: 'utf-8'});
+
+    fontData = fontData + '';
+    return figlet_1.parseFont(name, fontData);
+};
+
+/*
+    Returns an array containing all of the font names
+*/
+figlet_1.fonts = function(next) {
+    var fontList = [];
+    fs$2.readdir(fontDir, function (err, files) { // '/' denotes the root folder
+        if (err) {
+            return next(err);
+        }
+
+        files.forEach( function (file) {
+            if ( /\.flf$/.test(file) ) {
+                fontList.push( file.replace(/\.flf$/,'') );
+            }
+        });
+
+        next(null, fontList);
+    });
+
+};
+
+figlet_1.fontsSync = function() {
+    var fontList = [];
+    fs$2.readdirSync(fontDir).forEach(function(file) {
+        if ( /\.flf$/.test(file) ) {
+            fontList.push( file.replace(/\.flf$/,'') );
+        }
+    });
+
+    return fontList;
+};
+
+var nodeFiglet = figlet_1;
+
+const DIVIDER_LENGTH = 80;
+const CHOICE_SEPARATOR = { message: "\n=-=-= END " + "=-".repeat(35) + "\n", role: 'separator' };
+const SHOW_STACK_TRACE = true;
+
+function log(message)
+{
+    console.log(message);
+}
+
+function debug(message)
+{
+    console.log(chalk$1.gray(message));
+}
+
+function error(message, expected = false)
+{
+    console.error(chalk$1.redBright(message));
+    
+    if (!expected && SHOW_STACK_TRACE)
+    {
+        console.trace(chalk$1.red(message));
+    }
+}
+
+function success(message)
+{
+    console.log(chalk$1.green(message));
+}
+
+function motivation()
+{
+    say(getMotivation());
+}
+
+function formattedError(errorMessage, depth = 0)
+{
+    if (Array.isArray(errorMessage))
+    {
+        for(const message of errorMessage)
+        {
+            if (message === '=>')
+            {
+                depth += 1;
+            }
+            else if (message === '<=')
+            {
+                depth -= 1;
+            }
+            else
+            {
+                formattedError(message, depth);
+            }
+        }
+    }
+    else
+    {
+        error('  '.repeat(depth) + ' ' + ((depth <= 0) ? '+' : '-') + ' ' + errorMessage);
+    }
+}
+
+const MAX_SKIPPED_ERRORS = 100;
+const SKIPPED_ERRORS = new Set();
+const NO_SKIP_ERRORS = new Set();
+const FORCE_SKIP_ERRORS = new Set();
+async function skippedError(message, reason = undefined)
+{
+    const errorMessage = message + " - " + (reason instanceof Error ? reason.message : reason);
+    error(errorMessage, true);
+
+    const errorHash = stringHash(errorMessage);
+    if (FORCE_SKIP_ERRORS.has(errorHash))
+    {
+        debug("...Auto-skipping error...");
+    }
+    else if (!(await ask("...Skip the error?", true).catch(e => false)))
+    {
+        throw new Error("Failed error. Aborting...");
+    }
+    else if (SKIPPED_ERRORS.has(errorHash))
+    {
+        try
+        {
+            if (await ask("...Skip this error in the future?"))
+            {
+                FORCE_SKIP_ERRORS.add(errorHash);
+            }
+            else
+            {
+                NO_SKIP_ERRORS.add(errorHash);
+            }
+        }
+        catch(e)
+        {
+            // Just ignore it.
+        }
+    }
+    else
+    {
+        if (SKIPPED_ERRORS.size > MAX_SKIPPED_ERRORS)
+        {
+            SKIPPED_ERRORS.clear();
+        }
+
+        SKIPPED_ERRORS.add(errorHash);
+    }
+}
+
+function divider(token = 'nu')
+{
+    log(chalk$1.gray(
+        token.repeat(Math.floor(DIVIDER_LENGTH / token.length))
+        + token.substring(0, DIVIDER_LENGTH % token.length)
+    ));
+}
+
+function doTheBigTitleThing(title = 'Progress Auditor', subtitle = 'Version v?.?.?')
+{
+    divider();
+    log(chalk$1.green(nodeFiglet.textSync(title, { font: 'Big' })));
+    if (subtitle)
+    {
+        log(subtitle.padStart(DIVIDER_LENGTH, ' '));
+    }
+    divider();
+}
+
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -10127,7 +10127,7 @@ async function writeTableToCSV(filepath, table)
 
 async function checkExistsOverwrite(filepath)
 {
-    return !fs.existsSync(filepath) || await ask$1(`File '${path.basename(filepath)}' already exists. Are you sure you want to overwrite it?`);
+    return !fs.existsSync(filepath) || await ask(`File '${path.basename(filepath)}' already exists. Are you sure you want to overwrite it?`);
 }
 
 var FileUtil = /*#__PURE__*/Object.freeze({
@@ -10439,7 +10439,7 @@ function mergeConfigs(src, dst)
 
 function ifFailAndAgain(message, expected = true)
 {
-    return async result => !result && (Boolean(await ask$1(message)) === expected);
+    return async result => !result && (Boolean(await ask(message)) === expected);
 }
 
 function createResolver()
@@ -10457,7 +10457,7 @@ function createResolver()
                 let answer = false;
                 if (typeof this._init === 'string')
                 {
-                    answer = await ask$1(this._init);
+                    answer = await ask(this._init);
                 }
                 else if (typeof this._init === 'function')
                 {
@@ -10497,7 +10497,7 @@ function createResolver()
                         }
                         else if (typeof this._again === 'string')
                         {
-                            if (await ask$1(this._again))
+                            if (await ask(this._again))
                             {
                                 running = true;
                             }
@@ -10833,19 +10833,19 @@ async function askWhetherDatabaseIsValidToUse(db, config)
     log(` - Review(s): ${getReviewCount(db)}`);
     log('');
 
-    return await ask$1("Is this correct?");
+    return await ask("Is this correct?");
 }
 
 async function askWhetherToIgnoreErrors(db, config, errors)
 {
     // Let the client decide whether to skip these errors...
-    return await ask$1(`Do you want to continue despite ${errors.length} error(s)?`);
+    return await ask(`Do you want to continue despite ${errors.length} error(s)?`);
 }
 
 async function askWhetherToSaveNewReviews(db, config, reviews)
 {
     // Let the client decide whether to save it...
-    return await ask$1(`Do you want to save the new ${reviews.length} review(s)?`);
+    return await ask(`Do you want to save the new ${reviews.length} review(s)?`);
 }
 
 async function askWhetherToReviewErrors(db, config, errors)
@@ -10853,7 +10853,7 @@ async function askWhetherToReviewErrors(db, config, errors)
     // Let the client decide whether to review the errors...
     error(`Found ${errors.length} errors. :(`, true);
     motivation();
-    const result = await ask$1("Do you want to review them now?", true);
+    const result = await ask("Do you want to review them now?", true);
     if (!result)
     {
         log(`Skipping errors...${Math.random() > 0.6 ? chalk$2.gray(`(I trust you)...`) : ''}`);
@@ -10864,7 +10864,7 @@ async function askWhetherToReviewErrors(db, config, errors)
 async function askWhetherToSaveDebugInfo()
 {
     // Let the client decide whether to save debug info (which can contain user info)...
-    return await ask$1(`Do you want to save debug info? It will contain user information.`);
+    return await ask(`Do you want to save debug info? It will contain user information.`);
 }
 
 async function showSkippingDebugLog()
@@ -13046,8 +13046,8 @@ async function resolveInputs(directory)
         })
         .again(async result =>
         {
-            if (result) return await ask$1("Do you want to add another input?");
-            return await ask$1("Do you want to try again?");
+            if (result) return await ask("Do you want to add another input?");
+            return await ask("Do you want to try again?");
         })
         .resolve();
     
@@ -13056,9 +13056,11 @@ async function resolveInputs(directory)
 
 async function resolveOutputs(directory)
 {
+    let choices = getOutputTypes();
     const outputs = await askPrompt("Which outputs do you want to generate?", 'select', {
         multiple: true,
-        choices: getOutputTypes(),
+        choices,
+        initial: choices.slice(),
     });
 
     // TODO: This is should somehow allow loading custom output scripts.
@@ -13073,7 +13075,7 @@ async function resolveOutputs(directory)
 async function resolveAssignments(directory)
 {
     const assignments = [];
-    if (await ask$1("Want to use the default assignments? (intro, week, last)"))
+    if (await ask("Want to use the default assignments? (intro, week, last)"))
     {
         assignments.push(
             {
@@ -13143,7 +13145,7 @@ async function resolveAssignments(directory)
 async function resolveInputPath(directory)
 {
     const path = require('path');
-    const inputPath = await askPath("Specify a new input path", directory, true, true);
+    const inputPath = await askPath("Specify a new input path (directory with your input files)", directory, true, true);
     return path.resolve(directory, inputPath);
 }
 
@@ -14239,7 +14241,7 @@ async function askClientToReviewErrors(errors)
     log(errorSolutions);
 
     // Show more info for each one...
-    if (await ask$1("Show more info?"))
+    if (await ask("Show more info?"))
     {
         for(const error of errors)
         {
@@ -14247,7 +14249,7 @@ async function askClientToReviewErrors(errors)
         }
     }
 
-    return await ask$1("Continue to review?");
+    return await ask("Continue to review?");
 }
 
 async function showErrorInfo(error$1)
@@ -14459,7 +14461,7 @@ async function resolveDatabase(config)
     // Check with the user if it is okay to continue, based on some data stats...
     if (!await verifyDatabaseWithClient(db, config))
     {
-        throw new Error('Could not resolve database for program. Please update the config to match your specifications, then try again. Stopping program...');
+        throw new Error('Could not resolve database for program. Please update the config to match your specifications, then try again.');
     }
     return db;
 }
@@ -14621,8 +14623,6 @@ async function onOutput(db, config)
 
 async function onError(db, config, error)
 {
-    formattedError(error, (config && config.debug) || false);
-    
     try
     {
         // Last ditch attempt to save progress...
@@ -14634,6 +14634,17 @@ async function onError(db, config, error)
 async function onStop(db, config)
 {
 
+}
+
+async function showError(db, config, error)
+{
+    formattedError(error, (config && config.debug) || false);
+}
+
+async function tryRestartOnError(db, config, error)
+{
+    // Usually we ask after an error or something.
+    return await ask('Could not resolve errors. Restart?');
 }
 
 // NOTE: This should be it's own bundled file for plugins to use. But for now, it's a global.
@@ -14672,8 +14683,17 @@ async function main(args)
     }
     catch(e)
     {
-        await onError(db, config, e);
-        return false;
+        await showError(db, config, e);
+
+        if (await tryRestartOnError())
+        {
+            return await main(args);
+        }
+        else
+        {
+            await onError(db, config, e);
+            return false;
+        }
     }
 
     await onStop();

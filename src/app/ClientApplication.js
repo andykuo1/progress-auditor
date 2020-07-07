@@ -72,8 +72,6 @@ export async function onOutput(db, config)
 
 export async function onError(db, config, error)
 {
-    Client.formattedError(error, (config && config.debug) || false);
-    
     try
     {
         // Last ditch attempt to save progress...
@@ -85,4 +83,15 @@ export async function onError(db, config, error)
 export async function onStop(db, config)
 {
 
+}
+
+export async function showError(db, config, error)
+{
+    Client.formattedError(error, (config && config.debug) || false);
+}
+
+export async function tryRestartOnError(db, config, error)
+{
+    // Usually we ask after an error or something.
+    return await Client.ask('Could not resolve errors. Restart?');
 }
