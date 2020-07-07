@@ -14551,7 +14551,7 @@ async function generateOutput(db, config)
     }
 }
 
-const version = "1.0.0";
+const version = "1.0.1";
 
 /**
  * This file handles the extra client interface of the program.
