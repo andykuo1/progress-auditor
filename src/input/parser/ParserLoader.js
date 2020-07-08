@@ -1,4 +1,5 @@
 import * as CohortParser from './CohortParser.js';
+import * as CohortParser2020 from './CohortParser2020.js';
 import * as ContributionsParser from './ContributionsParser.js';
 import * as ReviewsParser from './ReviewsParser.js';
 
@@ -16,6 +17,7 @@ export function loadParserByType(parserType)
     switch(parserType)
     {
         case 'cohort': return CohortParser;
+        case 'cohort2020': return CohortParser2020;
         case 'contributions': return ContributionsParser;
         case 'reviews': return ReviewsParser;
         default:
