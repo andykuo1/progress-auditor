@@ -30,9 +30,9 @@ export async function run(db, config, errors, cache = {})
         if (!chosenErrorIDs) throw null;
         
         const chosenErrors = [];
-        for(const errorID of chosenErrorIDs)
+        for(const chosenErrorID of chosenErrorIDs)
         {
-            const error = errorMapping.get(errorID);
+            const error = errorMapping.get(Number(chosenErrorID));
             chosenErrors.push(error);
         }
     
@@ -61,11 +61,12 @@ async function askChooseError(message, errors, errorMapping)
 
     for(const error of errors)
     {
+        console.log(error);
         if (!errorMapping.has(error.id)) throw new Error('Error map does not match error list.');
         choices.push({
-            name: error.id,
+            name: String(error.id),
             message: formatErrorAsChoice(error),
-            value: error.id,
+            value: String(error.id),
         });
     }
     choices.push(Client.CHOICE_SEPARATOR);
@@ -74,10 +75,15 @@ async function askChooseError(message, errors, errorMapping)
         multiple: true,
         limit: 4,
         choices,
-        validate: result => {
+        validate: (result, state) => {
             if (result.length <= 0) return "Must select at least one error (use 'space' to select).";
-            const type = errorMapping.get(result[0]).type;
-            for(const errorID of result)
+
+            // NOTE: Error ids are number types, but prompt values MUST be strings.
+            let errorIds = result.map(value => Number(value));
+            if (!errorMapping.has(errorIds[0])) return "This error can only be fixed in file.";
+
+            const type = errorMapping.get(errorIds[0]).type;
+            for(const errorID of errorIds)
             {
                 const error = errorMapping.get(errorID);
                 if (error.type !== type)
