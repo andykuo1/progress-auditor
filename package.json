@@ -1,6 +1,6 @@
 {
   "name": "progress-auditor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A program that streamlines and tracks the grading and logistics of discussion-based turnin processes.",
   "main": "./src/main.js",
   "bin": "./dist/src/bundle.js",
