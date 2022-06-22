@@ -1,8 +1,0 @@
-{
-    "debug": true,
-    "scheme": "piazza",
-    "include": [
-        "./__TEST__/in/2019-2"
-    ],
-    "outputPath": "./__TEST__/out/"
-}

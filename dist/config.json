@@ -1,8 +1,9 @@
 {
-    "currentDate": "2019-09-07",
-    "inputPath": "./__TEST__/in/2019-09-07",
+    "currentDate": "2022-06-21",
     "include": [],
     "scheme": "piazza",
+    "inputPath": "./inputs",
+    "outputPath": "./outputs",
     "outputAutoDate": true,
     "debug": true,
     "assignments": [
@@ -35,10 +36,10 @@
         },
         {
             "inputName": "cohort.csv",
-            "parser": "cohort",
+            "parser": "cohort2020",
             "opts": {
                 "maxEndDates": [
-                    { "pattern": "Special Summer Session 2019", "endDate": "2019-9-6" }
+                    { "pattern": "Special Summer Session 2022", "endDate": "2022-09-02" }
                 ]
             }
         }

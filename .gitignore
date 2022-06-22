@@ -1,5 +1,6 @@
 /node_modules/
 /out/
+/dist/inputs/
 __TEST__
 progress-auditor-linux
 progress-auditor-macos
